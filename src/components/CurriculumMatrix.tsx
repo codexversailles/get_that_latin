@@ -98,11 +98,11 @@ const SubjectRow = memo(function SubjectRow({
             patch: { units: Number(e.target.value) },
           })
         }
-        className="h-8 w-14 shrink-0 border border-navy-800 bg-navy-950 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:w-auto sm:px-2"
+        className="h-8 shrink-0 border border-navy-800 bg-navy-950 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:px-2"
       >
         {UNIT_OPTIONS.map((u) => (
           <option key={u} value={u} className="bg-obsidian">
-            {u}u
+            {u} {u === 1 ? 'unit' : 'units'}
           </option>
         ))}
       </select>
@@ -193,11 +193,11 @@ function AddSubjectForm({
         aria-label="New subject units"
         value={units}
         onChange={(e) => setUnits(Number(e.target.value))}
-        className="h-8 w-14 shrink-0 border border-navy-800 bg-navy-950/90 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:h-9 sm:w-auto sm:px-2"
+        className="h-8 shrink-0 border border-navy-800 bg-navy-950/90 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:h-9 sm:px-2"
       >
         {UNIT_OPTIONS.map((u) => (
           <option key={u} value={u}>
-            {u}u
+            {u} {u === 1 ? 'unit' : 'units'}
           </option>
         ))}
       </select>
@@ -250,7 +250,7 @@ function SemesterBlock({
 
         <div className="flex items-center gap-2.5 font-mono text-xs tabular sm:gap-3">
           <span className="text-slate-400">
-            {summary.gradedUnits.toFixed(0)}/{summary.totalUnits.toFixed(0)}u
+            {summary.gradedUnits.toFixed(0)}/{summary.totalUnits.toFixed(0)} units
           </span>
           <span className={summary.gwa === null ? 'text-slate-500' : 'font-semibold text-gold-400'}>
             GWA {formatGwa(summary.gwa, 2)}
@@ -357,7 +357,7 @@ export function CurriculumMatrix({
               <div className="flex items-center gap-2.5">
                 <h3 className="text-sm font-bold text-white">{y.label}</h3>
                 <span className="font-mono text-xs text-slate-400 tabular">
-                  <span className="hidden sm:inline">{ySum.gradedUnits.toFixed(0)}/{ySum.totalUnits.toFixed(0)}u · </span>
+                  <span className="hidden sm:inline">{ySum.gradedUnits.toFixed(0)}/{ySum.totalUnits.toFixed(0)} units · </span>
                   GWA{' '}
                   <span className={ySum.gwa === null ? 'text-slate-500' : 'font-semibold text-gold-400'}>
                     {formatGwa(ySum.gwa, 2)}

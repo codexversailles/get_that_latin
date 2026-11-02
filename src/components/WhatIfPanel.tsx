@@ -68,7 +68,7 @@ export function WhatIfPanel({
                       {sub.name}
                     </div>
                     <div className="text-[11px] text-slate-400">
-                      {yearLabel} · {semName} ({sub.units}u)
+                      {yearLabel} · {semName} ({sub.units} {sub.units === 1 ? 'unit' : 'units'})
                     </div>
                   </div>
 
@@ -154,7 +154,7 @@ export function WhatIfPanel({
             <option value="">Select an ungraded subject to test…</option>
             {addable.map(({ subject: sub, yearLabel }) => (
               <option key={sub.id} value={sub.id} className="bg-obsidian text-white">
-                {sub.name} ({sub.units}u · {yearLabel})
+                {sub.name} ({sub.units} {sub.units === 1 ? 'unit' : 'units'} · {yearLabel})
               </option>
             ))}
           </select>

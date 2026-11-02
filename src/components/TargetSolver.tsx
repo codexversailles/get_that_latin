@@ -75,7 +75,7 @@ export function TargetSolver({
       step="1"
       title="Target Honor Goal"
       subtitle="Select a Latin Honor tier to see the average grade required across your remaining subjects."
-      meta={`${ledger.remainingUnits.toFixed(0)}u ungraded`}
+      meta={`${ledger.remainingUnits.toFixed(0)} units ungraded`}
     >
       <div className="space-y-2">
         {HONOR_TIERS.map((t) => {
