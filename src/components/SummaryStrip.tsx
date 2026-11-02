@@ -21,6 +21,10 @@ export function SummaryStrip({
   const targetTier = HONOR_TIERS.find((t) => Math.abs(t.max - target) < 1e-4);
   const goalName = targetTier ? targetTier.label : `a ${target.toFixed(2)} GWA`;
 
+  const gradedYears = ledger.gradedYearsCount ?? 0;
+  const totalYearsEntered = ledger.yearsWithSubjectsCount ?? 0;
+  const isGradComplete = !!ledger.isGraduationComplete;
+
   let headline = 'Add your completed and upcoming subjects below to see your GWA and Latin Honors standing.';
   let headlineTone = 'text-slate-300';
 
@@ -28,30 +32,43 @@ export function SummaryStrip({
     headline = `A failing grade (5.00) in ${hard.map((d) => d.code).join(', ')} disqualifies Latin Honors eligibility.`;
     headlineTone = 'text-rose-300';
   } else if (ledger.totalUnits > 0 && ledger.remainingUnits === 0 && ledger.completedUnits > 0) {
-    headline = tier
-      ? `All added subjects are graded — your GWA qualifies for ${tier.label}!`
-      : 'Add your upcoming ungraded subjects too to calculate the exact grades you need for Latin Honors.';
-    headlineTone = tier ? 'text-gold-300' : 'text-slate-300';
+    if (!isGradComplete) {
+      headline = `Only ${gradedYears} of 4 years graded so far (${tier ? `on ${tier.label} pace` : 'currently > 1.75'}). Latin Honors requires all 4 years — add your remaining years and ungraded subjects below to forecast graduation.`;
+      headlineTone = 'text-amber-300';
+    } else {
+      headline = tier
+        ? `All 4 years are graded — your final GWA qualifies for ${tier.label}!`
+        : 'All 4 years are graded — final GWA is above the 1.75 Latin Honors cutoff.';
+      headlineTone = tier ? 'text-gold-300' : 'text-slate-300';
+    }
   } else if (ledger.completedUnits > 0 && solver.remainingUnits > 0) {
+    const partialNote =
+      totalYearsEntered < 4
+        ? ` (Based on ${totalYearsEntered} of 4 years entered — add remaining years for full graduation accuracy.)`
+        : '';
     if (solver.status === 'SECURED') {
       headline = `On track for ${goalName} — even 3.00s in your remaining ${solver.remainingUnits.toFixed(0)} units keep you within the cutoff.`;
       headlineTone = 'text-gold-300';
     } else if (solver.status === 'FEASIBLE' && solver.requiredAverage !== null) {
-      headline = `To graduate as ${goalName}, maintain an average of ${solver.requiredAverage.toFixed(2)} or better across your remaining ${solver.remainingUnits.toFixed(0)} ungraded units.`;
+      headline = `To reach ${goalName}, maintain an average of ${solver.requiredAverage.toFixed(2)} or better across your ${solver.remainingUnits.toFixed(0)} ungraded units.${partialNote}`;
       headlineTone = 'text-white';
     } else if (solver.status === 'IMPOSSIBLE' && solver.bestPossibleGwa !== null) {
-      headline = `${goalName} (${target.toFixed(2)}) is out of reach — straight 1.00s in your remaining ${solver.remainingUnits.toFixed(0)} units reach ${solver.bestPossibleGwa.toFixed(4)}.`;
+      headline = `${goalName} (${target.toFixed(2)}) is out of reach on current units — straight 1.00s in your remaining ${solver.remainingUnits.toFixed(0)} units reach ${solver.bestPossibleGwa.toFixed(4)}.${partialNote}`;
       headlineTone = 'text-amber-300';
     }
   }
 
   const standingLabel = ledger.hardDisqualified
     ? 'Not Eligible'
-    : tier
-      ? tier.label
-      : ledger.gwa === null
-        ? 'Awaiting Grades'
-        : 'Regular (> 1.75)';
+    : ledger.gwa === null
+      ? 'Awaiting Grades'
+      : !isGradComplete
+        ? gradedYears < 4
+          ? `Yr ${gradedYears} of 4 (${tier ? `${tier.short} Pace` : '> 1.75'})`
+          : `In Progress (${tier ? `${tier.short} Pace` : '> 1.75'})`
+        : tier
+          ? tier.label
+          : 'Regular (> 1.75)';
 
   return (
     <section className="my-3.5 sm:my-5">
@@ -185,7 +202,12 @@ export function SummaryStrip({
 
           {hard.length === 0 && soft.length === 0 && ledger.gwa !== null && (
             <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
-              <CheckCircle2 size={12} className="text-gold-400" /> Eligible — no 5.00 or INC
+              <CheckCircle2 size={12} className="shrink-0 text-gold-400" />
+              <span>
+                {isGradComplete
+                  ? 'All 4 years completed — no 5.00 or INC'
+                  : `Provisional pace (${gradedYears} of 4 yrs graded) — full 4-year grades required`}
+              </span>
             </div>
           )}
           {hard.length === 0 && soft.length === 0 && ledger.gwa === null && (

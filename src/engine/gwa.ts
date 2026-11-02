@@ -199,6 +199,25 @@ export function buildLedger(p: Prospectus, rec: ProgramRecord, mode: HonorsMode)
   const fixedPoints = completedPoints + whatIfPoints;
   const remainingUnits = pending.reduce((s, x) => s + x.course.units, 0);
 
+  const yearsWithSubjects = new Set<number>();
+  const gradedYears = new Set<number>();
+  for (const sem of p.semesters) {
+    for (const c of sem.courses) {
+      if (!inScope(c, mode)) continue;
+      yearsWithSubjects.add(sem.yearLevel);
+      if (isNumericGrade(rec.grades[c.code])) {
+        gradedYears.add(sem.yearLevel);
+      }
+    }
+  }
+  const yearsWithSubjectsCount = yearsWithSubjects.size;
+  const gradedYearsCount = gradedYears.size;
+  const isGraduationComplete =
+    yearsWithSubjectsCount >= 4 &&
+    gradedYearsCount >= 4 &&
+    remainingUnits === 0 &&
+    completedUnits > 0;
+
   return {
     mode,
     totalUnits,
@@ -213,6 +232,9 @@ export function buildLedger(p: Prospectus, rec: ProgramRecord, mode: HonorsMode)
     remainingUnits,
     disqualifiers,
     hardDisqualified: disqualifiers.some((d) => d.severity === 'hard'),
+    gradedYearsCount,
+    yearsWithSubjectsCount,
+    isGraduationComplete,
   };
 }
 

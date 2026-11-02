@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ProspectusSchema,
   buildLedger,
+  buildStudentLedger,
   classifyGwa,
   emptyRecord,
   parseGrade,
@@ -112,6 +113,29 @@ describe('target solver', () => {
     for (const c of p.semesters.slice(0, 7).flatMap((s) => s.courses)) grades[c.code] = 1.0;
     const s = solveTarget(buildLedger(p, rec(grades), 'academic'), 1.75);
     expect(s.status).toBe('SECURED');
+  });
+  it('does not assume Summa/ACHIEVED when a freshman, sophomore, or 3rd-year only uploads 1-3 years of grades', () => {
+    const oneYearOnly = [
+      {
+        id: 'y1',
+        label: '1st Year',
+        semesters: [
+          {
+            id: 's1',
+            name: '1st Semester',
+            subjects: [
+              { id: 'c1', name: 'IT 111', units: 3, grade: 1.0 },
+              { id: 'c2', name: 'IT 112', units: 3, grade: 1.25 },
+            ],
+          },
+        ],
+      },
+    ];
+    const ledger = buildStudentLedger(oneYearOnly, 'academic');
+    expect(ledger.isGraduationComplete).toBe(false);
+    expect(ledger.gradedYearsCount).toBe(1);
+    const s = solveTarget(ledger, 1.25);
+    expect(s.status).toBe('INCOMPLETE_CURRICULUM');
   });
 });
 

@@ -42,10 +42,17 @@ export default function App() {
   );
 
   const simInput = useMemo<SimInput | null>(() => {
+    const explicitRemaining = ledger.pending.map((x) => ({ units: x.course.units, mean: x.midterm }));
+    const yearsEntered = ledger.yearsWithSubjectsCount ?? 0;
+    const missingYears = yearsEntered > 0 && yearsEntered < 4 ? 4 - yearsEntered : 0;
+    // Each missing academic year in a 4-year USTP degree is modeled as 12 × 3-unit courses (36 units/yr)
+    // so 1st-year, sophomore, and 3rd-year students are never assumed 100% locked into their current GWA.
+    const estimatedFutureCourses = Array.from({ length: missingYears * 12 }, () => ({ units: 3 }));
+
     return {
       fixedPoints: ledger.fixedPoints,
       fixedUnits: ledger.fixedUnits,
-      remaining: ledger.pending.map((x) => ({ units: x.course.units, mean: x.midterm })),
+      remaining: [...explicitRemaining, ...estimatedFutureCourses],
       mean: moments.mean,
       std: moments.std,
       shift: sim.shift,
@@ -137,6 +144,7 @@ export default function App() {
                   marker={ledger.whatIfUnits > 0 ? ledger.projectedGwa : ledger.gwa}
                   hardDisqualified={ledger.hardDisqualified}
                   pendingInc={ledger.disqualifiers.filter((d) => d.severity === 'pending').length}
+                  yearsEntered={ledger.yearsWithSubjectsCount ?? 0}
                 />
               </div>
             </div>

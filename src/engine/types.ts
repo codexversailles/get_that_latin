@@ -83,4 +83,10 @@ export interface Ledger {
   remainingUnits: number;
   disqualifiers: Disqualifier[];
   hardDisqualified: boolean;
+  /** Number of distinct academic year levels that have at least one graded subject. */
+  gradedYearsCount?: number;
+  /** Number of distinct academic year levels that have at least one subject (graded or ungraded). */
+  yearsWithSubjectsCount?: number;
+  /** True only when at least 4 academic years have subjects, all 4+ years have grades, and 0 ungraded units remain. */
+  isGraduationComplete?: boolean;
 }

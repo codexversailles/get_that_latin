@@ -3,10 +3,11 @@ import { round4 } from './honors';
 import type { Ledger } from './types';
 
 export type SolverStatus =
-  | 'SECURED' // any passing grade (≤ 3.00) on remaining units keeps the target
+  | 'SECURED' // any passing grade (≤ 3.00) on remaining units keeps the target (when full 4-yr curriculum is present)
   | 'FEASIBLE' // requires an average between 1.00 and 3.00
   | 'IMPOSSIBLE' // would require better than straight 1.00s
-  | 'ACHIEVED' // nothing remaining and target met
+  | 'ACHIEVED' // nothing remaining, all 4+ years graded, and target met
+  | 'INCOMPLETE_CURRICULUM' // nothing remaining in entered subjects, but < 4 years of grades uploaded
   | 'MISSED' // nothing remaining and target missed
   | 'DISQUALIFIED'; // a hard disqualifier exists
 
@@ -45,6 +46,17 @@ export function solveTarget(ledger: Ledger, target: number): SolverResult {
 
   if (remainingUnits <= 0) {
     const final = fixedUnits > 0 ? fixedPoints / fixedUnits : null;
+    if (final !== null && ledger.isGraduationComplete === false) {
+      return {
+        ...base,
+        status: 'INCOMPLETE_CURRICULUM',
+        requiredAverage: null,
+        requiredStep: null,
+        bestPossibleGwa: null,
+        worstPassingGwa: null,
+        deficit: null,
+      };
+    }
     const ok = final !== null && round4(final) <= target;
     return {
       ...base,
@@ -71,11 +83,15 @@ export function solveTarget(ledger: Ledger, target: number): SolverResult {
     };
   }
 
-  if (required >= WORST_PASSING) {
+  const hasFullFourYearCurriculum =
+    ledger.yearsWithSubjectsCount === undefined || ledger.yearsWithSubjectsCount >= 4;
+
+  if (required >= WORST_PASSING && hasFullFourYearCurriculum) {
     return { ...base, status: 'SECURED', requiredAverage: required, requiredStep: WORST_PASSING, bestPossibleGwa, worstPassingGwa, deficit: null };
   }
 
-  // Lower grades are better, so round DOWN onto the 0.25 grid.
-  const requiredStep = Math.max(BEST_GRADE, Math.floor((required + 1e-9) * 4) / 4);
-  return { ...base, status: 'FEASIBLE', requiredAverage: required, requiredStep, bestPossibleGwa, worstPassingGwa, deficit: null };
+  // Lower grades are better, so round DOWN onto the 0.25 grid (clamped to [1.00, 3.00]).
+  const clampedReq = Math.min(WORST_PASSING, required);
+  const requiredStep = Math.max(BEST_GRADE, Math.floor((clampedReq + 1e-9) * 4) / 4);
+  return { ...base, status: 'FEASIBLE', requiredAverage: clampedReq, requiredStep, bestPossibleGwa, worstPassingGwa, deficit: null };
 }

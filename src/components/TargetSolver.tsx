@@ -5,9 +5,10 @@ import { Panel, cx } from './ui';
 function describeStatus(
   r: SolverResult,
   label: string,
-  totalUnits: number,
+  ledger: Ledger,
   maxCutoff: number,
 ): { badge: string; detail: string; tone: string; reachable: boolean } {
+  const { totalUnits, gradedYearsCount = 0, yearsWithSubjectsCount = 0 } = ledger;
   if (totalUnits === 0) {
     return {
       badge: `≤ ${maxCutoff.toFixed(2)}`,
@@ -23,18 +24,30 @@ function describeStatus(
         badge: 'Secured',
         detail:
           r.remainingUnits > 0
-            ? `Any passing grade (up to 3.00) keeps you in ${label}.`
-            : `Your completed GWA qualifies for ${label}.`,
+            ? `Any passing grade (up to 3.00) across your remaining ${r.remainingUnits.toFixed(0)} units keeps you in ${label}.`
+            : `All 4 years are graded and your final GWA qualifies for ${label}.`,
         tone: 'text-gold-300 border-gold-500/50 bg-gold-500/15',
         reachable: true,
       };
-    case 'FEASIBLE':
+    case 'INCOMPLETE_CURRICULUM':
+      return {
+        badge: `Yr ${gradedYearsCount} of 4 only`,
+        detail: `Only ${gradedYearsCount} of 4 years graded so far. Add your remaining years & ungraded subjects to calculate the average needed for ${label}.`,
+        tone: 'text-amber-300 border-amber-500/40 bg-amber-500/10',
+        reachable: true,
+      };
+    case 'FEASIBLE': {
+      const partialNote =
+        yearsWithSubjectsCount > 0 && yearsWithSubjectsCount < 4
+          ? ` (Only ${yearsWithSubjectsCount} of 4 years added so far — add remaining years for full graduation accuracy.)`
+          : '';
       return {
         badge: `Avg ≤ ${formatGwa(r.requiredAverage, 2)}`,
-        detail: `Need at least a ${formatGwa(r.requiredAverage, 2)} average (≈ straight ${r.requiredStep?.toFixed(2)}s) across ${r.remainingUnits.toFixed(0)} ungraded units.`,
+        detail: `Need at least a ${formatGwa(r.requiredAverage, 2)} average (≈ straight ${r.requiredStep?.toFixed(2)}s) across ${r.remainingUnits.toFixed(0)} ungraded units.${partialNote}`,
         tone: 'text-white border-navy-700 bg-navy-900',
         reachable: true,
       };
+    }
     case 'IMPOSSIBLE':
       return {
         badge: 'Out of reach',
@@ -45,7 +58,7 @@ function describeStatus(
     case 'MISSED':
       return {
         badge: 'Above cutoff',
-        detail: 'Add upcoming ungraded subjects to see what grades you need to pull your GWA up.',
+        detail: 'Final GWA across all 4 years is above this cutoff.',
         tone: 'text-amber-300 border-amber-500/40 bg-amber-500/10',
         reachable: false,
       };
@@ -80,7 +93,7 @@ export function TargetSolver({
       <div className="space-y-2">
         {HONOR_TIERS.map((t) => {
           const r = solveTarget(ledger, t.max);
-          const info = describeStatus(r, t.label, ledger.totalUnits, t.max);
+          const info = describeStatus(r, t.label, ledger, t.max);
           const selected = Math.abs(target - t.max) < 1e-4;
 
           return (
@@ -117,7 +130,7 @@ export function TargetSolver({
       </div>
 
       {/* Best vs Worst case summary */}
-      {ledger.totalUnits > 0 && (
+      {ledger.totalUnits > 0 && activeResult.bestPossibleGwa !== null && (
         <div className="mt-4 grid grid-cols-2 gap-2.5 border-t border-navy-800 pt-3.5">
           <div className="border border-navy-800 bg-navy-950/80 p-2.5">
             <div className="text-[11px] text-slate-400">Best reachable GWA</div>

@@ -21,6 +21,7 @@ export function ProbabilityPanel({
   marker,
   hardDisqualified,
   pendingInc,
+  yearsEntered = 0,
 }: {
   result: SimResult | null;
   busy: boolean;
@@ -31,8 +32,10 @@ export function ProbabilityPanel({
   marker: number | null;
   hardDisqualified: boolean;
   pendingInc: number;
+  yearsEntered?: number;
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const missingYears = yearsEntered > 0 && yearsEntered < 4 ? 4 - yearsEntered : 0;
 
   const probs: Array<[string, string, number]> = result
     ? [
@@ -57,6 +60,16 @@ export function ProbabilityPanel({
       {hardDisqualified && (
         <div className="mb-3 border-l-2 border-rose-500 bg-rose-500/10 p-2.5 text-xs text-rose-300">
           A failing grade (5.00) is on record — Latin Honors eligibility is zero.
+        </div>
+      )}
+
+      {!hardDisqualified && missingYears > 0 && (
+        <div className="mb-3 border-l-2 border-amber-400 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
+          <strong>Yr {yearsEntered} of 4 entered:</strong> Automatically simulating your remaining{' '}
+          <strong>
+            {missingYears} unentered year{missingYears > 1 ? 's' : ''} ({missingYears * 36} units)
+          </strong>{' '}
+          to 4th Year so partial grades are never assumed as guaranteed Latin Honors.
         </div>
       )}
 
