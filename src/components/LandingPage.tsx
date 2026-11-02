@@ -131,7 +131,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                       (T·Units − Pts) ÷ Rem
                     </div>
                     <p className="mt-1.5 text-[11px] text-slate-400">
-                      Solves the exact average needed in ungraded units for Summa (<span className="font-mono text-slate-200">≤1.25</span>), Magna (<span className="font-mono text-slate-200">≤1.50</span>), or Cum (<span className="font-mono text-slate-200">≤1.75</span>).
+                      Solves the exact average needed in ungraded units for Summa Cum Laude (<span className="font-mono text-slate-200">≤1.25</span>), Magna Cum Laude (<span className="font-mono text-slate-200">≤1.50</span>), or Cum Laude (<span className="font-mono text-slate-200">≤1.75</span>).
                     </p>
                   </li>
 
