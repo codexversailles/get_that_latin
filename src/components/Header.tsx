@@ -23,7 +23,7 @@ export function Header({
 
   return (
     <header className="border-b border-navy-800 bg-navy-950/90 backdrop-blur">
-      <div className="mx-auto flex max-w-[1360px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-8">
+      <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-2 px-4 py-2.5 sm:px-6 sm:py-3 md:px-8">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
@@ -42,22 +42,35 @@ export function Header({
         </div>
 
         <div className="flex items-center gap-2">
-          <Segmented<HonorsMode>
-            value={mode}
-            onChange={onMode}
-            options={[
-              {
-                value: 'academic',
-                label: 'Exclude NSTP',
-                title: 'Official Latin Honors GWA (excludes NSTP subjects per RA 9163)',
-              },
-              {
-                value: 'institutional',
-                label: 'Include All',
-                title: 'Includes every subject in your GWA',
-              },
-            ]}
-          />
+          {/* Desktop / Tablet NSTP Segmented Toggle */}
+          <div className="hidden sm:block">
+            <Segmented<HonorsMode>
+              value={mode}
+              onChange={onMode}
+              options={[
+                {
+                  value: 'academic',
+                  label: 'Exclude NSTP',
+                  title: 'Official Latin Honors GWA (excludes NSTP subjects per RA 9163)',
+                },
+                {
+                  value: 'institutional',
+                  label: 'Include All',
+                  title: 'Includes every subject in your GWA',
+                },
+              ]}
+            />
+          </div>
+
+          {/* Mobile compact mode toggle pill */}
+          <button
+            type="button"
+            onClick={() => onMode(mode === 'academic' ? 'institutional' : 'academic')}
+            className="inline-flex h-8 cursor-pointer items-center border border-navy-800 bg-navy-950 px-2.5 font-mono text-[11px] text-slate-300 sm:hidden"
+            title="Tap to switch NSTP inclusion mode"
+          >
+            {mode === 'academic' ? 'No NSTP' : 'All Subj.'}
+          </button>
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-1.5 md:flex">
@@ -74,13 +87,13 @@ export function Header({
 
           {/* Mobile actions dropdown */}
           <div className="relative md:hidden">
-            <Button onClick={() => setMenuOpen((v) => !v)} title="Backup or reset" className="px-2">
+            <Button onClick={() => setMenuOpen((v) => !v)} title="Backup or reset" className="h-8 px-2">
               <MoreVertical size={15} />
             </Button>
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 z-40 mt-1 w-44 border border-navy-700 bg-navy-950 p-1 shadow-xl">
+                <div className="absolute right-0 z-40 mt-1 w-48 border border-navy-700 bg-navy-950 p-1 shadow-xl">
                   <button
                     type="button"
                     onClick={() => {

@@ -45,109 +45,180 @@ export function SummaryStrip({
     }
   }
 
+  const standingLabel = ledger.hardDisqualified
+    ? 'Not Eligible'
+    : tier
+      ? tier.label
+      : ledger.gwa === null
+        ? 'Awaiting Grades'
+        : 'Regular (> 1.75)';
+
   return (
-    <section className="my-6 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-12">
-      {/* Card 1: Current GWA */}
-      <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-4 sm:p-5 lg:col-span-4">
-        <Label>{mode === 'academic' ? 'Current Honors GWA' : 'Current GWA (All Subjects)'}</Label>
-        <div className="mt-2 flex items-baseline gap-2.5">
-          <span
-            className={cx(
-              'font-mono text-4xl font-bold tracking-tight tabular sm:text-5xl',
-              ledger.gwa === null ? 'text-slate-600' : 'text-white',
-            )}
-          >
-            {formatGwa(ledger.gwa)}
-          </span>
-          {ledger.gwa !== null && (
-            <span className="font-mono text-xs text-gold-400">({ledger.gwa.toFixed(2)})</span>
-          )}
-        </div>
-        <div className="mt-2 font-mono text-[11px] text-slate-400">
-          {ledger.completedUnits > 0
-            ? `${ledger.completedUnits.toFixed(0)} graded units · ${ledger.remainingUnits.toFixed(0)} ungraded units`
-            : 'No graded subjects yet'}
-        </div>
-      </div>
+    <section className="my-3.5 sm:my-5">
+      {/* Mobile / Tablet Compact Summary Strip (< lg) */}
+      <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-3.5 lg:hidden">
+        <div className="grid grid-cols-3 divide-x divide-navy-800">
+          {/* Col 1: GWA */}
+          <div className="pr-3">
+            <div className="font-mono text-[10px] font-semibold tracking-wider text-gold-400 uppercase">
+              {mode === 'academic' ? 'Honors GWA' : 'GWA (All)'}
+            </div>
+            <div
+              className={cx(
+                'mt-0.5 font-mono text-2xl font-bold tracking-tight tabular',
+                ledger.gwa === null ? 'text-slate-600' : 'text-white',
+              )}
+            >
+              {formatGwa(ledger.gwa, 2)}
+            </div>
+          </div>
 
-      {/* Card 2: Standing */}
-      <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-4 sm:p-5 lg:col-span-3">
-        <Label>Honors Standing</Label>
-        <div className="mt-2.5 flex items-center gap-2">
-          <Award
-            size={18}
-            className={cx(
-              'shrink-0',
-              ledger.hardDisqualified
-                ? 'text-rose-400'
-                : tier
-                  ? 'text-gold-400'
-                  : 'text-slate-500',
-            )}
-          />
-          <span
-            className={cx(
-              'truncate text-base font-bold sm:text-lg',
-              ledger.hardDisqualified
-                ? 'text-rose-400'
-                : tier
-                  ? 'text-gold-400'
-                  : 'text-slate-200',
-            )}
-          >
-            {ledger.hardDisqualified
-              ? 'Not Eligible'
-              : tier
-                ? tier.label
-                : ledger.gwa === null
-                  ? 'Awaiting Grades'
-                  : 'Regular (> 1.75)'}
-          </span>
+          {/* Col 2: Standing */}
+          <div className="px-3">
+            <div className="font-mono text-[10px] font-semibold tracking-wider text-gold-400 uppercase">
+              Standing
+            </div>
+            <div
+              className={cx(
+                'mt-1 truncate text-xs font-bold',
+                ledger.hardDisqualified
+                  ? 'text-rose-400'
+                  : tier
+                    ? 'text-gold-400'
+                    : 'text-slate-200',
+              )}
+            >
+              {standingLabel}
+            </div>
+          </div>
+
+          {/* Col 3: Units */}
+          <div className="pl-3">
+            <div className="font-mono text-[10px] font-semibold tracking-wider text-gold-400 uppercase">
+              Graded
+            </div>
+            <div className="mt-1 font-mono text-xs font-semibold text-slate-200 tabular">
+              {ledger.completedUnits.toFixed(0)}/{ledger.totalUnits.toFixed(0)} units
+            </div>
+          </div>
         </div>
 
+        {/* Compact 1-line status below only when relevant */}
         {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
-          <div className="mt-2 inline-flex items-center gap-1.5 border border-gold-500/30 bg-gold-500/10 px-2 py-0.5 font-mono text-[11px] text-gold-300">
-            <Sparkles size={11} />
-            What-If: {formatGwa(ledger.projectedGwa)}
-            {projTier ? ` (${projTier.short})` : ''}
+          <div className="mt-2.5 flex items-center gap-1.5 border-t border-navy-800 pt-2 font-mono text-[11px] text-gold-300">
+            <Sparkles size={11} className="shrink-0" />
+            <span>
+              What-If GWA: {formatGwa(ledger.projectedGwa)}
+              {projTier ? ` (${projTier.short})` : ''}
+            </span>
           </div>
         )}
-
-        {hard.length === 0 && soft.length === 0 && ledger.gwa !== null && (
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
-            <CheckCircle2 size={12} className="text-gold-400" /> Eligible — no 5.00 or INC
+        {ledger.hardDisqualified && (
+          <div className="mt-2.5 flex items-center gap-1.5 border-t border-navy-800 pt-2 text-[11px] text-rose-400">
+            <AlertOctagon size={12} className="shrink-0" />
+            <span>5.00 in {hard.map((d) => d.code).join(', ')} disqualifies Latin Honors.</span>
           </div>
         )}
-        {hard.length === 0 && soft.length === 0 && ledger.gwa === null && (
-          <div className="mt-2 text-xs text-slate-400">Summa ≤ 1.25 · Magna ≤ 1.50 · Cum ≤ 1.75</div>
-        )}
-        {hard.map((d, i) => (
-          <div key={`${d.code}-${i}`} className="mt-2 flex items-center gap-1.5 text-xs text-rose-400">
-            <AlertOctagon size={12} /> {d.code}: {d.reason}
-          </div>
-        ))}
-        {soft.map((d, i) => (
-          <div key={`${d.code}-${i}`} className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
-            <CircleAlert size={12} /> {d.code}: Unresolved INC
-          </div>
-        ))}
       </div>
 
-      {/* Card 3: Progress & Next-Step Guidance */}
-      <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-4 sm:col-span-2 sm:p-5 lg:col-span-5">
-        <div className="flex items-baseline justify-between">
-          <Label>Curriculum Progress</Label>
-          <span className="font-mono text-xs text-gold-400 tabular">
-            {ledger.completedUnits.toFixed(0)} / {ledger.totalUnits.toFixed(0)} units ({(progress * 100).toFixed(0)}%)
-          </span>
+      {/* Desktop 3-Card Summary Strip (lg+) */}
+      <div className="hidden gap-3.5 lg:grid lg:grid-cols-12">
+        {/* Card 1: Current GWA */}
+        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-4">
+          <Label>{mode === 'academic' ? 'Current Honors GWA' : 'Current GWA (All Subjects)'}</Label>
+          <div className="mt-2 flex items-baseline gap-2.5">
+            <span
+              className={cx(
+                'font-mono text-5xl font-bold tracking-tight tabular',
+                ledger.gwa === null ? 'text-slate-600' : 'text-white',
+              )}
+            >
+              {formatGwa(ledger.gwa)}
+            </span>
+            {ledger.gwa !== null && (
+              <span className="font-mono text-xs text-gold-400">({ledger.gwa.toFixed(2)})</span>
+            )}
+          </div>
+          <div className="mt-2 font-mono text-[11px] text-slate-400">
+            {ledger.completedUnits > 0
+              ? `${ledger.completedUnits.toFixed(0)} graded units · ${ledger.remainingUnits.toFixed(0)} ungraded units`
+              : 'No graded subjects yet'}
+          </div>
         </div>
-        <div className="mt-2.5 h-1.5 w-full overflow-hidden bg-navy-900">
-          <div
-            className="h-full bg-gold-400 transition-[width] duration-200"
-            style={{ width: `${Math.min(100, progress * 100)}%` }}
-          />
+
+        {/* Card 2: Standing */}
+        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-3">
+          <Label>Honors Standing</Label>
+          <div className="mt-2.5 flex items-center gap-2">
+            <Award
+              size={18}
+              className={cx(
+                'shrink-0',
+                ledger.hardDisqualified
+                  ? 'text-rose-400'
+                  : tier
+                    ? 'text-gold-400'
+                    : 'text-slate-500',
+              )}
+            />
+            <span
+              className={cx(
+                'truncate text-lg font-bold',
+                ledger.hardDisqualified
+                  ? 'text-rose-400'
+                  : tier
+                    ? 'text-gold-400'
+                    : 'text-slate-200',
+              )}
+            >
+              {standingLabel}
+            </span>
+          </div>
+
+          {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
+            <div className="mt-2 inline-flex items-center gap-1.5 border border-gold-500/30 bg-gold-500/10 px-2 py-0.5 font-mono text-[11px] text-gold-300">
+              <Sparkles size={11} />
+              What-If: {formatGwa(ledger.projectedGwa)}
+              {projTier ? ` (${projTier.short})` : ''}
+            </div>
+          )}
+
+          {hard.length === 0 && soft.length === 0 && ledger.gwa !== null && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
+              <CheckCircle2 size={12} className="text-gold-400" /> Eligible — no 5.00 or INC
+            </div>
+          )}
+          {hard.length === 0 && soft.length === 0 && ledger.gwa === null && (
+            <div className="mt-2 text-xs text-slate-500">Add grades below to check standing</div>
+          )}
+          {hard.map((d, i) => (
+            <div key={`${d.code}-${i}`} className="mt-2 flex items-center gap-1.5 text-xs text-rose-400">
+              <AlertOctagon size={12} /> {d.code}: {d.reason}
+            </div>
+          ))}
+          {soft.map((d, i) => (
+            <div key={`${d.code}-${i}`} className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+              <CircleAlert size={12} /> {d.code}: Unresolved INC
+            </div>
+          ))}
         </div>
-        <p className={cx('mt-3 text-xs leading-relaxed', headlineTone)}>{headline}</p>
+
+        {/* Card 3: Progress & Next-Step Guidance */}
+        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-5">
+          <div className="flex items-baseline justify-between">
+            <Label>Curriculum Progress</Label>
+            <span className="font-mono text-xs text-gold-400 tabular">
+              {ledger.completedUnits.toFixed(0)} / {ledger.totalUnits.toFixed(0)} units ({(progress * 100).toFixed(0)}%)
+            </span>
+          </div>
+          <div className="mt-2.5 h-1.5 w-full overflow-hidden bg-navy-900">
+            <div
+              className="h-full bg-gold-400 transition-[width] duration-200"
+              style={{ width: `${Math.min(100, progress * 100)}%` }}
+            />
+          </div>
+          <p className={cx('mt-3 text-xs leading-relaxed', headlineTone)}>{headline}</p>
+        </div>
       </div>
     </section>
   );

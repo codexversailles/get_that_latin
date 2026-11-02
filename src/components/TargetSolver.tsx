@@ -108,7 +108,9 @@ export function TargetSolver({
                   {info.badge}
                 </span>
               </div>
-              <p className="mt-1.5 pl-5 text-xs leading-relaxed text-slate-400">{info.detail}</p>
+              {selected && (
+                <p className="mt-1.5 pl-5 text-xs leading-relaxed text-slate-300">{info.detail}</p>
+              )}
             </button>
           );
         })}

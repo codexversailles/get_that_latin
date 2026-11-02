@@ -20,8 +20,8 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cx('border border-navy-800 bg-obsidian-soft p-5', className)}>
-      <header className="mb-4 flex items-start justify-between gap-3 border-b border-navy-800/80 pb-3">
+    <section className={cx('border border-navy-800 bg-obsidian-soft p-4 sm:p-5', className)}>
+      <header className="mb-3.5 flex items-start justify-between gap-3 border-b border-navy-800/80 pb-2.5 sm:mb-4 sm:pb-3">
         <div>
           <div className="flex items-center gap-2">
             {step && (
@@ -31,7 +31,7 @@ export function Panel({
             )}
             <h2 className="font-mono text-xs font-semibold tracking-wider text-white uppercase">{title}</h2>
           </div>
-          {subtitle && <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{subtitle}</p>}
+          {subtitle && <p className="mt-1 hidden text-xs leading-relaxed text-slate-400 sm:block">{subtitle}</p>}
         </div>
         {meta && <div className="shrink-0 font-mono text-[11px] whitespace-nowrap text-gold-400 tabular">{meta}</div>}
       </header>
