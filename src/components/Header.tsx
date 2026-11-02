@@ -1,18 +1,13 @@
 import { useRef, useState } from 'react';
 import { Download, Lock, MoreVertical, Trash2, Upload } from 'lucide-react';
-import type { HonorsMode } from '../engine';
-import { Button, Segmented } from './ui';
+import { Button } from './ui';
 
 export function Header({
-  mode,
-  onMode,
   onHome,
   onExport,
   onImport,
   onClear,
 }: {
-  mode: HonorsMode;
-  onMode: (m: HonorsMode) => void;
   onHome: () => void;
   onExport: () => void;
   onImport: (f: File) => void;
@@ -42,36 +37,6 @@ export function Header({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Desktop / Tablet NSTP Segmented Toggle */}
-          <div className="hidden sm:block">
-            <Segmented<HonorsMode>
-              value={mode}
-              onChange={onMode}
-              options={[
-                {
-                  value: 'academic',
-                  label: 'Exclude NSTP',
-                  title: 'Official Latin Honors GWA (excludes NSTP subjects per RA 9163)',
-                },
-                {
-                  value: 'institutional',
-                  label: 'Include All',
-                  title: 'Includes every subject in your GWA',
-                },
-              ]}
-            />
-          </div>
-
-          {/* Mobile compact mode toggle pill */}
-          <button
-            type="button"
-            onClick={() => onMode(mode === 'academic' ? 'institutional' : 'academic')}
-            className="inline-flex h-8 cursor-pointer items-center border border-navy-800 bg-navy-950 px-2.5 font-mono text-[11px] text-slate-300 sm:hidden"
-            title="Tap to switch NSTP inclusion mode"
-          >
-            {mode === 'academic' ? 'No NSTP' : 'All Subj.'}
-          </button>
-
           {/* Desktop actions */}
           <div className="hidden items-center gap-1.5 md:flex">
             <Button onClick={onExport} title="Save a backup file of your subjects and grades">

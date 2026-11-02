@@ -5,7 +5,6 @@ import {
   historicalMoments,
   snapToStep,
   yearsToProspectusAndRecord,
-  type HonorsMode,
   type SimInput,
 } from './engine';
 import { useAppState } from './lib/state';
@@ -87,8 +86,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-obsidian pb-20 text-slate-100 lg:pb-12">
       <Header
-        mode={mode}
-        onMode={(m: HonorsMode) => dispatch({ type: 'setHonorsMode', mode: m })}
         onHome={() => setEntered(false)}
         onExport={onExport}
         onImport={onImport}
