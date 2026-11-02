@@ -1,0 +1,118 @@
+{
+  "programId": "ustp-bsit-2022",
+  "programName": "Bachelor of Science in Information Technology",
+  "campus": "USTP Cagayan de Oro — College of Information Technology and Computing (CITC)",
+  "effectiveYear": 2022,
+  "totalDegreeUnits": 155,
+  "totalAcademicUnits": 149,
+  "semesters": [
+    {
+      "yearLevel": 1,
+      "semester": 1,
+      "termLabel": "First Year — First Semester",
+      "courses": [
+        { "code": "IT 111", "title": "Introduction to Computing", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "IT 112", "title": "Computer Programming 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": [], "coRequisites": ["IT 111"] },
+        { "code": "GE-MMW", "title": "Mathematics in the Modern World", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-PC", "title": "Purposive Communication", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-US", "title": "Understanding the Self", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-RPH", "title": "Readings in Philippine History", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "PATHFit 1", "title": "Movement Competency Training", "units": 2, "lectureHours": 2, "labHours": 0, "category": "PE_NSTP", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "NSTP 101b", "title": "National Service Training Program 1 (CWTS / LTS / ROTC)", "units": 3, "lectureHours": 3, "labHours": 0, "category": "PE_NSTP", "isNstp": true, "prerequisites": [], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 1,
+      "semester": 2,
+      "termLabel": "First Year — Second Semester",
+      "courses": [
+        { "code": "IT 121", "title": "Computer Programming 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": ["IT 112"], "coRequisites": [] },
+        { "code": "IT 122", "title": "Data Structures and Algorithms", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": ["IT 112"], "coRequisites": [] },
+        { "code": "IT 123", "title": "Discrete Mathematics", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["GE-MMW"], "coRequisites": [] },
+        { "code": "IT 124", "title": "Introduction to Human Computer Interaction", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 111"], "coRequisites": [] },
+        { "code": "GE-STS", "title": "Science, Technology and Society", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-AA", "title": "Art Appreciation", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "PATHFit 2", "title": "Exercise-based Fitness Activities", "units": 2, "lectureHours": 2, "labHours": 0, "category": "PE_NSTP", "isNstp": false, "prerequisites": ["PATHFit 1"], "coRequisites": [] },
+        { "code": "NSTP 102b", "title": "National Service Training Program 2 (CWTS / LTS / ROTC)", "units": 3, "lectureHours": 3, "labHours": 0, "category": "PE_NSTP", "isNstp": true, "prerequisites": ["NSTP 101b"], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 2,
+      "semester": 1,
+      "termLabel": "Second Year — First Semester",
+      "courses": [
+        { "code": "IT 211", "title": "Object-Oriented Programming", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 121"], "coRequisites": [] },
+        { "code": "IT 212", "title": "Information Management", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": ["IT 122"], "coRequisites": [] },
+        { "code": "IT 213", "title": "Platform Technologies", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 111"], "coRequisites": [] },
+        { "code": "IT 214", "title": "Networking 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 111"], "coRequisites": [] },
+        { "code": "IT 215", "title": "Web Systems and Technologies 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 121"], "coRequisites": [] },
+        { "code": "GE-ETH", "title": "Ethics", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-TCW", "title": "The Contemporary World", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "PATHFit 3", "title": "Dance, Sports, Martial Arts and Outdoor Activities 1", "units": 2, "lectureHours": 2, "labHours": 0, "category": "PE_NSTP", "isNstp": false, "prerequisites": ["PATHFit 2"], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 2,
+      "semester": 2,
+      "termLabel": "Second Year — Second Semester",
+      "courses": [
+        { "code": "IT 221", "title": "Advanced Database Systems", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 212"], "coRequisites": [] },
+        { "code": "IT 222", "title": "Networking 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 214"], "coRequisites": [] },
+        { "code": "IT 223", "title": "Integrative Programming and Technologies 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 211", "IT 215"], "coRequisites": [] },
+        { "code": "IT 224", "title": "Quantitative Methods (incl. Modeling and Simulation)", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 123"], "coRequisites": [] },
+        { "code": "IT 225", "title": "Web Systems and Technologies 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_SPECIALIZED", "isNstp": false, "prerequisites": ["IT 215"], "coRequisites": [] },
+        { "code": "GE-LWR", "title": "Life and Works of Rizal", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-ELEC 1", "title": "GE Elective 1 — Living in the IT Era", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "PATHFit 4", "title": "Dance, Sports, Martial Arts and Outdoor Activities 2", "units": 2, "lectureHours": 2, "labHours": 0, "category": "PE_NSTP", "isNstp": false, "prerequisites": ["PATHFit 3"], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 3,
+      "semester": 1,
+      "termLabel": "Third Year — First Semester",
+      "courses": [
+        { "code": "IT 311", "title": "Systems Integration and Architecture 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 223"], "coRequisites": [] },
+        { "code": "IT 312", "title": "Information Assurance and Security 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 222"], "coRequisites": [] },
+        { "code": "IT 313", "title": "Applications Development and Emerging Technologies", "units": 3, "lectureHours": 2, "labHours": 3, "category": "COMPUTING_COMMON", "isNstp": false, "prerequisites": ["IT 221"], "coRequisites": [] },
+        { "code": "IT 314", "title": "Mobile Application Development", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_SPECIALIZED", "isNstp": false, "prerequisites": ["IT 211"], "coRequisites": [] },
+        { "code": "IT 315", "title": "IT Elective 1", "units": 3, "lectureHours": 2, "labHours": 3, "category": "ELECTIVE", "isNstp": false, "prerequisites": ["IT 223"], "coRequisites": [] },
+        { "code": "IT 316", "title": "Social and Professional Issues", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-ELEC 2", "title": "GE Elective 2 — Environmental Science", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 3,
+      "semester": 2,
+      "termLabel": "Third Year — Second Semester",
+      "courses": [
+        { "code": "IT 321", "title": "Information Assurance and Security 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 312"], "coRequisites": [] },
+        { "code": "IT 322", "title": "Systems Integration and Architecture 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 311"], "coRequisites": [] },
+        { "code": "IT 323", "title": "Capstone Project and Research 1", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 311", "IT 313"], "coRequisites": [] },
+        { "code": "IT 324", "title": "IT Elective 2", "units": 3, "lectureHours": 2, "labHours": 3, "category": "ELECTIVE", "isNstp": false, "prerequisites": ["IT 315"], "coRequisites": [] },
+        { "code": "IT 325", "title": "Cloud Computing", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_SPECIALIZED", "isNstp": false, "prerequisites": ["IT 222"], "coRequisites": [] },
+        { "code": "IT 326", "title": "Technopreneurship", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": [], "coRequisites": [] },
+        { "code": "GE-ELEC 3", "title": "GE Elective 3 — Gender and Society", "units": 3, "lectureHours": 3, "labHours": 0, "category": "GE_CORE", "isNstp": false, "prerequisites": [], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 4,
+      "semester": 1,
+      "termLabel": "Fourth Year — First Semester",
+      "courses": [
+        { "code": "IT 411", "title": "Capstone Project and Research 2", "units": 3, "lectureHours": 3, "labHours": 0, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 323"], "coRequisites": [] },
+        { "code": "IT 412", "title": "Systems Administration and Maintenance", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_PROFESSIONAL", "isNstp": false, "prerequisites": ["IT 321", "IT 322"], "coRequisites": [] },
+        { "code": "IT 413", "title": "IT Elective 3", "units": 3, "lectureHours": 2, "labHours": 3, "category": "ELECTIVE", "isNstp": false, "prerequisites": ["IT 324"], "coRequisites": [] },
+        { "code": "IT 414", "title": "IT Elective 4", "units": 3, "lectureHours": 2, "labHours": 3, "category": "ELECTIVE", "isNstp": false, "prerequisites": ["IT 324"], "coRequisites": [] },
+        { "code": "IT 415", "title": "Data Analytics and Business Intelligence", "units": 3, "lectureHours": 2, "labHours": 3, "category": "IT_SPECIALIZED", "isNstp": false, "prerequisites": ["IT 221", "IT 224"], "coRequisites": [] }
+      ]
+    },
+    {
+      "yearLevel": 4,
+      "semester": 2,
+      "termLabel": "Fourth Year — Second Semester",
+      "courses": [
+        { "code": "IT 421", "title": "Practicum (486 Hours)", "units": 6, "lectureHours": 0, "labHours": 27, "category": "PRACTICUM", "isNstp": false, "prerequisites": ["IT 411"], "coRequisites": [] }
+      ]
+    }
+  ]
+}

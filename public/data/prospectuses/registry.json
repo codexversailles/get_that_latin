@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "prospectuses": [
+    {
+      "id": "ustp-bsit-2022",
+      "file": "ustp-bsit-2022.json",
+      "programName": "Bachelor of Science in Information Technology",
+      "shortName": "BSIT",
+      "campus": "USTP Cagayan de Oro — CITC",
+      "effectiveYear": 2022
+    }
+  ]
+}

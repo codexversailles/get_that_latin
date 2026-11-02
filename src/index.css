@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* 60% Dominant: Soft Matte Black / Neutral Dark Charcoal (easy on the eyes) */
+  --color-obsidian: #090a0f;
+  --color-obsidian-soft: #0d0f17;
+
+  /* 30% Secondary: Muted Midnight Blue (blends #191851 with calm neutral slate so borders & cards never strain the eyes) */
+  --color-navy-950: #0f111c;
+  --color-navy-900: #141629;
+  --color-navy-800: #1e213a;
+  --color-navy-700: #282c4d;
+  --color-navy-600: #363b63;
+
+  /* 10% Accent: Warm Gold (#f4b52a) */
+  --color-gold-500: #e0a31b;
+  --color-gold-400: #f4b52a;
+  --color-gold-300: #f7c654;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  body {
+    background: #090a0f;
+    color: #f1f5f9;
+  }
+  ::selection {
+    background: #f4b52a;
+    color: #090a0f;
+  }
+  :focus-visible {
+    outline: 1px solid #f4b52a;
+    outline-offset: 1px;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Intro fade-up animations */
+@keyframes introTitle {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-intro-title {
+  animation: introTitle 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-intro-cta {
+  opacity: 0;
+  animation: introFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
+}
+
+.animate-intro-dev {
+  opacity: 0;
+  animation: introFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+}
+
+/* Gold (#f4b52a) & Muted Navy range slider */
+input[type='range'].range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range'].range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: #282c4d;
+}
+input[type='range'].range::-moz-range-track {
+  height: 2px;
+  background: #282c4d;
+}
+input[type='range'].range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  background: #f4b52a;
+  border: 0;
+  border-radius: 0;
+}
+input[type='range'].range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #f4b52a;
+  border: 0;
+  border-radius: 0;
+}
+input[type='range'].range:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Thin scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #282c4d transparent;
+}
