@@ -261,7 +261,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                 }}
                 className="inline-flex h-9 cursor-pointer items-center gap-1.5 bg-gold-400 px-4 text-xs font-bold text-obsidian transition-colors hover:bg-gold-300"
               >
-                <span>Got it, let's build</span>
+                <span>Got it</span>
                 <Sparkles size={13} />
               </button>
             </div>
