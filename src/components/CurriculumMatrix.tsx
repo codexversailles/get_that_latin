@@ -425,7 +425,6 @@ function SemesterBlock({
 }
 
 type SheetState =
-  | { mode: 'menu' }
   | { mode: 'edit'; subId: string }
   | { mode: 'add'; yearId: string; semId: string }
   | null;
@@ -443,6 +442,7 @@ export function CurriculumMatrix({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'GRADED' | 'UNGRADED'>('ALL');
+  const [fabOpen, setFabOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
 
   // Add-subject bottom sheet local state
@@ -670,103 +670,92 @@ export function CurriculumMatrix({
         );
       })}
 
-      {/* Circular Floating Action Button (+): Prompts Add Subject, Add Year, Search */}
-      <button
-        type="button"
-        onClick={() => setSheet({ mode: 'menu' })}
-        aria-label="Open actions menu"
-        title="Add Subject, Add Year, or Search"
-        className="animate-pop-in fixed right-4 bottom-20 z-30 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gold-400 text-obsidian shadow-[0_6px_24px_rgba(244,181,42,0.4)] transition-transform hover:scale-105 active:scale-90 lg:right-8 lg:bottom-8"
-      >
-        <Plus size={24} strokeWidth={2.75} />
-      </button>
-
-      {/* Action Menu Modal Bottom Sheet / Dialog when clicking the + Button */}
-      {sheet?.mode === 'menu' &&
-        typeof document !== 'undefined' &&
+      {/* Speed Dial Floating Action Button (+): Expands in-place with 3 floating icons & blurred background */}
+      {typeof document !== 'undefined' &&
         createPortal(
-          <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs sm:items-center sm:p-4"
-            onClick={() => setSheet(null)}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Quick actions"
-              onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up w-full max-w-md rounded-t-2xl border-t border-navy-700 bg-obsidian-soft p-5 pb-8 shadow-2xl sm:rounded-2xl sm:border sm:pb-5"
-            >
-              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-navy-700 sm:hidden" />
+          <>
+            {fabOpen && (
+              <div
+                aria-hidden="true"
+                onClick={() => setFabOpen(false)}
+                className="animate-backdrop fixed inset-0 z-40 bg-obsidian/70 backdrop-blur-sm"
+              />
+            )}
 
-              <div className="mb-3.5 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Quick Actions</h3>
-                <button
-                  type="button"
-                  onClick={() => setSheet(null)}
-                  aria-label="Close menu"
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-navy-800 bg-navy-950 text-slate-400 hover:text-white"
-                >
-                  <X size={15} />
-                </button>
-              </div>
+            <div className="fixed right-4 bottom-20 z-50 flex flex-col items-end gap-3 lg:right-8 lg:bottom-8">
+              {fabOpen && (
+                <div className="mb-1 flex flex-col items-end gap-3">
+                  {/* 3. Search (top-most, staggered 3rd) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFabOpen(false);
+                      setSearchOpen(true);
+                    }}
+                    className="animate-speed-dial-3 group flex cursor-pointer items-center gap-3 active:scale-95"
+                  >
+                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                      Search
+                    </span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
+                      <Search size={18} />
+                    </span>
+                  </button>
 
-              <div className="space-y-2.5">
-                <button
-                  type="button"
-                  onClick={() => openMobileAdd()}
-                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
-                    <BookOpen size={18} />
-                  </span>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Add Subject</div>
-                    <div className="text-xs text-slate-400">
-                      Add a subject, units, and grade to any year or semester
-                    </div>
-                  </div>
-                </button>
+                  {/* 2. Add Year (middle, staggered 2nd) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFabOpen(false);
+                      dispatch({ type: 'addYear' });
+                    }}
+                    className="animate-speed-dial-2 group flex cursor-pointer items-center gap-3 active:scale-95"
+                  >
+                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                      Add Year
+                    </span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
+                      <CalendarPlus size={18} />
+                    </span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    dispatch({ type: 'addYear' });
-                    setSheet(null);
-                  }}
-                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
-                    <CalendarPlus size={18} />
-                  </span>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Add Year</div>
-                    <div className="text-xs text-slate-400">
-                      Add another academic year level to your curriculum
-                    </div>
-                  </div>
-                </button>
+                  {/* 1. Add Subject (closest to +, staggered 1st) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFabOpen(false);
+                      openMobileAdd();
+                    }}
+                    className="animate-speed-dial-1 group flex cursor-pointer items-center gap-3 active:scale-95"
+                  >
+                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                      Add Subject
+                    </span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
+                      <BookOpen size={18} />
+                    </span>
+                  </button>
+                </div>
+              )}
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchOpen(true);
-                    setSheet(null);
-                  }}
-                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
-                    <Search size={18} />
-                  </span>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Search</div>
-                    <div className="text-xs text-slate-400">
-                      Search subjects by name or filter by graded/ungraded status
-                    </div>
-                  </div>
-                </button>
-              </div>
+              {/* Main + FAB: turns slightly larger and rotates 45° when open */}
+              <button
+                type="button"
+                onClick={() => setFabOpen((v) => !v)}
+                aria-expanded={fabOpen}
+                aria-label={fabOpen ? 'Close quick actions' : 'Open quick actions'}
+                title="Add Subject, Add Year, or Search"
+                className={cx(
+                  'inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gold-400 text-obsidian shadow-[0_6px_24px_rgba(244,181,42,0.4)] transition-all duration-300 ease-out active:scale-95',
+                  fabOpen
+                    ? 'scale-110 rotate-45 bg-gold-300 shadow-[0_0_32px_rgba(244,181,42,0.65)]'
+                    : 'hover:scale-105',
+                )}
+              >
+                <Plus size={26} strokeWidth={2.75} />
+              </button>
             </div>
-          </div>,
+          </>,
           document.body,
         )}
 
