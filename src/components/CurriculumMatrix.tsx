@@ -194,25 +194,32 @@ function AddSubjectForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-2 bg-obsidian/70 p-3 sm:flex-row sm:items-center sm:p-3.5"
+      className="flex flex-col gap-2 border-t border-navy-800/60 bg-navy-950/35 px-3 py-2.5 sm:flex-row sm:items-center sm:px-4 sm:py-3"
     >
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Add subject (e.g. IT 111, PurCom, NSTP)…"
-        aria-label="New subject name"
-        className="h-9 min-w-0 flex-1 border border-navy-800 bg-navy-950/90 px-3 text-xs text-white placeholder:text-slate-400 focus:border-gold-400 focus:outline-none"
-      />
+      <div className="relative flex h-9 w-full min-w-0 items-center sm:flex-1">
+        <Plus
+          size={14}
+          className="pointer-events-none absolute left-2.5 text-gold-400/80"
+        />
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Add subject (e.g. IT 111, PurCom, NSTP)…"
+          aria-label="New subject name"
+          className="h-full w-full border border-navy-700/80 bg-navy-900/70 pr-3 pl-8 text-xs text-white placeholder:text-slate-400 transition-colors focus:border-gold-400 focus:bg-navy-950 focus:outline-none"
+        />
+      </div>
+
       <div className="flex items-center gap-2">
         <select
           aria-label="New subject units"
           value={units}
           onChange={(e) => setUnits(Number(e.target.value))}
-          className="h-9 shrink-0 border border-navy-800 bg-navy-950/90 px-2 font-mono text-xs text-slate-200 outline-none focus:border-gold-400"
+          className="h-9 shrink-0 cursor-pointer border border-navy-700/80 bg-navy-900/70 px-2.5 font-mono text-xs text-slate-200 transition-colors outline-none hover:border-navy-600 focus:border-gold-400"
         >
           {UNIT_OPTIONS.map((u) => (
-            <option key={u} value={u}>
+            <option key={u} value={u} className="bg-obsidian text-white">
               {u} {u === 1 ? 'unit' : 'units'}
             </option>
           ))}
@@ -222,10 +229,10 @@ function AddSubjectForm({
           aria-label="New subject grade"
           value={grade}
           onChange={(e) => setGrade(e.target.value)}
-          className="h-9 flex-1 border border-navy-800 bg-navy-950/90 px-2 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:w-28 sm:flex-none"
+          className="h-9 flex-1 cursor-pointer border border-navy-700/80 bg-navy-900/70 px-2.5 font-mono text-xs text-slate-200 transition-colors outline-none hover:border-navy-600 focus:border-gold-400 sm:w-32 sm:flex-none"
         >
           {GRADE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
+            <option key={o.value} value={o.value} className="bg-obsidian text-white">
               {o.shortLabel}
             </option>
           ))}
@@ -233,9 +240,9 @@ function AddSubjectForm({
 
         <button
           type="submit"
-          className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1 border border-gold-400/50 bg-gold-400/15 px-3 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-400 hover:text-obsidian sm:px-3.5"
+          className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 bg-gold-400 px-3.5 text-xs font-bold text-obsidian shadow-[0_0_14px_rgba(244,181,42,0.18)] transition-all hover:bg-gold-300 active:translate-y-px sm:px-4"
         >
-          <Plus size={14} />
+          <Plus size={14} strokeWidth={2.5} />
           <span>Add</span>
         </button>
       </div>
