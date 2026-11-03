@@ -77,133 +77,135 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Clean, Minimalist About GetThatLatin Modal */}
       {aboutSiteOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-3 sm:p-4 backdrop-blur-xs overscroll-contain"
+          className="fixed inset-0 z-50 overflow-y-auto bg-obsidian/85 p-3 sm:p-6 backdrop-blur-xs overscroll-contain"
           onClick={() => setAboutSiteOpen(false)}
         >
-          <div
-            className="flex max-h-[85vh] w-full max-w-2xl flex-col border border-navy-800 bg-obsidian p-4 text-left shadow-2xl sm:p-7 overscroll-contain"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header (sticky at top) */}
-            <div className="flex shrink-0 items-center justify-between border-b border-navy-800 pb-3">
-              <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
-                About GetThat<span className="text-gold-400">Latin</span>
-              </h2>
-              <button
-                type="button"
-                onClick={() => setAboutSiteOpen(false)}
-                className="cursor-pointer p-1.5 text-slate-400 transition-colors hover:text-gold-400 active:scale-95"
-                aria-label="Close modal"
-              >
-                <X size={18} />
-              </button>
-            </div>
+          <div className="flex min-h-full items-center justify-center">
+            <div
+              className="my-auto w-full max-w-2xl border border-navy-800 bg-obsidian p-5 text-left shadow-2xl sm:p-7"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-navy-800 pb-3">
+                <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
+                  About GetThat<span className="text-gold-400">Latin</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setAboutSiteOpen(false)}
+                  className="cursor-pointer p-1.5 text-slate-400 transition-colors hover:text-gold-400 active:scale-95"
+                  aria-label="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-            {/* Scrollable Body */}
-            <div className="mt-3 flex-1 overflow-y-auto overscroll-contain pr-1 space-y-4 text-xs leading-relaxed text-slate-300 [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
-              {/* Purpose */}
-              <section>
-                <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
-                  Purpose
-                </h3>
-                <p className="mt-1.5 text-slate-200">
-                  Built specifically for <strong>USTP (University of Science and Technology of Southern Philippines)</strong> students—both regular and irregular—to track their GWA by year and semester, test future grades, and know the exact average needed to graduate with Latin Honors.
-                </p>
-              </section>
+              {/* Body */}
+              <div className="mt-4 space-y-4 text-xs leading-relaxed text-slate-300">
+                {/* Purpose */}
+                <section>
+                  <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
+                    Purpose
+                  </h3>
+                  <p className="mt-1.5 text-slate-200">
+                    Built specifically for <strong>USTP (University of Science and Technology of Southern Philippines)</strong> students—both regular and irregular—to track their GWA by year and semester, test future grades, and know the exact average needed to graduate with Latin Honors.
+                  </p>
+                </section>
 
-              {/* How It Formulates Everything */}
-              <section className="border-t border-navy-800/80 pt-4">
-                <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
-                  How It Formulates Everything
-                </h3>
-                <ul className="mt-2.5 grid gap-2.5 sm:grid-cols-3">
-                  <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
-                    <div className="font-semibold text-white">1. Weighted GWA</div>
-                    <div className="mt-1 font-mono text-[11px] text-gold-400">
-                      Σ(Units × Grade) ÷ ΣUnits
-                    </div>
-                    <p className="mt-1.5 text-[11px] text-slate-400">
-                      USTP <span className="font-mono text-slate-200">1.00–3.00</span> (<span className="font-mono text-slate-200">0.25</span> step) scale. Excludes NSTP per RA 9163 and flags <span className="font-mono text-rose-400">5.00</span> / <span className="font-mono text-amber-300">INC</span>.
-                    </p>
-                  </li>
-
-                  <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
-                    <div className="font-semibold text-white">2. Target Solver</div>
-                    <div className="mt-1 font-mono text-[11px] text-gold-400">
-                      (T·Units − Pts) ÷ Rem
-                    </div>
-                    <p className="mt-1.5 text-[11px] text-slate-400">
-                      Solves the exact average needed in ungraded units for Summa Cum Laude (<span className="font-mono text-slate-200">≤1.25</span>), Magna Cum Laude (<span className="font-mono text-slate-200">≤1.50</span>), or Cum Laude (<span className="font-mono text-slate-200">≤1.75</span>).
-                    </p>
-                  </li>
-
-                  <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
-                    <div className="font-semibold text-white">3. Monte Carlo</div>
-                    <div className="mt-1 font-mono text-[11px] text-gold-400">
-                      30,000+ Box–Muller Runs
-                    </div>
-                    <p className="mt-1.5 text-[11px] text-slate-400">
-                      Simulates thousands of graduation outcomes from your historical grade mean and consistency.
-                    </p>
-                  </li>
-                </ul>
-              </section>
-
-              {/* How It Runs */}
-              <section className="border-t border-navy-800/80 pt-4">
-                <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
-                  How It Runs
-                </h3>
-                <div className="mt-2 flex items-center gap-2.5 border border-navy-800 bg-navy-950/80 px-3 py-2.5 text-xs text-slate-300">
-                  <ShieldCheck size={15} className="shrink-0 text-gold-400" />
-                  <span>
-                    <strong>100% Client-Side &amp; Private:</strong> Runs entirely in your browser with zero backend servers—your subjects and grades never leave your device.
-                  </span>
-                </div>
-              </section>
-
-              {/* Tech Stack (Bulleted with Icons) */}
-              <section className="border-t border-navy-800/80 pt-4">
-                <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
-                  Tech Stack
-                </h3>
-                <ul className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {TECH_STACK.map(({ icon: Icon, name, role }) => (
-                    <li
-                      key={name}
-                      className="flex items-center gap-2.5 border border-navy-800 bg-navy-950/70 px-3 py-2"
-                    >
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
-                      <Icon size={14} className="shrink-0 text-gold-400" />
-                      <div className="min-w-0">
-                        <span className="text-xs font-semibold text-white">{name}</span>
-                        <span className="ml-1.5 text-[11px] text-slate-400">— {role}</span>
+                {/* How It Formulates Everything */}
+                <section className="border-t border-navy-800/80 pt-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
+                    How It Formulates Everything
+                  </h3>
+                  <ul className="mt-2.5 grid gap-2.5 sm:grid-cols-3">
+                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                      <div className="font-semibold text-white">1. Weighted GWA</div>
+                      <div className="mt-1 font-mono text-[11px] text-gold-400">
+                        Σ(Units × Grade) ÷ ΣUnits
                       </div>
+                      <p className="mt-1.5 text-[11px] text-slate-400">
+                        USTP <span className="font-mono text-slate-200">1.00–3.00</span> (<span className="font-mono text-slate-200">0.25</span> step) scale. Excludes NSTP per RA 9163 and flags <span className="font-mono text-rose-400">5.00</span> / <span className="font-mono text-amber-300">INC</span>.
+                      </p>
                     </li>
-                  ))}
-                </ul>
-              </section>
-            </div>
 
-            {/* Footer (sticky at bottom) */}
-            <div className="mt-4 flex shrink-0 justify-end gap-2.5 border-t border-navy-800 pt-3">
-              <button
-                type="button"
-                onClick={() => setAboutSiteOpen(false)}
-                className="h-9 cursor-pointer border border-navy-700 bg-navy-900 px-4 text-xs font-medium text-slate-200 hover:border-slate-500"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAboutSiteOpen(false);
-                  setTipOpen(true);
-                }}
-                className="h-9 cursor-pointer bg-gold-400 px-4 text-xs font-semibold text-obsidian hover:bg-gold-300"
-              >
-                I want that latin →
-              </button>
+                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                      <div className="font-semibold text-white">2. Target Solver</div>
+                      <div className="mt-1 font-mono text-[11px] text-gold-400">
+                        (T·Units − Pts) ÷ Rem
+                      </div>
+                      <p className="mt-1.5 text-[11px] text-slate-400">
+                        Solves the exact average needed in ungraded units for Summa Cum Laude (<span className="font-mono text-slate-200">≤1.25</span>), Magna Cum Laude (<span className="font-mono text-slate-200">≤1.50</span>), or Cum Laude (<span className="font-mono text-slate-200">≤1.75</span>).
+                      </p>
+                    </li>
+
+                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                      <div className="font-semibold text-white">3. Monte Carlo</div>
+                      <div className="mt-1 font-mono text-[11px] text-gold-400">
+                        30,000+ Box–Muller Runs
+                      </div>
+                      <p className="mt-1.5 text-[11px] text-slate-400">
+                        Simulates thousands of graduation outcomes from your historical grade mean and consistency.
+                      </p>
+                    </li>
+                  </ul>
+                </section>
+
+                {/* How It Runs */}
+                <section className="border-t border-navy-800/80 pt-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
+                    How It Runs
+                  </h3>
+                  <div className="mt-2 flex items-center gap-2.5 border border-navy-800 bg-navy-950/80 px-3 py-2.5 text-xs text-slate-300">
+                    <ShieldCheck size={15} className="shrink-0 text-gold-400" />
+                    <span>
+                      <strong>100% Client-Side &amp; Private:</strong> Runs entirely in your browser with zero backend servers—your subjects and grades never leave your device.
+                    </span>
+                  </div>
+                </section>
+
+                {/* Tech Stack (Bulleted with Icons) */}
+                <section className="border-t border-navy-800/80 pt-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
+                    Tech Stack
+                  </h3>
+                  <ul className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {TECH_STACK.map(({ icon: Icon, name, role }) => (
+                      <li
+                        key={name}
+                        className="flex items-center gap-2.5 border border-navy-800 bg-navy-950/70 px-3 py-2"
+                      >
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+                        <Icon size={14} className="shrink-0 text-gold-400" />
+                        <div className="min-w-0">
+                          <span className="text-xs font-semibold text-white">{name}</span>
+                          <span className="ml-1.5 text-[11px] text-slate-400">— {role}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-5 flex justify-end gap-2.5 border-t border-navy-800 pt-3.5">
+                <button
+                  type="button"
+                  onClick={() => setAboutSiteOpen(false)}
+                  className="h-9 cursor-pointer border border-navy-700 bg-navy-900 px-4 text-xs font-medium text-slate-200 hover:border-slate-500"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAboutSiteOpen(false);
+                    setTipOpen(true);
+                  }}
+                  className="h-9 cursor-pointer bg-gold-400 px-4 text-xs font-semibold text-obsidian hover:bg-gold-300"
+                >
+                  I want that latin →
+                </button>
+              </div>
             </div>
           </div>
         </div>
