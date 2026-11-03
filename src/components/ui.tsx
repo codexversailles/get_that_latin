@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');
@@ -127,4 +127,30 @@ export function pct(p: number): string {
   if (p > 0 && p < 0.001) return '<0.1%';
   if (p < 1 && p > 0.999) return '>99.9%';
   return `${(p * 100).toFixed(1)}%`;
+}
+
+let lockCount = 0;
+let originalBodyOverflow = '';
+let originalHtmlOverflow = '';
+
+export function useScrollLock(locked: boolean) {
+  useEffect(() => {
+    if (!locked || typeof document === 'undefined') return;
+
+    if (lockCount === 0) {
+      originalBodyOverflow = document.body.style.overflow;
+      originalHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
+    lockCount++;
+
+    return () => {
+      lockCount = Math.max(0, lockCount - 1);
+      if (lockCount === 0) {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      }
+    };
+  }, [locked]);
 }

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Download, Lock, MoreVertical, Trash2, Upload, X } from 'lucide-react';
-import { Button } from './ui';
+import { Button, useScrollLock } from './ui';
 
 export function Header({
   onHome,
@@ -16,6 +16,7 @@ export function Header({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  useScrollLock(sheetOpen);
 
   return (
     <header className="sticky top-0 z-20 border-b border-navy-800 bg-navy-950/90 backdrop-blur">
@@ -82,14 +83,17 @@ export function Header({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs md:hidden"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs touch-none overscroll-none md:hidden"
             onClick={() => setSheetOpen(false)}
+            onTouchMove={(e) => {
+              if (e.target === e.currentTarget) e.preventDefault();
+            }}
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Records and backup"
-              className="animate-sheet-up w-full max-w-lg rounded-t-2xl border-t border-navy-700 bg-obsidian-soft p-5 pb-8 shadow-2xl"
+              className="animate-sheet-up w-full max-w-lg rounded-t-2xl border-t border-navy-700 bg-obsidian-soft p-5 pb-8 shadow-2xl touch-pan-y overscroll-contain"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Sheet Handle */}

@@ -26,7 +26,7 @@ import {
   type StudentYear,
 } from '../engine';
 import type { Dispatch } from '../lib/state';
-import { cx } from './ui';
+import { cx, useScrollLock } from './ui';
 
 export function gradeTone(g: GradeState | undefined): string {
   if (g === null || g === undefined) return 'text-slate-300 border-navy-800 bg-navy-950';
@@ -444,6 +444,7 @@ export function CurriculumMatrix({
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'GRADED' | 'UNGRADED'>('ALL');
   const [fabOpen, setFabOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
+  useScrollLock(fabOpen || sheet !== null);
 
   // Add-subject bottom sheet local state
   const [draftName, setDraftName] = useState('');
@@ -678,7 +679,8 @@ export function CurriculumMatrix({
               <div
                 aria-hidden="true"
                 onClick={() => setFabOpen(false)}
-                className="animate-backdrop fixed inset-0 z-40 bg-obsidian/70 backdrop-blur-sm"
+                onTouchMove={(e) => e.preventDefault()}
+                className="animate-backdrop fixed inset-0 z-40 bg-obsidian/70 backdrop-blur-sm touch-none overscroll-none"
               />
             )}
 
@@ -764,15 +766,18 @@ export function CurriculumMatrix({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-black/75 backdrop-blur-xs sm:hidden"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-black/75 backdrop-blur-xs touch-none overscroll-none sm:hidden"
             onClick={() => setSheet(null)}
+            onTouchMove={(e) => {
+              if (e.target === e.currentTarget) e.preventDefault();
+            }}
           >
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Edit subject"
               onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up max-h-[88vh] w-full overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl"
+              className="animate-sheet-up max-h-[88vh] w-full overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl touch-pan-y overscroll-contain"
             >
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700" />
 
@@ -946,8 +951,11 @@ export function CurriculumMatrix({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs sm:items-center sm:p-4"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs touch-none overscroll-none sm:items-center sm:p-4"
             onClick={() => setSheet(null)}
+            onTouchMove={(e) => {
+              if (e.target === e.currentTarget) e.preventDefault();
+            }}
           >
             <form
               role="dialog"
@@ -955,7 +963,7 @@ export function CurriculumMatrix({
               aria-label="Add subject"
               onSubmit={submitMobileAdd}
               onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl sm:rounded-2xl sm:border sm:p-5"
+              className="animate-sheet-up max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl touch-pan-y overscroll-contain sm:rounded-2xl sm:border sm:p-5"
             >
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700 sm:hidden" />
 

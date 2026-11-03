@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, ArrowUpRight, Atom, BookOpen, Cpu, Database, FileCode2, Lightbulb, Palette, ShieldCheck, Sparkles, Zap, X } from 'lucide-react';
+import { useScrollLock } from './ui';
 
 const TECH_STACK = [
   { icon: Atom, name: 'React 19', role: 'Interactive UI & state management' },
@@ -13,6 +14,7 @@ const TECH_STACK = [
 export function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [aboutSiteOpen, setAboutSiteOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
+  useScrollLock(aboutSiteOpen || tipOpen);
 
   const handleStart = () => {
     setTipOpen(true);
@@ -83,6 +85,9 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
         <div
           className="animate-backdrop fixed inset-0 z-50 overflow-y-auto bg-obsidian/85 p-3 backdrop-blur-xs overscroll-contain sm:p-6"
           onClick={() => setAboutSiteOpen(false)}
+          onTouchMove={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
         >
           <div className="flex min-h-full items-center justify-center">
             <div
@@ -218,8 +223,11 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Tip Modal before entering dashboard */}
       {tipOpen && (
         <div
-          className="animate-backdrop fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs"
+          className="animate-backdrop fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs touch-none overscroll-none"
           onClick={() => setTipOpen(false)}
+          onTouchMove={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
         >
           <div
             className="animate-pop-in w-full max-w-md rounded-2xl border border-navy-800 bg-obsidian p-6 text-left shadow-2xl"
