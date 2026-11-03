@@ -26,7 +26,7 @@ import {
   type StudentYear,
 } from '../engine';
 import type { Dispatch } from '../lib/state';
-import { cx, useScrollLock } from './ui';
+import { Button, cx, useScrollLock } from './ui';
 
 export function gradeTone(g: GradeState | undefined): string {
   if (g === null || g === undefined) return 'text-slate-300 border-navy-800 bg-navy-950';
@@ -510,44 +510,82 @@ export function CurriculumMatrix({
 
   return (
     <div>
-      {/* Clean Year Tabs Bar (No clutter buttons) */}
+      {/* Top Year Tabs Bar + Desktop Actions (Search & Add Year) */}
       <div className="mb-3.5 space-y-2.5 border-b border-navy-800 pb-2.5 sm:mb-4 sm:pb-3">
-        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto py-0.5">
-          {years.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setActiveYearId('ALL')}
-              className={cx(
-                'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                validFilter === 'ALL'
-                  ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
-                  : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
-              )}
-            >
-              {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} />}
-              <span>All ({years.length})</span>
-            </button>
-          )}
-          {years.map((y) => {
-            const isSelected =
-              validFilter === y.id || (years.length === 1 && validFilter === 'ALL');
-            return (
+        <div className="flex items-center justify-between gap-2">
+          {/* Year Tabs */}
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+            {years.length > 1 && (
               <button
-                key={y.id}
                 type="button"
-                onClick={() => setActiveYearId(y.id)}
+                onClick={() => setActiveYearId('ALL')}
                 className={cx(
                   'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                  isSelected
+                  validFilter === 'ALL'
                     ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
                     : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
                 )}
               >
-                {isSelected && <Check size={12} strokeWidth={2.5} />}
-                <span>{y.label}</span>
+                {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} />}
+                <span>All ({years.length})</span>
               </button>
-            );
-          })}
+            )}
+            {years.map((y) => {
+              const isSelected =
+                validFilter === y.id || (years.length === 1 && validFilter === 'ALL');
+              return (
+                <button
+                  key={y.id}
+                  type="button"
+                  onClick={() => setActiveYearId(y.id)}
+                  className={cx(
+                    'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
+                    isSelected
+                      ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
+                      : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
+                  )}
+                >
+                  {isSelected && <Check size={12} strokeWidth={2.5} />}
+                  <span>{y.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop Search & Add Year (Hidden on mobile) */}
+          <div className="hidden shrink-0 items-center gap-1.5 sm:flex">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen((v) => {
+                  if (v) {
+                    setSearchQuery('');
+                    setStatusFilter('ALL');
+                  }
+                  return !v;
+                });
+              }}
+              aria-label="Search and filter subjects"
+              title="Search & filter subjects"
+              className={cx(
+                'inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-all active:scale-95',
+                searchOpen || searchQuery || statusFilter !== 'ALL'
+                  ? 'border-gold-400 bg-gold-400/15 text-gold-300'
+                  : 'border-navy-800 bg-navy-950 text-slate-300 hover:border-navy-600 hover:text-white',
+              )}
+            >
+              <Search size={13} />
+            </button>
+
+            <Button
+              onClick={() => dispatch({ type: 'addYear' })}
+              title="Add another Academic Year"
+              className="h-8 shrink-0 rounded-full border-gold-500/40 bg-navy-950 px-3 text-gold-400 hover:border-gold-400 hover:text-gold-300"
+            >
+              <CalendarPlus size={13} />
+              <span>+ Add Year Level</span>
+            </Button>
+          </div>
         </div>
 
         {/* Expandable Search Input + Status Filter Chips (Opened via the + Menu) */}
@@ -671,10 +709,10 @@ export function CurriculumMatrix({
         );
       })}
 
-      {/* Speed Dial Floating Action Button (+): Expands in-place with 3 floating icons & blurred background */}
+      {/* Mobile Speed Dial Floating Action Button (+): Hidden on Desktop (sm+) */}
       {typeof document !== 'undefined' &&
         createPortal(
-          <>
+          <div className="sm:hidden">
             {fabOpen && (
               <div
                 aria-hidden="true"
@@ -684,7 +722,7 @@ export function CurriculumMatrix({
               />
             )}
 
-            <div className="fixed right-4 bottom-20 z-50 flex flex-col items-end gap-3 lg:right-8 lg:bottom-8">
+            <div className="fixed right-4 bottom-20 z-50 flex flex-col items-end gap-3">
               {fabOpen && (
                 <div className="mb-1 flex flex-col items-end gap-3">
                   {/* 3. Search (top-most, staggered 3rd) */}
@@ -757,7 +795,7 @@ export function CurriculumMatrix({
                 <Plus size={26} strokeWidth={2.75} />
               </button>
             </div>
-          </>,
+          </div>,
           document.body,
         )}
 
