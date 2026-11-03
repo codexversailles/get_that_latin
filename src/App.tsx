@@ -86,13 +86,8 @@ export default function App() {
     clearAll();
   }, [clearAll]);
 
-  const hasSavedData = useMemo(
-    () => state.years.some((y) => y.semesters.some((s) => s.subjects.length > 0)),
-    [state.years],
-  );
-
   if (!entered) {
-    return <LandingPage onEnter={() => setEntered(true)} hasSavedData={hasSavedData} />;
+    return <LandingPage onEnter={() => setEntered(true)} />;
   }
 
   return (

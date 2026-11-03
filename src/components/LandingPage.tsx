@@ -10,22 +10,12 @@ const TECH_STACK = [
   { icon: Database, name: 'LocalStorage & Zod', role: '100% private on-device persistence' },
 ];
 
-export function LandingPage({
-  onEnter,
-  hasSavedData = false,
-}: {
-  onEnter: () => void;
-  hasSavedData?: boolean;
-}) {
+export function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [aboutSiteOpen, setAboutSiteOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
 
   const handleStart = () => {
-    if (hasSavedData) {
-      onEnter();
-    } else {
-      setTipOpen(true);
-    }
+    setTipOpen(true);
   };
 
   return (
