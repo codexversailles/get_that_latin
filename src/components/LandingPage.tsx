@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, ArrowUpRight, Atom, BookOpen, Cpu, Database, FileCode2, Palette, ShieldCheck, Zap, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Atom, BookOpen, Cpu, Database, FileCode2, Lightbulb, Palette, ShieldCheck, Sparkles, Zap, X } from 'lucide-react';
 
 const TECH_STACK = [
   { icon: Atom, name: 'React 19', role: 'Interactive UI & state management' },
@@ -12,6 +12,7 @@ const TECH_STACK = [
 
 export function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [aboutSiteOpen, setAboutSiteOpen] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-obsidian px-6 text-slate-100">
@@ -35,7 +36,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           {/* Primary CTA */}
           <button
             type="button"
-            onClick={onEnter}
+            onClick={() => setTipOpen(true)}
             className="animate-intro-cta group inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-gold-400 px-6 text-sm font-bold tracking-wide text-obsidian shadow-[0_0_24px_rgba(244,181,42,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-300 hover:shadow-[0_0_32px_rgba(244,181,42,0.38)] active:translate-y-0"
           >
             <span>I want that latin</span>
@@ -196,11 +197,71 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                 type="button"
                 onClick={() => {
                   setAboutSiteOpen(false);
-                  onEnter();
+                  setTipOpen(true);
                 }}
                 className="h-9 cursor-pointer bg-gold-400 px-4 text-xs font-semibold text-obsidian hover:bg-gold-300"
               >
                 I want that latin →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tip Modal before entering dashboard */}
+      {tipOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs"
+          onClick={() => setTipOpen(false)}
+        >
+          <div
+            className="w-full max-w-md border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian p-6 text-left shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center bg-gold-400/15 text-gold-400">
+                  <Lightbulb size={16} />
+                </span>
+                <h3 className="text-sm font-bold tracking-tight text-white uppercase font-mono">
+                  Quick Tip
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTipOpen(false)}
+                className="cursor-pointer p-1 text-slate-400 transition-colors hover:text-gold-400"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="mt-3.5 text-xs leading-relaxed text-slate-200">
+              Make sure to <strong>add all your subjects first</strong> (both your completed subjects and upcoming terms).
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
+              This allows the system to accurately calculate your running GWA and formulate the exact future grades you need to get that latin honor!
+            </p>
+
+            <div className="mt-5 flex items-center justify-end gap-2.5 border-t border-navy-800 pt-3.5">
+              <button
+                type="button"
+                onClick={() => setTipOpen(false)}
+                className="h-9 cursor-pointer border border-navy-700 bg-navy-900 px-3.5 text-xs font-medium text-slate-300 hover:border-slate-500"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipOpen(false);
+                  onEnter();
+                }}
+                className="inline-flex h-9 cursor-pointer items-center gap-1.5 bg-gold-400 px-4 text-xs font-bold text-obsidian transition-colors hover:bg-gold-300"
+              >
+                <span>Got it, let's build</span>
+                <Sparkles size={13} />
               </button>
             </div>
           </div>
