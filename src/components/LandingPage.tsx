@@ -77,29 +77,30 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Clean, Minimalist About GetThatLatin Modal */}
       {aboutSiteOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-3 sm:p-4 backdrop-blur-xs overscroll-contain"
           onClick={() => setAboutSiteOpen(false)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-navy-800 bg-obsidian p-5 text-left shadow-2xl sm:p-7"
+            className="flex max-h-[85vh] w-full max-w-2xl flex-col border border-navy-800 bg-obsidian p-4 text-left shadow-2xl sm:p-7 overscroll-contain"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-navy-800 pb-3">
-              <h2 className="text-lg font-bold tracking-tight text-white">
+            {/* Header (sticky at top) */}
+            <div className="flex shrink-0 items-center justify-between border-b border-navy-800 pb-3">
+              <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
                 About GetThat<span className="text-gold-400">Latin</span>
               </h2>
               <button
                 type="button"
                 onClick={() => setAboutSiteOpen(false)}
-                className="cursor-pointer p-1 text-slate-400 transition-colors hover:text-gold-400"
+                className="cursor-pointer p-1.5 text-slate-400 transition-colors hover:text-gold-400 active:scale-95"
                 aria-label="Close modal"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="mt-4 space-y-4 text-xs leading-relaxed text-slate-300">
+            {/* Scrollable Body */}
+            <div className="mt-3 flex-1 overflow-y-auto overscroll-contain pr-1 space-y-4 text-xs leading-relaxed text-slate-300 [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
               {/* Purpose */}
               <section>
                 <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
@@ -184,8 +185,8 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
               </section>
             </div>
 
-            {/* Footer */}
-            <div className="mt-5 flex justify-end gap-2.5 border-t border-navy-800 pt-3.5">
+            {/* Footer (sticky at bottom) */}
+            <div className="mt-4 flex shrink-0 justify-end gap-2.5 border-t border-navy-800 pt-3">
               <button
                 type="button"
                 onClick={() => setAboutSiteOpen(false)}
@@ -238,10 +239,10 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             </div>
 
             <p className="mt-3.5 text-xs leading-relaxed text-slate-200">
-              Make sure to <strong>add all your subjects first</strong> (both your completed subjects and upcoming terms).
+              For best accuracy, <strong>add all your subjects across your entire curriculum first</strong> (both completed grades and upcoming terms).
             </p>
-            <p className="mt-2 text-xs leading-relaxed text-slate-400">
-              This allows the system to accurately calculate your running GWA and formulate the exact future grades you need to get that latin honor!
+            <p className="mt-2 text-xs leading-relaxed text-slate-300">
+              💡 <em>Only have your current grades right now?</em> No problem—the system will still calculate your official running GWA and current standing, but without knowing your remaining uncompleted units, it won't be able to solve your exact target grade requirements yet.
             </p>
 
             <div className="mt-5 flex items-center justify-end gap-2.5 border-t border-navy-800 pt-3.5">
