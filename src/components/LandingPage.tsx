@@ -3,12 +3,12 @@ import { ArrowRight, ArrowUpRight, Atom, BookOpen, Cpu, Database, FileCode2, Lig
 import { useScrollLock } from './ui';
 
 const TECH_STACK = [
-  { icon: Atom, name: 'React 19', role: 'Interactive UI & state management' },
-  { icon: FileCode2, name: 'TypeScript', role: 'Strict type-safe academic engine' },
-  { icon: Zap, name: 'Vite', role: 'Zero-latency bundling & instant builds' },
-  { icon: Palette, name: 'Tailwind CSS', role: '60/30/10 minimalist styling' },
-  { icon: Cpu, name: 'Web Workers', role: 'Background 30,000-run Monte Carlo thread' },
-  { icon: Database, name: 'LocalStorage & Zod', role: '100% private on-device persistence' },
+  { icon: Atom, name: 'React 19' },
+  { icon: FileCode2, name: 'TypeScript' },
+  { icon: Zap, name: 'Vite' },
+  { icon: Palette, name: 'Tailwind CSS' },
+  { icon: Cpu, name: 'Web Workers' },
+  { icon: Database, name: 'LocalStorage & Zod' },
 ];
 
 export function LandingPage({ onEnter }: { onEnter: () => void }) {
@@ -172,26 +172,22 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   </div>
                 </section>
 
-                {/* Tech Stack (Bulleted with Icons) */}
+                {/* Tech Stack */}
                 <section className="border-t border-navy-800/80 pt-4">
                   <h3 className="font-mono text-[11px] font-semibold tracking-widest text-gold-400 uppercase">
                     Tech Stack
                   </h3>
-                  <ul className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {TECH_STACK.map(({ icon: Icon, name, role }) => (
-                      <li
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    {TECH_STACK.map(({ icon: Icon, name }) => (
+                      <span
                         key={name}
-                        className="flex items-center gap-2.5 border border-navy-800 bg-navy-950/70 px-3 py-2"
+                        className="inline-flex items-center gap-2 rounded-full border border-navy-800 bg-navy-950/80 px-3 py-1.5 text-xs font-medium text-white"
                       >
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
-                        <Icon size={14} className="shrink-0 text-gold-400" />
-                        <div className="min-w-0">
-                          <span className="text-xs font-semibold text-white">{name}</span>
-                          <span className="ml-1.5 text-[11px] text-slate-400">— {role}</span>
-                        </div>
-                      </li>
+                        <Icon size={13} className="shrink-0 text-gold-400" />
+                        <span>{name}</span>
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </section>
               </div>
 
