@@ -2,6 +2,7 @@ import { memo, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Award,
+  BookOpen,
   CalendarPlus,
   Check,
   ChevronDown,
@@ -25,7 +26,7 @@ import {
   type StudentYear,
 } from '../engine';
 import type { Dispatch } from '../lib/state';
-import { Button, cx } from './ui';
+import { cx } from './ui';
 
 export function gradeTone(g: GradeState | undefined): string {
   if (g === null || g === undefined) return 'text-slate-300 border-navy-800 bg-navy-950';
@@ -424,6 +425,7 @@ function SemesterBlock({
 }
 
 type SheetState =
+  | { mode: 'menu' }
   | { mode: 'edit'; subId: string }
   | { mode: 'add'; yearId: string; semId: string }
   | null;
@@ -507,87 +509,47 @@ export function CurriculumMatrix({
 
   return (
     <div>
-      {/* Top Filter Chips Bar + Expandable Search Trigger */}
+      {/* Clean Year Tabs Bar (No clutter buttons) */}
       <div className="mb-3.5 space-y-2.5 border-b border-navy-800 pb-2.5 sm:mb-4 sm:pb-3">
-        <div className="flex items-center justify-between gap-2">
-          {/* Filter Chips for Year Selection */}
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
-            {years.length > 1 && (
+        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto py-0.5">
+          {years.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setActiveYearId('ALL')}
+              className={cx(
+                'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
+                validFilter === 'ALL'
+                  ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
+                  : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
+              )}
+            >
+              {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} />}
+              <span>All ({years.length})</span>
+            </button>
+          )}
+          {years.map((y) => {
+            const isSelected =
+              validFilter === y.id || (years.length === 1 && validFilter === 'ALL');
+            return (
               <button
+                key={y.id}
                 type="button"
-                onClick={() => setActiveYearId('ALL')}
+                onClick={() => setActiveYearId(y.id)}
                 className={cx(
                   'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                  validFilter === 'ALL'
+                  isSelected
                     ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
                     : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
                 )}
               >
-                {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} />}
-                <span>All ({years.length})</span>
+                {isSelected && <Check size={12} strokeWidth={2.5} />}
+                <span>{y.label}</span>
               </button>
-            )}
-            {years.map((y) => {
-              const isSelected =
-                validFilter === y.id || (years.length === 1 && validFilter === 'ALL');
-              return (
-                <button
-                  key={y.id}
-                  type="button"
-                  onClick={() => setActiveYearId(y.id)}
-                  className={cx(
-                    'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                    isSelected
-                      ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
-                      : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
-                  )}
-                >
-                  {isSelected && <Check size={12} strokeWidth={2.5} />}
-                  <span>{y.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1.5">
-            {/* Expandable Search Toggle Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setSearchOpen((v) => {
-                  if (v) {
-                    setSearchQuery('');
-                    setStatusFilter('ALL');
-                  }
-                  return !v;
-                });
-              }}
-              aria-label="Search and filter subjects"
-              title="Search & filter subjects"
-              className={cx(
-                'inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-all active:scale-95',
-                searchOpen || searchQuery || statusFilter !== 'ALL'
-                  ? 'border-gold-400 bg-gold-400/15 text-gold-300'
-                  : 'border-navy-800 bg-navy-950 text-slate-300 hover:border-navy-600 hover:text-white',
-              )}
-            >
-              <Search size={13} />
-            </button>
-
-            {/* Action Chip: + Year */}
-            <Button
-              onClick={() => dispatch({ type: 'addYear' })}
-              title="Add another Academic Year"
-              className="h-8 shrink-0 rounded-full border-gold-500/40 bg-navy-950 px-3 text-gold-400 hover:border-gold-400 hover:text-gold-300"
-            >
-              <CalendarPlus size={13} />
-              <span className="hidden sm:inline">+ Add Year Level</span>
-              <span className="sm:hidden">+ Year</span>
-            </Button>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Expandable Search Input + Status Filter Chips */}
+        {/* Expandable Search Input + Status Filter Chips (Opened via the + Menu) */}
         {searchOpen && (
           <div className="animate-pop-in flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
             <div className="relative flex-1">
@@ -601,18 +563,22 @@ export function CurriculumMatrix({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search subject name (e.g. IT 111, Calculus)…"
                 aria-label="Search subjects"
+                autoFocus
                 className="h-9 w-full rounded-full border border-navy-700 bg-navy-950 pr-8 pl-8 text-xs text-white placeholder:text-slate-400 focus:border-gold-400 focus:outline-none"
               />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
-                  className="absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-white"
-                >
-                  <X size={13} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('ALL');
+                  setSearchOpen(false);
+                }}
+                aria-label="Close search"
+                title="Close search"
+                className="absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-white"
+              >
+                <X size={14} />
+              </button>
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto">
@@ -650,7 +616,7 @@ export function CurriculumMatrix({
             key={y.id}
             className="mb-5 overflow-hidden rounded-2xl border border-navy-800 bg-obsidian-soft shadow-sm sm:mb-6"
           >
-            <header className="flex items-center justify-between gap-2 border-b border-navy-800 border-l-4 border-l-gold-400 bg-navy-900/80 px-3.5 py-2.5 sm:px-4 sm:py-3">
+            <header className="flex items-center justify-between gap-2 border-b border-navy-800 bg-navy-900/80 px-3.5 py-2.5 sm:px-4 sm:py-3">
               <div className="flex items-center gap-2.5">
                 <h3 className="text-sm font-bold text-white">{y.label}</h3>
                 <span className="font-mono text-xs text-slate-400 tabular">
@@ -704,16 +670,105 @@ export function CurriculumMatrix({
         );
       })}
 
-      {/* Mobile Circular Floating Action Button (FAB): Just a Plus Sign */}
+      {/* Circular Floating Action Button (+): Prompts Add Subject, Add Year, Search */}
       <button
         type="button"
-        onClick={() => openMobileAdd()}
-        aria-label="Add Subject"
-        title="Add Subject"
-        className="animate-pop-in fixed right-4 bottom-20 z-30 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gold-400 text-obsidian shadow-[0_6px_24px_rgba(244,181,42,0.4)] transition-transform hover:scale-105 active:scale-90 sm:hidden"
+        onClick={() => setSheet({ mode: 'menu' })}
+        aria-label="Open actions menu"
+        title="Add Subject, Add Year, or Search"
+        className="animate-pop-in fixed right-4 bottom-20 z-30 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gold-400 text-obsidian shadow-[0_6px_24px_rgba(244,181,42,0.4)] transition-transform hover:scale-105 active:scale-90 lg:right-8 lg:bottom-8"
       >
         <Plus size={24} strokeWidth={2.75} />
       </button>
+
+      {/* Action Menu Modal Bottom Sheet / Dialog when clicking the + Button */}
+      {sheet?.mode === 'menu' &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs sm:items-center sm:p-4"
+            onClick={() => setSheet(null)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Quick actions"
+              onClick={(e) => e.stopPropagation()}
+              className="animate-sheet-up w-full max-w-md rounded-t-2xl border-t border-navy-700 bg-obsidian-soft p-5 pb-8 shadow-2xl sm:rounded-2xl sm:border sm:pb-5"
+            >
+              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-navy-700 sm:hidden" />
+
+              <div className="mb-3.5 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white">Quick Actions</h3>
+                <button
+                  type="button"
+                  onClick={() => setSheet(null)}
+                  aria-label="Close menu"
+                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-navy-800 bg-navy-950 text-slate-400 hover:text-white"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => openMobileAdd()}
+                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
+                    <BookOpen size={18} />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold text-white">Add Subject</div>
+                    <div className="text-xs text-slate-400">
+                      Add a subject, units, and grade to any year or semester
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'addYear' });
+                    setSheet(null);
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
+                    <CalendarPlus size={18} />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold text-white">Add Year</div>
+                    <div className="text-xs text-slate-400">
+                      Add another academic year level to your curriculum
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(true);
+                    setSheet(null);
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl border border-navy-800 bg-navy-950 p-3.5 text-left transition-all hover:border-gold-400/50 active:scale-[0.99] active:bg-navy-900"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-400/15 text-gold-400">
+                    <Search size={18} />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold text-white">Search</div>
+                    <div className="text-xs text-slate-400">
+                      Search subjects by name or filter by graded/ungraded status
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* Mobile Modal Bottom Sheet: Edit Subject (Rendered via Portal to document.body) */}
       {editingSub &&
@@ -733,14 +788,9 @@ export function CurriculumMatrix({
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700" />
 
               <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-[10px] tracking-widest text-gold-400 uppercase">
-                    Edit Subject
-                  </div>
-                  <h3 className="text-sm font-bold text-white">
-                    {editingSub.name || 'Subject Details'}
-                  </h3>
-                </div>
+                <h3 className="text-sm font-bold text-white">
+                  {editingSub.name || 'Subject Details'}
+                </h3>
                 <button
                   type="button"
                   onClick={() => setSheet(null)}
@@ -902,12 +952,12 @@ export function CurriculumMatrix({
           document.body,
         )}
 
-      {/* Mobile Modal Bottom Sheet: Add Subject (Rendered via Portal to document.body) */}
+      {/* Modal Bottom Sheet / Dialog: Add Subject (No "NEW SUBJECT" header above title) */}
       {sheet?.mode === 'add' &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-black/75 backdrop-blur-xs sm:hidden"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs sm:items-center sm:p-4"
             onClick={() => setSheet(null)}
           >
             <form
@@ -916,17 +966,12 @@ export function CurriculumMatrix({
               aria-label="Add subject"
               onSubmit={submitMobileAdd}
               onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up max-h-[88vh] w-full overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl"
+              className="animate-sheet-up max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl sm:rounded-2xl sm:border sm:p-5"
             >
-              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700" />
+              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700 sm:hidden" />
 
               <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-[10px] tracking-widest text-gold-400 uppercase">
-                    New Subject
-                  </div>
-                  <h3 className="text-sm font-bold text-white">Add Subject to Curriculum</h3>
-                </div>
+                <h3 className="text-sm font-bold text-white">Add Subject to Curriculum</h3>
                 <button
                   type="button"
                   onClick={() => setSheet(null)}

@@ -122,7 +122,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                     How It Formulates Everything
                   </h3>
                   <ul className="mt-2.5 grid gap-2.5 sm:grid-cols-3">
-                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                    <li className="rounded-xl border border-navy-800 bg-navy-950/80 p-3">
                       <div className="font-semibold text-white">1. Weighted GWA</div>
                       <div className="mt-1 font-mono text-[11px] text-gold-400">
                         Σ(Units × Grade) ÷ ΣUnits
@@ -132,7 +132,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                       </p>
                     </li>
 
-                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                    <li className="rounded-xl border border-navy-800 bg-navy-950/80 p-3">
                       <div className="font-semibold text-white">2. Target Solver</div>
                       <div className="mt-1 font-mono text-[11px] text-gold-400">
                         (T·Units − Pts) ÷ Rem
@@ -142,7 +142,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                       </p>
                     </li>
 
-                    <li className="border-l-2 border-gold-400 bg-navy-950/80 p-3">
+                    <li className="rounded-xl border border-navy-800 bg-navy-950/80 p-3">
                       <div className="font-semibold text-white">3. Monte Carlo</div>
                       <div className="mt-1 font-mono text-[11px] text-gold-400">
                         30,000+ Box–Muller Runs
@@ -222,7 +222,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           onClick={() => setTipOpen(false)}
         >
           <div
-            className="animate-pop-in w-full max-w-md rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian p-6 text-left shadow-2xl"
+            className="animate-pop-in w-full max-w-md rounded-2xl border border-navy-800 bg-obsidian p-6 text-left shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">

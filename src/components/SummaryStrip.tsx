@@ -73,7 +73,7 @@ export function SummaryStrip({
   return (
     <section className="my-3.5 sm:my-5">
       {/* Mobile / Tablet Compact Summary Strip (< lg) */}
-      <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-3.5 shadow-sm lg:hidden">
+      <div className="rounded-2xl border border-navy-800 bg-obsidian-soft p-3.5 shadow-sm lg:hidden">
         <div className="grid grid-cols-3 divide-x divide-navy-800">
           {/* Col 1: GWA */}
           <div className="pr-3">
@@ -148,7 +148,7 @@ export function SummaryStrip({
       {/* Desktop 3-Card Summary Strip (lg+) */}
       <div className="hidden gap-3.5 lg:grid lg:grid-cols-12">
         {/* Card 1: Current GWA */}
-        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-4">
+        <div className="rounded-2xl border border-navy-800 bg-obsidian-soft p-5 shadow-sm lg:col-span-4">
           <Label>{mode === 'academic' ? 'Current Honors GWA' : 'Current GWA (All Subjects)'}</Label>
           <div className="mt-2 flex items-baseline gap-2.5">
             <span
@@ -171,7 +171,7 @@ export function SummaryStrip({
         </div>
 
         {/* Card 2: Standing */}
-        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-3">
+        <div className="rounded-2xl border border-navy-800 bg-obsidian-soft p-5 shadow-sm lg:col-span-3">
           <Label>Honors Standing</Label>
           <div className="mt-2.5 flex items-center gap-2">
             <Award
@@ -233,7 +233,7 @@ export function SummaryStrip({
         </div>
 
         {/* Card 3: Progress & Next-Step Guidance */}
-        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-5">
+        <div className="rounded-2xl border border-navy-800 bg-obsidian-soft p-5 shadow-sm lg:col-span-5">
           <div className="flex items-baseline justify-between">
             <Label>Curriculum Progress</Label>
             <span className="font-mono text-xs text-gold-400 tabular">

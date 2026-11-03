@@ -57,13 +57,13 @@ export function ProbabilityPanel({
       }
     >
       {hardDisqualified && (
-        <div className="mb-3 rounded-xl border-l-4 border-rose-500 bg-rose-500/10 p-2.5 text-xs text-rose-300">
+        <div className="mb-3 rounded-xl border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-300">
           A failing grade (5.00) is on record — Latin Honors eligibility is zero.
         </div>
       )}
 
       {!hardDisqualified && missingYears > 0 && (
-        <div className="mb-3 rounded-xl border-l-4 border-amber-400 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
+        <div className="mb-3 rounded-xl border border-amber-400/40 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
           <strong>Yr {yearsEntered} of 4 entered:</strong> Automatically simulating your remaining{' '}
           <strong>
             {missingYears} unentered year{missingYears > 1 ? 's' : ''} ({missingYears * 36} units)
@@ -73,7 +73,7 @@ export function ProbabilityPanel({
       )}
 
       {result && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-navy-800 border-l-4 border-l-gold-400 bg-navy-950/90 p-3">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-navy-800 bg-navy-950/90 p-3">
           <div>
             <div className="text-xs font-semibold text-white">Overall Honors Chance</div>
             <div className="mt-0.5 text-[11px] text-slate-400">

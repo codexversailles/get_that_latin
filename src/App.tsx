@@ -157,7 +157,7 @@ export default function App() {
         <div
           role="status"
           aria-live="polite"
-          className="animate-pop-in fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-navy-700 border-l-4 border-l-gold-400 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
+          className="animate-pop-in fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-navy-700 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
         >
           <span className={cx('truncate font-medium', toast.tone === 'error' ? 'text-rose-300' : 'text-slate-100')}>
             {toast.message}

@@ -102,10 +102,10 @@ export function TargetSolver({
               type="button"
               onClick={() => onTarget(t.max)}
               className={cx(
-                'block w-full cursor-pointer rounded-xl border border-l-4 p-3 text-left transition-all',
+                'block w-full cursor-pointer rounded-xl border p-3 text-left transition-all',
                 selected
-                  ? 'border-navy-700 border-l-gold-400 bg-navy-900/90 shadow-xs'
-                  : 'border-navy-800 border-l-transparent bg-navy-950/60 hover:border-navy-700',
+                  ? 'border-gold-400/60 bg-navy-900/90 shadow-xs'
+                  : 'border-navy-800 bg-navy-950/60 hover:border-navy-700',
               )}
             >
               <div className="flex items-center justify-between gap-2">
