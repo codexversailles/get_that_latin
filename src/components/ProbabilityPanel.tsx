@@ -14,7 +14,6 @@ const PRESETS: Array<{ label: string; desc: string; shift: number }> = [
 export function ProbabilityPanel({
   result,
   busy,
-  viaWorker,
   moments,
   sim,
   onSim,
@@ -25,7 +24,7 @@ export function ProbabilityPanel({
 }: {
   result: SimResult | null;
   busy: boolean;
-  viaWorker: boolean;
+  viaWorker?: boolean;
   moments: Moments;
   sim: SimSettings;
   onSim: (p: Partial<SimSettings>) => void;
@@ -53,7 +52,7 @@ export function ProbabilityPanel({
       meta={
         <span className="inline-flex items-center gap-1">
           {busy ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
-          {result ? `${result.elapsedMs.toFixed(0)}ms` : '…'}
+          <span>{busy ? 'Updating' : 'Live'}</span>
         </span>
       }
     >
@@ -139,8 +138,12 @@ export function ProbabilityPanel({
         </div>
       </div>
 
+      <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+        Statistical estimate based on your grade history — not an official registrar evaluation.
+      </p>
+
       {pendingInc > 0 && (
-        <p className="mt-3 text-[11px] text-amber-300/90">
+        <p className="mt-2 text-[11px] text-amber-300/90">
           Note: Assumes {pendingInc} incomplete (INC) subject{pendingInc > 1 ? 's are' : ' is'} completed with a passing grade.
         </p>
       )}
@@ -152,7 +155,7 @@ export function ProbabilityPanel({
           onClick={() => setShowAdvanced((v) => !v)}
           className="flex w-full cursor-pointer items-center justify-between text-left text-xs text-slate-400 hover:text-gold-400"
         >
-          <span>{showAdvanced ? 'Hide distribution chart & settings' : 'Show distribution chart & settings'}</span>
+          <span>{showAdvanced ? 'Hide distribution chart & details' : 'Show distribution chart & details'}</span>
           {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -198,25 +201,6 @@ export function ProbabilityPanel({
                 onChange={(e) => onSim({ volatility: Number(e.target.value) })}
               />
             </label>
-
-            <div className="flex items-center justify-between text-xs text-slate-300">
-              <span>Simulation runs ({viaWorker ? 'Web Worker' : 'Inline'})</span>
-              <div className="inline-flex border border-navy-800">
-                {[25000, 30000, 50000].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => onSim({ runs: n })}
-                    className={cx(
-                      'cursor-pointer px-2 py-1 font-mono text-[11px]',
-                      sim.runs === n ? 'bg-gold-400 font-bold text-obsidian' : 'text-slate-300 hover:text-white',
-                    )}
-                  >
-                    {n / 1000}k
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>

@@ -10,9 +10,23 @@ const TECH_STACK = [
   { icon: Database, name: 'LocalStorage & Zod', role: '100% private on-device persistence' },
 ];
 
-export function LandingPage({ onEnter }: { onEnter: () => void }) {
+export function LandingPage({
+  onEnter,
+  hasSavedData = false,
+}: {
+  onEnter: () => void;
+  hasSavedData?: boolean;
+}) {
   const [aboutSiteOpen, setAboutSiteOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
+
+  const handleStart = () => {
+    if (hasSavedData) {
+      onEnter();
+    } else {
+      setTipOpen(true);
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-obsidian px-6 text-slate-100">
@@ -36,7 +50,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
           {/* Primary CTA */}
           <button
             type="button"
-            onClick={() => setTipOpen(true)}
+            onClick={handleStart}
             className="animate-intro-cta group inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-gold-400 px-6 text-sm font-bold tracking-wide text-obsidian shadow-[0_0_24px_rgba(244,181,42,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-300 hover:shadow-[0_0_32px_rgba(244,181,42,0.38)] active:translate-y-0"
           >
             <span>I want that latin</span>
@@ -199,7 +213,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   type="button"
                   onClick={() => {
                     setAboutSiteOpen(false);
-                    setTipOpen(true);
+                    handleStart();
                   }}
                   className="h-9 cursor-pointer bg-gold-400 px-4 text-xs font-semibold text-obsidian hover:bg-gold-300"
                 >

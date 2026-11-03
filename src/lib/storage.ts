@@ -81,7 +81,15 @@ export const AppStateSchema = z.object({
 
 export function parseState(raw: unknown): AppState | null {
   const r = AppStateSchema.safeParse(raw);
-  return r.success ? (r.data as AppState) : null;
+  if (!r.success) return null;
+  const data = r.data as AppState;
+  return {
+    ...data,
+    settings: {
+      ...data.settings,
+      honorsMode: 'academic',
+    },
+  };
 }
 
 export function loadState(): AppState {

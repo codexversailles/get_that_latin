@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { BookOpen, Sparkles, Target } from 'lucide-react';
+import { BookOpen, RotateCcw, Sparkles, Target, X } from 'lucide-react';
 import {
   buildStudentLedger,
   historicalMoments,
@@ -23,7 +23,7 @@ import { cx } from './components/ui';
 const SIM_SEED = 0x9e3779b9;
 
 export default function App() {
-  const { state, dispatch, clearAll } = useAppState();
+  const { state, dispatch, clearAll, toast, undo, dismissToast, notify } = useAppState();
   const [entered, setEntered] = useState(false);
   const [mobileTab, setMobileTab] = useState<'grades' | 'goal' | 'probability'>('grades');
   const { honorsMode: mode, target, sim } = state.settings;
@@ -76,18 +76,23 @@ export default function App() {
       try {
         dispatch({ type: 'replace', state: await readImport(f) });
       } catch (e) {
-        alert((e as Error).message);
+        notify((e as Error).message, 'error');
       }
     },
-    [dispatch],
+    [dispatch, notify],
   );
 
   const onClear = useCallback(() => {
     clearAll();
   }, [clearAll]);
 
+  const hasSavedData = useMemo(
+    () => state.years.some((y) => y.semesters.some((s) => s.subjects.length > 0)),
+    [state.years],
+  );
+
   if (!entered) {
-    return <LandingPage onEnter={() => setEntered(true)} />;
+    return <LandingPage onEnter={() => setEntered(true)} hasSavedData={hasSavedData} />;
   }
 
   return (
@@ -118,7 +123,7 @@ export default function App() {
               mobileTab === 'grades' && 'hidden lg:block',
             )}
           >
-            <div className="space-y-4 sm:space-y-5 lg:sticky lg:top-4">
+            <div className="space-y-4 sm:space-y-5">
               <div className={cx('space-y-4 sm:space-y-5', mobileTab !== 'goal' && 'hidden lg:block')}>
                 <TargetSolver
                   ledger={ledger}
@@ -151,6 +156,38 @@ export default function App() {
           </aside>
         </div>
       </main>
+
+      {/* Non-intrusive Undo / Notification Toast */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-3 bottom-16 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 border border-navy-700 border-l-2 border-l-gold-400 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
+        >
+          <span className={cx('truncate font-medium', toast.tone === 'error' ? 'text-rose-300' : 'text-slate-100')}>
+            {toast.message}
+          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            {toast.canUndo && (
+              <button
+                type="button"
+                onClick={undo}
+                className="inline-flex h-7 cursor-pointer items-center gap-1 bg-gold-400 px-2.5 text-xs font-bold text-obsidian hover:bg-gold-300"
+              >
+                <RotateCcw size={12} /> Undo
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={dismissToast}
+              aria-label="Dismiss notification"
+              className="cursor-pointer p-1 text-slate-400 hover:text-white"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Bottom Navigation Bar */}
       <nav

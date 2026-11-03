@@ -91,13 +91,13 @@ export function SummaryStrip({
           </div>
 
           {/* Col 2: Standing */}
-          <div className="px-3">
+          <div className="px-2.5 sm:px-3">
             <div className="font-mono text-[10px] font-semibold tracking-wider text-gold-400 uppercase">
               Standing
             </div>
             <div
               className={cx(
-                'mt-1 truncate text-xs font-bold',
+                'mt-1 text-xs leading-snug font-bold',
                 ledger.hardDisqualified
                   ? 'text-rose-400'
                   : tier
@@ -110,7 +110,7 @@ export function SummaryStrip({
           </div>
 
           {/* Col 3: Units */}
-          <div className="pl-3">
+          <div className="pl-2.5 sm:pl-3">
             <div className="font-mono text-[10px] font-semibold tracking-wider text-gold-400 uppercase">
               Graded
             </div>
@@ -120,9 +120,16 @@ export function SummaryStrip({
           </div>
         </div>
 
-        {/* Compact 1-line status below only when relevant */}
+        {/* Main answer / headline on mobile */}
+        {ledger.totalUnits > 0 && !ledger.hardDisqualified && (
+          <p className={cx('mt-2.5 border-t border-navy-800 pt-2 text-xs leading-relaxed', headlineTone)}>
+            {headline}
+          </p>
+        )}
+
+        {/* Compact What-If / Disqualifier status */}
         {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
-          <div className="mt-2.5 flex items-center gap-1.5 border-t border-navy-800 pt-2 font-mono text-[11px] text-gold-300">
+          <div className="mt-2 flex items-center gap-1.5 border-t border-navy-800 pt-2 font-mono text-[11px] text-gold-300">
             <Sparkles size={11} className="shrink-0" />
             <span>
               What-If GWA: {formatGwa(ledger.projectedGwa)}

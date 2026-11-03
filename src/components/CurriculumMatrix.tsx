@@ -24,15 +24,15 @@ export function gradeTone(g: GradeState | undefined): string {
 }
 
 export const GRADE_OPTIONS: Array<{ label: string; shortLabel: string; value: string; state: GradeState }> = [
-  { label: 'Not graded yet', shortLabel: 'Grade', value: '', state: null },
+  { label: 'Not graded yet', shortLabel: 'No grade', value: '', state: null },
   ...PASSING_STEPS.map((n) => ({
     label: n === 1.0 ? '1.00 (Best)' : n === 3.0 ? '3.00 (Pass)' : n.toFixed(2),
     shortLabel: n.toFixed(2),
     value: n.toFixed(2),
     state: n,
   })),
-  { label: '5.00 (Failed)', shortLabel: '5.00', value: '5.00', state: 5 },
-  { label: 'IP (In Progress)', shortLabel: 'IP', value: 'IP', state: 'IP' },
+  { label: '5.00 (Failed)', shortLabel: '5.00 (Fail)', value: '5.00', state: 5 },
+  { label: 'IP (In Progress)', shortLabel: 'IP (Ongoing)', value: 'IP', state: 'IP' },
   { label: 'INC (Incomplete)', shortLabel: 'INC', value: 'INC', state: 'INC' },
 ];
 
@@ -56,89 +56,104 @@ const SubjectRow = memo(function SubjectRow({
   return (
     <div
       className={cx(
-        'flex items-center gap-1.5 border-b border-navy-800/70 px-3 py-2 transition-colors hover:bg-navy-900/40 sm:gap-2 sm:px-4 sm:py-2.5',
+        'flex flex-col gap-2 border-b border-navy-800/70 px-3 py-2.5 transition-colors hover:bg-navy-900/40 sm:flex-row sm:items-center sm:px-4',
         excluded && 'opacity-50',
       )}
     >
-      <span className="hidden h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400 sm:inline-block" />
-      <input
-        type="text"
-        value={sub.name}
-        onChange={(e) =>
-          dispatch({ type: 'updateSubject', subId: sub.id, patch: { name: e.target.value } })
-        }
-        placeholder="Subject name"
-        aria-label="Subject name"
-        className="h-8 min-w-0 flex-1 border border-transparent bg-transparent px-1.5 text-xs font-medium text-white placeholder:text-slate-500 hover:border-navy-700 focus:border-gold-400 focus:bg-navy-950 focus:outline-none sm:px-2 sm:text-sm"
-      />
+      {/* Top row on mobile / Left side on desktop: Subject Name + Mobile Delete button */}
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+        <input
+          type="text"
+          value={sub.name}
+          onChange={(e) =>
+            dispatch({ type: 'updateSubject', subId: sub.id, patch: { name: e.target.value } })
+          }
+          placeholder="Subject name (e.g. IT 111)"
+          aria-label="Subject name"
+          className="h-9 min-w-0 flex-1 border border-transparent bg-transparent px-1.5 text-xs font-medium text-white placeholder:text-slate-400 hover:border-navy-700 focus:border-gold-400 focus:bg-navy-950 focus:outline-none sm:h-8 sm:px-2 sm:text-sm"
+        />
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'removeSubject', subId: sub.id })}
+          title="Remove subject"
+          aria-label={`Remove ${sub.name}`}
+          className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center text-slate-400 transition-colors hover:text-rose-400 sm:hidden"
+        >
+          <X size={15} />
+        </button>
+      </div>
 
-      <button
-        type="button"
-        onClick={() =>
-          dispatch({ type: 'updateSubject', subId: sub.id, patch: { isNstp: !sub.isNstp } })
-        }
-        title="Toggle NSTP (excluded from Latin Honors GWA per RA 9163)"
-        className={cx(
-          'shrink-0 cursor-pointer border px-1.5 py-0.5 font-mono text-[10px] transition-colors',
-          sub.isNstp
-            ? 'border-gold-500/50 bg-gold-500/15 text-gold-300'
-            : 'border-navy-800 text-slate-500 hover:text-slate-300',
-        )}
-      >
-        NSTP
-      </button>
+      {/* Bottom row on mobile / Right side on desktop: NSTP + Units + Grade + Desktop Delete */}
+      <div className="flex items-center gap-2 pl-3.5 sm:pl-0">
+        <button
+          type="button"
+          onClick={() =>
+            dispatch({ type: 'updateSubject', subId: sub.id, patch: { isNstp: !sub.isNstp } })
+          }
+          title="Toggle NSTP (excluded from Latin Honors GWA per RA 9163)"
+          className={cx(
+            'inline-flex h-9 shrink-0 cursor-pointer items-center border px-2 font-mono text-xs transition-colors sm:h-8 sm:px-1.5 sm:text-[11px]',
+            sub.isNstp
+              ? 'border-gold-500/50 bg-gold-500/15 text-gold-300'
+              : 'border-navy-800 text-slate-400 hover:text-slate-200',
+          )}
+        >
+          NSTP
+        </button>
 
-      <select
-        aria-label={`${sub.name} units`}
-        value={sub.units}
-        onChange={(e) =>
-          dispatch({
-            type: 'updateSubject',
-            subId: sub.id,
-            patch: { units: Number(e.target.value) },
-          })
-        }
-        className="h-8 shrink-0 border border-navy-800 bg-navy-950 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:px-2"
-      >
-        {UNIT_OPTIONS.map((u) => (
-          <option key={u} value={u} className="bg-obsidian">
-            {u} {u === 1 ? 'unit' : 'units'}
-          </option>
-        ))}
-      </select>
+        <select
+          aria-label={`${sub.name} units`}
+          value={sub.units}
+          onChange={(e) =>
+            dispatch({
+              type: 'updateSubject',
+              subId: sub.id,
+              patch: { units: Number(e.target.value) },
+            })
+          }
+          className="h-9 shrink-0 border border-navy-800 bg-navy-950 px-2 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:h-8"
+        >
+          {UNIT_OPTIONS.map((u) => (
+            <option key={u} value={u} className="bg-obsidian">
+              {u} {u === 1 ? 'unit' : 'units'}
+            </option>
+          ))}
+        </select>
 
-      <select
-        aria-label={`${sub.name} grade`}
-        value={stateToValue(sub.grade)}
-        onChange={(e) => {
-          const opt = GRADE_OPTIONS.find((o) => o.value === e.target.value);
-          dispatch({
-            type: 'updateSubject',
-            subId: sub.id,
-            patch: { grade: opt ? opt.state : null },
-          });
-        }}
-        className={cx(
-          'h-8 w-20 shrink-0 cursor-pointer border px-1.5 font-mono text-xs font-medium outline-none transition-colors focus:border-gold-400 sm:w-32 sm:px-2',
-          gradeTone(sub.grade),
-        )}
-      >
-        {GRADE_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value} className="bg-obsidian text-white">
-            {o.shortLabel}
-          </option>
-        ))}
-      </select>
+        <select
+          aria-label={`${sub.name} grade`}
+          value={stateToValue(sub.grade)}
+          onChange={(e) => {
+            const opt = GRADE_OPTIONS.find((o) => o.value === e.target.value);
+            dispatch({
+              type: 'updateSubject',
+              subId: sub.id,
+              patch: { grade: opt ? opt.state : null },
+            });
+          }}
+          className={cx(
+            'h-9 flex-1 cursor-pointer border px-2 font-mono text-xs font-medium outline-none transition-colors focus:border-gold-400 sm:h-8 sm:w-32 sm:flex-none',
+            gradeTone(sub.grade),
+          )}
+        >
+          {GRADE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value} className="bg-obsidian text-white">
+              {o.shortLabel}
+            </option>
+          ))}
+        </select>
 
-      <button
-        type="button"
-        onClick={() => dispatch({ type: 'removeSubject', subId: sub.id })}
-        title="Remove subject"
-        aria-label={`Remove ${sub.name}`}
-        className="shrink-0 cursor-pointer p-1 text-slate-500 transition-colors hover:text-rose-400"
-      >
-        <X size={14} />
-      </button>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'removeSubject', subId: sub.id })}
+          title="Remove subject"
+          aria-label={`Remove ${sub.name}`}
+          className="hidden h-8 w-8 shrink-0 cursor-pointer items-center justify-center text-slate-400 transition-colors hover:text-rose-400 sm:inline-flex"
+        >
+          <X size={15} />
+        </button>
+      </div>
     </div>
   );
 });
@@ -179,49 +194,51 @@ function AddSubjectForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="flex items-center gap-1.5 bg-obsidian/70 p-2.5 sm:gap-2 sm:p-3.5"
+      className="flex flex-col gap-2 bg-obsidian/70 p-3 sm:flex-row sm:items-center sm:p-3.5"
     >
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Add subject (e.g. IT 111)…"
+        placeholder="Add subject (e.g. IT 111, PurCom, NSTP)…"
         aria-label="New subject name"
-        className="h-8 min-w-0 flex-1 border border-navy-800 bg-navy-950/90 px-2.5 text-xs text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none sm:h-9 sm:px-3"
+        className="h-9 min-w-0 flex-1 border border-navy-800 bg-navy-950/90 px-3 text-xs text-white placeholder:text-slate-400 focus:border-gold-400 focus:outline-none"
       />
-      <select
-        aria-label="New subject units"
-        value={units}
-        onChange={(e) => setUnits(Number(e.target.value))}
-        className="h-8 shrink-0 border border-navy-800 bg-navy-950/90 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:h-9 sm:px-2"
-      >
-        {UNIT_OPTIONS.map((u) => (
-          <option key={u} value={u}>
-            {u} {u === 1 ? 'unit' : 'units'}
-          </option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2">
+        <select
+          aria-label="New subject units"
+          value={units}
+          onChange={(e) => setUnits(Number(e.target.value))}
+          className="h-9 shrink-0 border border-navy-800 bg-navy-950/90 px-2 font-mono text-xs text-slate-200 outline-none focus:border-gold-400"
+        >
+          {UNIT_OPTIONS.map((u) => (
+            <option key={u} value={u}>
+              {u} {u === 1 ? 'unit' : 'units'}
+            </option>
+          ))}
+        </select>
 
-      <select
-        aria-label="New subject grade"
-        value={grade}
-        onChange={(e) => setGrade(e.target.value)}
-        className="h-8 w-20 shrink-0 border border-navy-800 bg-navy-950/90 px-1.5 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:h-9 sm:w-28 sm:px-2"
-      >
-        {GRADE_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.shortLabel}
-          </option>
-        ))}
-      </select>
+        <select
+          aria-label="New subject grade"
+          value={grade}
+          onChange={(e) => setGrade(e.target.value)}
+          className="h-9 flex-1 border border-navy-800 bg-navy-950/90 px-2 font-mono text-xs text-slate-200 outline-none focus:border-gold-400 sm:w-28 sm:flex-none"
+        >
+          {GRADE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.shortLabel}
+            </option>
+          ))}
+        </select>
 
-      <button
-        type="submit"
-        className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1 border border-gold-400/50 bg-gold-400/15 px-2.5 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-400 hover:text-obsidian sm:h-9 sm:px-3.5"
-      >
-        <Plus size={13} />
-        <span className="hidden sm:inline">Add</span>
-      </button>
+        <button
+          type="submit"
+          className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1 border border-gold-400/50 bg-gold-400/15 px-3 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-400 hover:text-obsidian sm:px-3.5"
+        >
+          <Plus size={14} />
+          <span>Add</span>
+        </button>
+      </div>
     </form>
   );
 }
@@ -239,6 +256,7 @@ function SemesterBlock({
   mode: HonorsMode;
   dispatch: Dispatch;
 }) {
+  const [showDlInfo, setShowDlInfo] = useState(false);
   const summary = studentSemSummary(sem, mode);
   const dl = summary.deansList;
 
@@ -250,18 +268,20 @@ function SemesterBlock({
             {sem.name}
           </span>
           {dl.qualified && (
-            <span
+            <button
+              type="button"
+              onClick={() => setShowDlInfo((v) => !v)}
               className={cx(
-                'inline-flex items-center gap-1 border px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wide',
+                'inline-flex cursor-pointer items-center gap-1 border px-2 py-0.5 font-mono text-[11px] font-bold tracking-wide transition-opacity hover:opacity-90',
                 dl.tier === 'First Honors'
                   ? 'border-gold-400/60 bg-gold-400/15 text-gold-300'
                   : 'border-slate-400/50 bg-slate-400/10 text-slate-200',
               )}
-              title={`Dean's List: ${dl.tier} (GWA ≤ ${dl.tier === 'First Honors' ? '1.40' : '1.75'} with no grade below ${dl.tier === 'First Honors' ? '2.00' : '2.25'})`}
+              title="Tap to view Dean's List criteria"
             >
-              <Award size={10} className="shrink-0 text-gold-400" />
+              <Award size={11} className="shrink-0 text-gold-400" />
               <span>DL: {dl.tier}</span>
-            </span>
+            </button>
           )}
         </div>
 
@@ -277,13 +297,22 @@ function SemesterBlock({
               type="button"
               onClick={() => dispatch({ type: 'removeSemester', yearId, semId: sem.id })}
               title={`Remove ${sem.name}`}
-              className="cursor-pointer text-slate-500 hover:text-rose-400"
+              aria-label={`Remove ${sem.name}`}
+              className="inline-flex h-7 w-7 cursor-pointer items-center justify-center text-slate-400 hover:text-rose-400"
             >
-              <Trash2 size={12} />
+              <Trash2 size={13} />
             </button>
           )}
         </div>
       </div>
+
+      {dl.qualified && showDlInfo && (
+        <div className="border-b border-navy-800 bg-navy-900/60 px-3.5 py-2 text-xs text-slate-300">
+          <strong className="text-gold-300">Dean&apos;s List ({dl.tier}):</strong> Semester GWA ≤{' '}
+          {dl.tier === 'First Honors' ? '1.40' : '1.75'}, no subject grade below{' '}
+          {dl.tier === 'First Honors' ? '2.00' : '2.25'}, and ≥ 12 graded academic units (based on common USTP criteria).
+        </div>
+      )}
 
       {sem.subjects.length > 0 && (
         <div>

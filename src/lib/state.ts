@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { GradeState, HonorsMode, StudentSemester, StudentSubject, StudentYear } from '../engine';
 import {
   DEFAULT_STATE,
@@ -219,11 +219,84 @@ function safeJson(s: string): unknown {
   }
 }
 
+export interface ToastNotice {
+  id: number;
+  message: string;
+  canUndo: boolean;
+  tone?: 'info' | 'error';
+}
+
 export function useAppState() {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState);
+  const [state, rawDispatch] = useReducer(reducer, undefined, loadState);
+  const [toast, setToast] = useState<ToastNotice | null>(null);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const undoStackRef = useRef<AppState | null>(null);
+  const toastTimerRef = useRef<number | undefined>(undefined);
   const timer = useRef<number | undefined>(undefined);
   const dirty = useRef(false);
   const cleared = useRef(false);
+
+  const showToast = useCallback((message: string, canUndo: boolean, tone: 'info' | 'error' = 'info') => {
+    window.clearTimeout(toastTimerRef.current);
+    setToast({ id: Date.now(), message, canUndo, tone });
+    toastTimerRef.current = window.setTimeout(() => {
+      setToast(null);
+    }, 6000);
+  }, []);
+
+  const dismissToast = useCallback(() => {
+    window.clearTimeout(toastTimerRef.current);
+    setToast(null);
+  }, []);
+
+  const dispatch = useCallback(
+    (action: Action) => {
+      const current = stateRef.current;
+      if (action.type === 'removeSubject') {
+        let subName = 'Subject';
+        for (const y of current.years) {
+          for (const sem of y.semesters) {
+            const found = sem.subjects.find((s) => s.id === action.subId);
+            if (found) subName = found.name || 'Subject';
+          }
+        }
+        undoStackRef.current = current;
+        showToast(`Removed "${subName}"`, true);
+      } else if (action.type === 'removeSemester') {
+        const y = current.years.find((yr) => yr.id === action.yearId);
+        const sem = y?.semesters.find((s) => s.id === action.semId);
+        undoStackRef.current = current;
+        showToast(`Deleted ${sem?.name ?? 'Semester'}`, true);
+      } else if (action.type === 'removeYear') {
+        const y = current.years.find((yr) => yr.id === action.yearId);
+        undoStackRef.current = current;
+        showToast(`Deleted ${y?.label ?? 'Year'}`, true);
+      } else if (action.type === 'replace') {
+        undoStackRef.current = current;
+        showToast('Backup restored successfully', true);
+      }
+      rawDispatch(action);
+    },
+    [showToast],
+  );
+
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current;
+    if (!prev) return;
+    undoStackRef.current = null;
+    window.clearTimeout(toastTimerRef.current);
+    setToast(null);
+    rawDispatch({ type: 'replace', state: prev });
+    saveState(prev);
+  }, []);
+
+  const notify = useCallback(
+    (message: string, tone: 'info' | 'error' = 'info') => {
+      showToast(message, false, tone);
+    },
+    [showToast],
+  );
 
   useEffect(() => {
     if (cleared.current) {
@@ -253,19 +326,21 @@ export function useAppState() {
       if (e.key !== STORAGE_KEY) return;
       const next = e.newValue ? parseState(safeJson(e.newValue)) : null;
       cleared.current = true;
-      dispatch({ type: 'replace', state: next ?? { ...DEFAULT_STATE, years: createInitialYears() } });
+      rawDispatch({ type: 'replace', state: next ?? { ...DEFAULT_STATE, years: createInitialYears() } });
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const clearAll = useCallback(() => {
+    undoStackRef.current = stateRef.current;
     clearStoredState();
     cleared.current = true;
-    dispatch({ type: 'clearAll' });
-  }, []);
+    rawDispatch({ type: 'clearAll' });
+    showToast('All data reset', true);
+  }, [showToast]);
 
-  return { state, dispatch, clearAll };
+  return { state, dispatch, clearAll, toast, undo, dismissToast, notify };
 }
 
 export type Dispatch = ReturnType<typeof useAppState>['dispatch'];
