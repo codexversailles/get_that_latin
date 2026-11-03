@@ -1,5 +1,5 @@
 import { memo, useState, type FormEvent } from 'react';
-import { CalendarPlus, Plus, Trash2, X } from 'lucide-react';
+import { Award, CalendarPlus, Plus, Trash2, X } from 'lucide-react';
 import {
   FAILING_GRADE,
   PASSING_STEPS,
@@ -240,13 +240,30 @@ function SemesterBlock({
   dispatch: Dispatch;
 }) {
   const summary = studentSemSummary(sem, mode);
+  const dl = summary.deansList;
 
   return (
     <div className="border-t border-navy-800 first:border-t-0">
-      <div className="flex items-center justify-between gap-2 bg-navy-950 px-3 py-2 sm:px-4 sm:py-2.5">
-        <span className="font-mono text-xs font-semibold tracking-wide text-slate-200 uppercase">
-          {sem.name}
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-navy-950 px-3 py-2 sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-semibold tracking-wide text-slate-200 uppercase">
+            {sem.name}
+          </span>
+          {dl.qualified && (
+            <span
+              className={cx(
+                'inline-flex items-center gap-1 border px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wide',
+                dl.tier === 'First Honors'
+                  ? 'border-gold-400/60 bg-gold-400/15 text-gold-300'
+                  : 'border-slate-400/50 bg-slate-400/10 text-slate-200',
+              )}
+              title={`Dean's List: ${dl.tier} (GWA ≤ ${dl.tier === 'First Honors' ? '1.40' : '1.75'} with no grade below ${dl.tier === 'First Honors' ? '2.00' : '2.25'})`}
+            >
+              <Award size={10} className="shrink-0 text-gold-400" />
+              <span>DL: {dl.tier}</span>
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center gap-2.5 font-mono text-xs tabular sm:gap-3">
           <span className="text-slate-400">

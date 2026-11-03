@@ -1,4 +1,5 @@
 import { FAILING_GRADE, isNumericGrade } from './grades';
+import { classifyDeansList, type DeansListResult } from './honors';
 import type {
   Course,
   Disqualifier,
@@ -96,6 +97,7 @@ export function studentSemSummary(sem: StudentSemester, mode: HonorsMode): {
   gwa: number | null;
   gradedUnits: number;
   totalUnits: number;
+  deansList: DeansListResult;
 } {
   let gradedUnits = 0;
   let totalUnits = 0;
@@ -108,7 +110,9 @@ export function studentSemSummary(sem: StudentSemester, mode: HonorsMode): {
       points += sub.units * sub.grade;
     }
   }
-  return { gwa: gradedUnits > 0 ? points / gradedUnits : null, gradedUnits, totalUnits };
+  const gwa = gradedUnits > 0 ? points / gradedUnits : null;
+  const deansList = classifyDeansList(gwa, sem.subjects);
+  return { gwa, gradedUnits, totalUnits, deansList };
 }
 
 /** Compute year GWA and unit tallies for a StudentYear. */

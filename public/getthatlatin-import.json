@@ -1,0 +1,395 @@
+{
+  "app": "GetThatLatin",
+  "format": "getthatlatin-transcript-v2",
+  "exportedAt": "2026-11-03T13:46:00.000Z",
+  "state": {
+    "version": 2,
+    "years": [
+      {
+        "id": "year-1",
+        "label": "1st Year",
+        "semesters": [
+          {
+            "id": "year-1-sem-1",
+            "name": "1st Semester",
+            "subjects": [
+              {
+                "id": "sub-1-1-1",
+                "name": "IT 111 (Introduction to Computing)",
+                "units": 3,
+                "grade": 1.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-1-2",
+                "name": "IT 112 (Computer Programming 1)",
+                "units": 3,
+                "grade": 1.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-1-3",
+                "name": "PurCom (Purposive Communication)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-1-4",
+                "name": "ArtApp (Art Appreciation)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              }
+            ]
+          },
+          {
+            "id": "year-1-sem-2",
+            "name": "2nd Semester",
+            "subjects": [
+              {
+                "id": "sub-1-2-1",
+                "name": "IT 121 (Computer Programming 2)",
+                "units": 3,
+                "grade": 2.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-2",
+                "name": "IT 122 (Data Structure and Algorithms)",
+                "units": 3,
+                "grade": 1.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-3",
+                "name": "IT 123 (Discrete Mathematics)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-4",
+                "name": "RPH (Readings in Philippine History)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-5",
+                "name": "UTS (Understanding the Self)",
+                "units": 3,
+                "grade": 1.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-6",
+                "name": "STS (Science, Technology and Society)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-1-2-7",
+                "name": "PATHFIT 2 (Exercise-based Fitness Activities)",
+                "units": 2,
+                "grade": 1.25,
+                "isNstp": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "year-2",
+        "label": "2nd Year",
+        "semesters": [
+          {
+            "id": "year-2-sem-1",
+            "name": "1st Semester",
+            "subjects": [
+              {
+                "id": "sub-2-1-1",
+                "name": "IT 211 (Introduction to Human Computer Interaction)",
+                "units": 3,
+                "grade": 2.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-2",
+                "name": "IT 212 (Fundamentals of Database Systems)",
+                "units": 3,
+                "grade": 2.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-3",
+                "name": "IT 213 (Platform Technologies)",
+                "units": 3,
+                "grade": 2.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-4",
+                "name": "IT 214 (Object Oriented Programming)",
+                "units": 3,
+                "grade": 2.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-5",
+                "name": "IT 215 (Accounting Principles)",
+                "units": 3,
+                "grade": 2.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-6",
+                "name": "EnviSci (Environmental Science)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-1-7",
+                "name": "PATHFit 3 (Physical Activity Towards Health and Fitness 3)",
+                "units": 2,
+                "grade": 1.5,
+                "isNstp": false
+              }
+            ]
+          },
+          {
+            "id": "year-2-sem-2",
+            "name": "2nd Semester",
+            "subjects": [
+              {
+                "id": "sub-2-2-1",
+                "name": "IT 221 (Information Management)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-2",
+                "name": "IT 222 (Networking 1)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-3",
+                "name": "IT 223 (Web Systems and Technologies)",
+                "units": 3,
+                "grade": 3.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-4",
+                "name": "IT 224 (System Integration and Architecture 1)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-5",
+                "name": "Ethc (Ethics)",
+                "units": 3,
+                "grade": 1.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-6",
+                "name": "Rizal (Life and Works of Rizal)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-2-2-7",
+                "name": "PathFit 4 (Physical Activity Towards Health and Fitness 4)",
+                "units": 2,
+                "grade": 1.5,
+                "isNstp": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "year-3",
+        "label": "3rd Year",
+        "semesters": [
+          {
+            "id": "year-3-sem-1",
+            "name": "1st Semester",
+            "subjects": [
+              {
+                "id": "sub-3-1-1",
+                "name": "IT 311 (Information Assurance and Security)",
+                "units": 3,
+                "grade": 2.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-1-2",
+                "name": "IT 312 (Networking 2)",
+                "units": 3,
+                "grade": 2.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-1-3",
+                "name": "IT 313 (Mobile Programming)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-1-4",
+                "name": "IT 314 (Software Engineering)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-1-5",
+                "name": "IT 315 (IT Elective 1)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-1-6",
+                "name": "TECH 101 (Technopreneurship)",
+                "units": 3,
+                "grade": 1.5,
+                "isNstp": false
+              }
+            ]
+          },
+          {
+            "id": "year-3-sem-2",
+            "name": "2nd Semester",
+            "subjects": [
+              {
+                "id": "sub-3-2-1",
+                "name": "IT 321 (CAPSTONE Project and Research 1)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-2",
+                "name": "IT 322 (Integrative Programming and Technologies)",
+                "units": 3,
+                "grade": 2.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-3",
+                "name": "IT 323 (Application Development and Emerging Technologies)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-4",
+                "name": "IT 324 (Quantitative Methods)",
+                "units": 3,
+                "grade": 2.25,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-5",
+                "name": "IT 325 (IT Elective 2)",
+                "units": 3,
+                "grade": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-6",
+                "name": "PICPE (Philippine Indigenous Communities)",
+                "units": 3,
+                "grade": 1.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-7",
+                "name": "FreeElec (Foreign Language)",
+                "units": 3,
+                "grade": 3.0,
+                "isNstp": false
+              },
+              {
+                "id": "sub-3-2-8",
+                "name": "NSTP 102b (CWTS II)",
+                "units": 3,
+                "grade": 1.0,
+                "isNstp": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "year-4",
+        "label": "4th Year",
+        "semesters": [
+          {
+            "id": "year-4-sem-1",
+            "name": "1st Semester",
+            "subjects": [
+              {
+                "id": "sub-4-1-1",
+                "name": "IT 411 (CAPSTONE and Research 2)",
+                "units": 3,
+                "grade": "IP",
+                "isNstp": false
+              },
+              {
+                "id": "sub-4-1-2",
+                "name": "IT 412 (System Administration and Maintenance)",
+                "units": 3,
+                "grade": null,
+                "whatIf": 1.5,
+                "isNstp": false
+              },
+              {
+                "id": "sub-4-1-3",
+                "name": "IT 413 (Social and Professional Issues)",
+                "units": 3,
+                "grade": null,
+                "whatIf": 1.75,
+                "isNstp": false
+              },
+              {
+                "id": "sub-4-1-4",
+                "name": "IT 415 (Elective 4)",
+                "units": 3,
+                "grade": null,
+                "whatIf": 1.5,
+                "isNstp": false
+              }
+            ]
+          },
+          {
+            "id": "year-4-sem-2",
+            "name": "2nd Semester",
+            "subjects": []
+          }
+        ]
+      }
+    ],
+    "settings": {
+      "honorsMode": "academic",
+      "target": 1.75,
+      "sim": {
+        "shift": 0,
+        "volatility": 1,
+        "rho": 0.35,
+        "runs": 30000
+      }
+    }
+  }
+}

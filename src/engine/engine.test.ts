@@ -4,6 +4,7 @@ import {
   ProspectusSchema,
   buildLedger,
   buildStudentLedger,
+  classifyDeansList,
   classifyGwa,
   emptyRecord,
   parseGrade,
@@ -63,6 +64,31 @@ describe('honors classification', () => {
     expect(classifyGwa(1.5)?.id).toBe('MAGNA');
     expect(classifyGwa(1.75)?.id).toBe('CUM');
     expect(classifyGwa(1.7501)).toBeNull();
+  });
+  it('classifies Dean’s List for First and Second Honors per semester', () => {
+    const sem1 = [
+      { grade: 1.25, units: 3 },
+      { grade: 1.25, units: 3 },
+      { grade: 1.5, units: 3 },
+      { grade: 1.5, units: 3 },
+    ]; // 12u, GWA 1.375 <= 1.40
+    expect(classifyDeansList(1.375, sem1).tier).toBe('First Honors');
+
+    const sem2 = [
+      { grade: 1.5, units: 3 },
+      { grade: 1.75, units: 3 },
+      { grade: 1.75, units: 3 },
+      { grade: 1.75, units: 3 },
+    ]; // 12u, GWA 1.6875 <= 1.75
+    expect(classifyDeansList(1.6875, sem2).tier).toBe('Second Honors');
+
+    const withFail = [
+      { grade: 1.0, units: 3 },
+      { grade: 1.0, units: 3 },
+      { grade: 1.0, units: 3 },
+      { grade: 5.0, units: 3 },
+    ];
+    expect(classifyDeansList(1.25, withFail).qualified).toBe(false);
   });
 });
 
