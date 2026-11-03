@@ -81,12 +81,12 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Clean, Minimalist About GetThatLatin Modal */}
       {aboutSiteOpen && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-obsidian/85 p-3 sm:p-6 backdrop-blur-xs overscroll-contain"
+          className="animate-backdrop fixed inset-0 z-50 overflow-y-auto bg-obsidian/85 p-3 backdrop-blur-xs overscroll-contain sm:p-6"
           onClick={() => setAboutSiteOpen(false)}
         >
           <div className="flex min-h-full items-center justify-center">
             <div
-              className="my-auto w-full max-w-2xl border border-navy-800 bg-obsidian p-5 text-left shadow-2xl sm:p-7"
+              className="animate-pop-in my-auto w-full max-w-2xl rounded-2xl border border-navy-800 bg-obsidian p-5 text-left shadow-2xl sm:p-7"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -218,26 +218,26 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
       {/* Tip Modal before entering dashboard */}
       {tipOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs"
+          className="animate-backdrop fixed inset-0 z-50 flex items-center justify-center bg-obsidian/85 p-4 backdrop-blur-xs"
           onClick={() => setTipOpen(false)}
         >
           <div
-            className="w-full max-w-md border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian p-6 text-left shadow-2xl"
+            className="animate-pop-in w-full max-w-md rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian p-6 text-left shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center bg-gold-400/15 text-gold-400">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold-400/15 text-gold-400">
                   <Lightbulb size={16} />
                 </span>
-                <h3 className="text-sm font-bold tracking-tight text-white uppercase font-mono">
+                <h3 className="font-mono text-sm font-bold tracking-tight text-white uppercase">
                   Quick Tip
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setTipOpen(false)}
-                className="cursor-pointer p-1 text-slate-400 transition-colors hover:text-gold-400"
+                className="cursor-pointer rounded-full p-1 text-slate-400 transition-colors hover:text-gold-400"
                 aria-label="Close modal"
               >
                 <X size={16} />
@@ -255,7 +255,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
               <button
                 type="button"
                 onClick={() => setTipOpen(false)}
-                className="h-9 cursor-pointer border border-navy-700 bg-navy-900 px-3.5 text-xs font-medium text-slate-300 hover:border-slate-500"
+                className="h-9 cursor-pointer rounded-full border border-navy-700 bg-navy-900 px-4 text-xs font-medium text-slate-300 transition-colors hover:border-slate-500"
               >
                 Back
               </button>
@@ -265,7 +265,7 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
                   setTipOpen(false);
                   onEnter();
                 }}
-                className="inline-flex h-9 cursor-pointer items-center gap-1.5 bg-gold-400 px-4 text-xs font-bold text-obsidian transition-colors hover:bg-gold-300"
+                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-gold-400 px-4 text-xs font-bold text-obsidian transition-all hover:bg-gold-300 active:scale-95"
               >
                 <span>Got it</span>
                 <Sparkles size={13} />

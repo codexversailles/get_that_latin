@@ -57,13 +57,13 @@ export function ProbabilityPanel({
       }
     >
       {hardDisqualified && (
-        <div className="mb-3 border-l-2 border-rose-500 bg-rose-500/10 p-2.5 text-xs text-rose-300">
+        <div className="mb-3 rounded-xl border-l-4 border-rose-500 bg-rose-500/10 p-2.5 text-xs text-rose-300">
           A failing grade (5.00) is on record — Latin Honors eligibility is zero.
         </div>
       )}
 
       {!hardDisqualified && missingYears > 0 && (
-        <div className="mb-3 border-l-2 border-amber-400 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
+        <div className="mb-3 rounded-xl border-l-4 border-amber-400 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
           <strong>Yr {yearsEntered} of 4 entered:</strong> Automatically simulating your remaining{' '}
           <strong>
             {missingYears} unentered year{missingYears > 1 ? 's' : ''} ({missingYears * 36} units)
@@ -73,7 +73,7 @@ export function ProbabilityPanel({
       )}
 
       {result && (
-        <div className="mb-4 flex items-center justify-between border border-navy-800 border-l-2 border-l-gold-400 bg-navy-950/90 p-3">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-navy-800 border-l-4 border-l-gold-400 bg-navy-950/90 p-3">
           <div>
             <div className="text-xs font-semibold text-white">Overall Honors Chance</div>
             <div className="mt-0.5 text-[11px] text-slate-400">
@@ -100,9 +100,9 @@ export function ProbabilityPanel({
               </span>
               <span className="font-mono text-xs font-semibold text-gold-400 tabular">{pct(p)}</span>
             </div>
-            <div className="mt-1 h-1.5 w-full bg-navy-900">
+            <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-navy-900">
               <div
-                className="h-full bg-gold-400 transition-[width] duration-150"
+                className="h-full rounded-full bg-gold-400 transition-[width] duration-200"
                 style={{ width: `${Math.min(100, p * 100)}%` }}
               />
             </div>
@@ -122,9 +122,9 @@ export function ProbabilityPanel({
                 type="button"
                 onClick={() => onSim({ shift: pr.shift })}
                 className={cx(
-                  'cursor-pointer border p-2 text-left transition-colors',
+                  'cursor-pointer rounded-xl border p-2 text-left transition-all active:scale-95',
                   active
-                    ? 'border-gold-400 bg-gold-400 text-obsidian'
+                    ? 'border-gold-400 bg-gold-400 text-obsidian shadow-xs'
                     : 'border-navy-800 bg-navy-950/70 text-slate-200 hover:border-navy-700',
                 )}
               >
@@ -171,7 +171,7 @@ export function ProbabilityPanel({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border border-navy-800 bg-navy-950 p-2.5 font-mono text-[11px] tabular">
+            <div className="grid grid-cols-3 gap-2 rounded-xl border border-navy-800 bg-navy-950 p-2.5 font-mono text-[11px] tabular">
               <div>
                 <div className="font-sans text-[10px] text-slate-400">Your avg</div>
                 <div className="text-white">{moments.mean.toFixed(2)}</div>

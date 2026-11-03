@@ -82,6 +82,50 @@
   animation: introFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
 }
 
+/* Smooth UI animations for sheets, snackbars, and cards */
+@keyframes backdropFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes sheetSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-backdrop {
+  animation: backdropFadeIn 0.2s ease-out forwards;
+}
+
+.animate-sheet-up {
+  animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pop-in {
+  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Gold (#f4b52a) & Muted Navy range slider */
 input[type='range'].range {
   -webkit-appearance: none;

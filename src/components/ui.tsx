@@ -20,12 +20,17 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={cx('border border-navy-800 bg-obsidian-soft p-4 sm:p-5', className)}>
+    <section
+      className={cx(
+        'rounded-2xl border border-navy-800 bg-obsidian-soft p-4 shadow-sm transition-colors sm:p-5',
+        className,
+      )}
+    >
       <header className="mb-3.5 flex items-start justify-between gap-3 border-b border-navy-800/80 pb-2.5 sm:mb-4 sm:pb-3">
         <div>
           <div className="flex items-center gap-2">
             {step && (
-              <span className="inline-flex h-5 w-5 items-center justify-center bg-gold-400 font-mono text-[11px] font-bold text-obsidian">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold-400 font-mono text-[11px] font-bold text-obsidian">
                 {step}
               </span>
             )}
@@ -65,7 +70,7 @@ export function Button({
       onClick={onClick}
       title={title}
       className={cx(
-        'inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 border px-3 text-xs font-medium transition-colors',
+        'inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all active:scale-95',
         active
           ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian'
           : 'border-navy-800 bg-navy-950 text-slate-200 hover:border-gold-400/60 hover:text-gold-400',
@@ -91,7 +96,7 @@ export function Segmented<T extends string>({
 }) {
   return (
     <div
-      className={cx('inline-flex h-9 border border-navy-800 bg-navy-950 p-0.5', fullWidth && 'flex w-full')}
+      className={cx('inline-flex h-9 rounded-full border border-navy-800 bg-navy-950 p-0.5', fullWidth && 'flex w-full')}
       role="radiogroup"
     >
       {options.map((o) => (
@@ -103,7 +108,7 @@ export function Segmented<T extends string>({
           title={o.title}
           onClick={() => onChange(o.value)}
           className={cx(
-            'cursor-pointer px-3 text-xs font-medium transition-colors',
+            'cursor-pointer rounded-full px-3 text-xs font-medium transition-colors',
             fullWidth && 'flex-1',
             value === o.value
               ? 'bg-gold-400 font-semibold text-obsidian'

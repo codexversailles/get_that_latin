@@ -152,12 +152,12 @@ export default function App() {
         </div>
       </main>
 
-      {/* Non-intrusive Undo / Notification Toast */}
+      {/* Bottom-Center Snackbar (Undo / Action Notification) */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed right-3 bottom-16 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 border border-navy-700 border-l-2 border-l-gold-400 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
+          className="animate-pop-in fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-navy-700 border-l-4 border-l-gold-400 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
         >
           <span className={cx('truncate font-medium', toast.tone === 'error' ? 'text-rose-300' : 'text-slate-100')}>
             {toast.message}
@@ -167,7 +167,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={undo}
-                className="inline-flex h-7 cursor-pointer items-center gap-1 bg-gold-400 px-2.5 text-xs font-bold text-obsidian hover:bg-gold-300"
+                className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-full bg-gold-400 px-3 text-xs font-bold text-obsidian hover:bg-gold-300"
               >
                 <RotateCcw size={12} /> Undo
               </button>
@@ -189,44 +189,59 @@ export default function App() {
         aria-label="Mobile navigation"
         className="fixed right-0 bottom-0 left-0 z-30 border-t border-navy-800 bg-navy-950/95 backdrop-blur lg:hidden"
       >
-        <div className="grid grid-cols-3">
+        <div className="grid h-16 grid-cols-3">
           <button
             type="button"
             onClick={() => setMobileTab('grades')}
             className={cx(
-              'flex cursor-pointer items-center justify-center gap-1.5 px-2 py-3 text-xs font-semibold whitespace-nowrap transition-colors',
-              mobileTab === 'grades'
-                ? 'border-t-2 border-gold-400 bg-navy-900/80 text-gold-300'
-                : 'text-slate-400',
+              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'grades' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
             )}
           >
-            <BookOpen size={14} className="shrink-0" />
+            <span
+              className={cx(
+                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
+                mobileTab === 'grades' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+              )}
+            >
+              <BookOpen size={15} className="shrink-0" />
+            </span>
             <span>Subjects</span>
           </button>
           <button
             type="button"
             onClick={() => setMobileTab('goal')}
             className={cx(
-              'flex cursor-pointer items-center justify-center gap-1.5 px-2 py-3 text-xs font-semibold whitespace-nowrap transition-colors',
-              mobileTab === 'goal'
-                ? 'border-t-2 border-gold-400 bg-navy-900/80 text-gold-300'
-                : 'text-slate-400',
+              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'goal' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
             )}
           >
-            <Target size={14} className="shrink-0" />
+            <span
+              className={cx(
+                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
+                mobileTab === 'goal' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+              )}
+            >
+              <Target size={15} className="shrink-0" />
+            </span>
             <span>Goal &amp; Test</span>
           </button>
           <button
             type="button"
             onClick={() => setMobileTab('probability')}
             className={cx(
-              'flex cursor-pointer items-center justify-center gap-1.5 px-2 py-3 text-xs font-semibold whitespace-nowrap transition-colors',
-              mobileTab === 'probability'
-                ? 'border-t-2 border-gold-400 bg-navy-900/80 text-gold-300'
-                : 'text-slate-400',
+              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'probability' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
             )}
           >
-            <Sparkles size={14} className="shrink-0" />
+            <span
+              className={cx(
+                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
+                mobileTab === 'probability' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+              )}
+            >
+              <Sparkles size={15} className="shrink-0" />
+            </span>
             <span>Probability</span>
           </button>
         </div>

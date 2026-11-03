@@ -102,9 +102,9 @@ export function TargetSolver({
               type="button"
               onClick={() => onTarget(t.max)}
               className={cx(
-                'block w-full cursor-pointer border border-l-2 p-3 text-left transition-colors',
+                'block w-full cursor-pointer rounded-xl border border-l-4 p-3 text-left transition-all',
                 selected
-                  ? 'border-navy-700 border-l-gold-400 bg-navy-900/90'
+                  ? 'border-navy-700 border-l-gold-400 bg-navy-900/90 shadow-xs'
                   : 'border-navy-800 border-l-transparent bg-navy-950/60 hover:border-navy-700',
               )}
             >
@@ -117,7 +117,7 @@ export function TargetSolver({
                   )}
                   <span className="truncate text-xs font-bold text-white sm:text-sm">{t.label}</span>
                 </div>
-                <span className={cx('shrink-0 border px-2 py-0.5 font-mono text-[11px] font-medium whitespace-nowrap', info.tone)}>
+                <span className={cx('shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-medium whitespace-nowrap', info.tone)}>
                   {info.badge}
                 </span>
               </div>
@@ -132,14 +132,14 @@ export function TargetSolver({
       {/* Best vs Worst case summary */}
       {ledger.totalUnits > 0 && activeResult.bestPossibleGwa !== null && (
         <div className="mt-4 grid grid-cols-2 gap-2.5 border-t border-navy-800 pt-3.5">
-          <div className="border border-navy-800 bg-navy-950/80 p-2.5">
+          <div className="rounded-xl border border-navy-800 bg-navy-950/80 p-2.5">
             <div className="text-[11px] text-slate-400">Best reachable GWA</div>
             <div className="mt-0.5 font-mono text-base font-bold text-gold-400 tabular">
               {formatGwa(activeResult.bestPossibleGwa)}
             </div>
             <div className="text-[10px] text-slate-500">with straight 1.00s left</div>
           </div>
-          <div className="border border-navy-800 bg-navy-950/80 p-2.5">
+          <div className="rounded-xl border border-navy-800 bg-navy-950/80 p-2.5">
             <div className="text-[11px] text-slate-400">Safest passing GWA</div>
             <div className="mt-0.5 font-mono text-base font-bold text-white tabular">
               {formatGwa(activeResult.worstPassingGwa)}

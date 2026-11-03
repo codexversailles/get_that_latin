@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, X } from 'lucide-react';
+import { Minus, Plus, RotateCcw, X } from 'lucide-react';
 import {
   PASSING_STEPS,
   flattenSubjects,
@@ -34,7 +34,7 @@ export function WhatIfPanel({
         title="What-If Grade Tester"
         subtitle="Add upcoming subjects with 'Not graded yet' to test how hypothetical grades affect your GWA."
       >
-        <div className="border border-navy-800 bg-navy-950/60 px-3.5 py-2.5 text-xs text-slate-400">
+        <div className="rounded-xl border border-navy-800 bg-navy-950/60 px-3.5 py-2.5 text-xs text-slate-400">
           No ungraded subjects yet. Add an upcoming subject on the left to test grades here.
         </div>
       </Panel>
@@ -72,7 +72,25 @@ export function WhatIfPanel({
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-1.5">
+                  <div className="flex shrink-0 items-center gap-1">
+                    {/* Stepper Controls (− / +) alongside Discrete Grade Picker */}
+                    <button
+                      type="button"
+                      disabled={value <= 1.0}
+                      onClick={() =>
+                        dispatch({
+                          type: 'updateSubject',
+                          subId: sub.id,
+                          patch: { whatIf: Math.max(1.0, snapToStep(value - 0.25)) },
+                        })
+                      }
+                      aria-label={`Improve ${sub.name} grade by 0.25`}
+                      title="Better grade (−0.25)"
+                      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-l-lg border border-navy-700 bg-navy-950 text-slate-300 transition-colors hover:border-gold-400 hover:text-gold-300 disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <Minus size={12} />
+                    </button>
+
                     <select
                       aria-label={`${sub.name} what-if grade`}
                       value={value.toFixed(2)}
@@ -83,7 +101,7 @@ export function WhatIfPanel({
                           patch: { whatIf: Number(e.target.value) },
                         })
                       }
-                      className="h-8 border border-gold-500/50 bg-gold-500/15 px-2 font-mono text-xs text-gold-300 outline-none"
+                      className="h-8 border-y border-gold-500/50 bg-gold-500/15 px-2 font-mono text-xs font-semibold text-gold-300 outline-none"
                     >
                       {PASSING_STEPS.map((n) => (
                         <option key={n} value={n.toFixed(2)} className="bg-obsidian text-white">
@@ -94,6 +112,23 @@ export function WhatIfPanel({
 
                     <button
                       type="button"
+                      disabled={value >= 3.0}
+                      onClick={() =>
+                        dispatch({
+                          type: 'updateSubject',
+                          subId: sub.id,
+                          patch: { whatIf: Math.min(3.0, snapToStep(value + 0.25)) },
+                        })
+                      }
+                      aria-label={`Lower ${sub.name} grade by 0.25`}
+                      title="Lower grade (+0.25)"
+                      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-r-lg border border-navy-700 bg-navy-950 text-slate-300 transition-colors hover:border-gold-400 hover:text-gold-300 disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <Plus size={12} />
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() =>
                         dispatch({
                           type: 'updateSubject',
@@ -101,7 +136,7 @@ export function WhatIfPanel({
                           patch: { whatIf: null },
                         })
                       }
-                      className="cursor-pointer p-1 text-slate-400 hover:text-white"
+                      className="ml-1 cursor-pointer p-1 text-slate-400 hover:text-white"
                       title="Remove from What-If"
                     >
                       <X size={14} />
@@ -148,7 +183,7 @@ export function WhatIfPanel({
                 patch: { whatIf: snapToStep(defaultGrade) },
               });
             }}
-            className="h-9 w-full min-w-0 truncate border border-navy-800 bg-navy-950 px-2.5 text-xs text-slate-200 outline-none focus:border-gold-400"
+            className="h-9 w-full min-w-0 truncate rounded-xl border border-navy-800 bg-navy-950 px-2.5 text-xs text-slate-200 outline-none focus:border-gold-400"
             aria-label="Select an ungraded subject to test"
           >
             <option value="">Select an ungraded subject to test…</option>

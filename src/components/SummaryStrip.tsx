@@ -73,7 +73,7 @@ export function SummaryStrip({
   return (
     <section className="my-3.5 sm:my-5">
       {/* Mobile / Tablet Compact Summary Strip (< lg) */}
-      <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-3.5 lg:hidden">
+      <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-3.5 shadow-sm lg:hidden">
         <div className="grid grid-cols-3 divide-x divide-navy-800">
           {/* Col 1: GWA */}
           <div className="pr-3">
@@ -148,7 +148,7 @@ export function SummaryStrip({
       {/* Desktop 3-Card Summary Strip (lg+) */}
       <div className="hidden gap-3.5 lg:grid lg:grid-cols-12">
         {/* Card 1: Current GWA */}
-        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-4">
+        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-4">
           <Label>{mode === 'academic' ? 'Current Honors GWA' : 'Current GWA (All Subjects)'}</Label>
           <div className="mt-2 flex items-baseline gap-2.5">
             <span
@@ -171,7 +171,7 @@ export function SummaryStrip({
         </div>
 
         {/* Card 2: Standing */}
-        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-3">
+        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-3">
           <Label>Honors Standing</Label>
           <div className="mt-2.5 flex items-center gap-2">
             <Award
@@ -200,7 +200,7 @@ export function SummaryStrip({
           </div>
 
           {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
-            <div className="mt-2 inline-flex items-center gap-1.5 border border-gold-500/30 bg-gold-500/10 px-2 py-0.5 font-mono text-[11px] text-gold-300">
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gold-500/30 bg-gold-500/10 px-2.5 py-0.5 font-mono text-[11px] text-gold-300">
               <Sparkles size={11} />
               What-If: {formatGwa(ledger.projectedGwa)}
               {projTier ? ` (${projTier.short})` : ''}
@@ -233,16 +233,16 @@ export function SummaryStrip({
         </div>
 
         {/* Card 3: Progress & Next-Step Guidance */}
-        <div className="border border-navy-800 border-l-2 border-l-gold-400 bg-obsidian-soft p-5 lg:col-span-5">
+        <div className="rounded-2xl border border-navy-800 border-l-4 border-l-gold-400 bg-obsidian-soft p-5 shadow-sm lg:col-span-5">
           <div className="flex items-baseline justify-between">
             <Label>Curriculum Progress</Label>
             <span className="font-mono text-xs text-gold-400 tabular">
               {ledger.completedUnits.toFixed(0)} / {ledger.totalUnits.toFixed(0)} units ({(progress * 100).toFixed(0)}%)
             </span>
           </div>
-          <div className="mt-2.5 h-1.5 w-full overflow-hidden bg-navy-900">
+          <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-navy-900">
             <div
-              className="h-full bg-gold-400 transition-[width] duration-200"
+              className="h-full rounded-full bg-gold-400 transition-[width] duration-300"
               style={{ width: `${Math.min(100, progress * 100)}%` }}
             />
           </div>
