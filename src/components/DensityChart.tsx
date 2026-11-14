@@ -5,7 +5,7 @@ const W = 360;
 const H = 150;
 const PAD = { l: 14, r: 14, t: 14, b: 20 };
 
-/** SVG density curve of simulated graduation GWAs with Latin-honors bands in 60/30/10 Gold & Navy. */
+/** SVG density curve of simulated graduation GWAs with Latin-honors bands. */
 export function DensityChart({ result, marker }: { result: SimResult | null; marker: number | null }) {
   const geo = useMemo(() => {
     if (!result || result.runs === 0) return null;
@@ -46,7 +46,11 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
   }, [result]);
 
   if (!geo) {
-    return <div className="flex h-[150px] items-center justify-center font-mono text-[11px] text-slate-500">no distribution</div>;
+    return (
+      <div className="flex h-[150px] items-center justify-center font-mono text-xs text-[var(--neu-ink-subtle)]">
+        No distribution yet
+      </div>
+    );
   }
 
   const { x, base, line, area, ticks, hi, honorsX } = geo;
@@ -65,34 +69,57 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
         const b = x(t.max);
         return (
           <g key={t.id}>
-            <rect x={a} y={PAD.t} width={b - a} height={base - PAD.t} fill="#191851" opacity={0.55 - i * 0.12} />
-            <text x={(a + b) / 2} y={10} textAnchor="middle" className="fill-gold-400 font-mono" fontSize={8} letterSpacing={0.5}>
-              {t.short.toUpperCase()}
+            <rect
+              x={a}
+              y={PAD.t}
+              width={b - a}
+              height={base - PAD.t}
+              fill="var(--neu-chart-band)"
+              opacity={1 - i * 0.22}
+            />
+            <text
+              x={(a + b) / 2}
+              y={10}
+              textAnchor="middle"
+              fill="var(--neu-accent)"
+              className="font-mono font-semibold"
+              fontSize={8}
+            >
+              {t.short}
             </text>
           </g>
         );
       })}
 
-      <path d={area} fill="#191851" opacity={0.5} />
-      <path d={area} fill="#f4b52a" opacity={0.28} clipPath={`url(#${clipId})`} />
-      <path d={line} fill="none" stroke="#f4b52a" strokeWidth={1.25} />
+      <path d={area} fill="var(--neu-chart-band)" />
+      <path d={area} fill="var(--neu-accent)" opacity={0.22} clipPath={`url(#${clipId})`} />
+      <path d={line} fill="none" stroke="var(--neu-accent)" strokeWidth={1.5} />
 
       {HONOR_TIERS.map((t) => (
-        <line key={t.id} x1={x(t.max)} x2={x(t.max)} y1={PAD.t} y2={base} stroke="#2f2e85" strokeWidth={0.75} strokeDasharray="2 2" />
+        <line
+          key={t.id}
+          x1={x(t.max)}
+          x2={x(t.max)}
+          y1={PAD.t}
+          y2={base}
+          stroke="var(--neu-chart-grid)"
+          strokeWidth={0.75}
+          strokeDasharray="2 2"
+        />
       ))}
 
       {marker !== null && marker >= 1 && marker <= hi && (
         <g>
-          <line x1={x(marker)} x2={x(marker)} y1={PAD.t - 2} y2={base} stroke="#f4b52a" strokeWidth={1.25} />
-          <rect x={x(marker) - 2} y={PAD.t - 4} width={4} height={4} fill="#f4b52a" />
+          <line x1={x(marker)} x2={x(marker)} y1={PAD.t - 2} y2={base} stroke="var(--neu-accent)" strokeWidth={1.5} />
+          <circle cx={x(marker)} cy={PAD.t - 2} r={2.5} fill="var(--neu-accent)" />
         </g>
       )}
 
-      <line x1={PAD.l} x2={W - PAD.r} y1={base} y2={base} stroke="#2f2e85" strokeWidth={0.75} />
+      <line x1={PAD.l} x2={W - PAD.r} y1={base} y2={base} stroke="var(--neu-chart-grid)" strokeWidth={0.75} />
       {ticks.map((t) => (
         <g key={t}>
-          <line x1={x(t)} x2={x(t)} y1={base} y2={base + 3} stroke="#2f2e85" strokeWidth={0.75} />
-          <text x={x(t)} y={H - 6} textAnchor="middle" className="fill-slate-400 font-mono" fontSize={8}>
+          <line x1={x(t)} x2={x(t)} y1={base} y2={base + 3} stroke="var(--neu-chart-grid)" strokeWidth={0.75} />
+          <text x={x(t)} y={H - 6} textAnchor="middle" fill="var(--neu-ink-muted)" className="font-mono" fontSize={8}>
             {t.toFixed(2)}
           </text>
         </g>

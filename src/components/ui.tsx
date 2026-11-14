@@ -20,25 +20,28 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section
-      className={cx(
-        'rounded-2xl border border-navy-800 bg-obsidian-soft p-4 shadow-sm transition-colors sm:p-5',
-        className,
-      )}
-    >
-      <header className="mb-3.5 flex items-start justify-between gap-3 border-b border-navy-800/80 pb-2.5 sm:mb-4 sm:pb-3">
+    <section className={cx('neu-card rounded-3xl p-5 sm:p-6', className)}>
+      <header className="mb-4 flex items-start justify-between gap-3 border-b border-[var(--neu-border)] pb-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {step && (
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold-400 font-mono text-[11px] font-bold text-obsidian">
+              <span className="neu-recessed inline-flex h-6 w-6 items-center justify-center rounded-full font-mono text-xs font-bold text-[var(--neu-accent)]">
                 {step}
               </span>
             )}
-            <h2 className="font-mono text-xs font-semibold tracking-wider text-white uppercase">{title}</h2>
+            <h2 className="text-sm font-bold tracking-tight text-[var(--neu-ink)]">{title}</h2>
           </div>
-          {subtitle && <p className="mt-1 hidden text-xs leading-relaxed text-slate-400 sm:block">{subtitle}</p>}
+          {subtitle && (
+            <p className="mt-1 hidden text-xs leading-relaxed text-[var(--neu-ink-muted)] sm:block">
+              {subtitle}
+            </p>
+          )}
         </div>
-        {meta && <div className="shrink-0 font-mono text-[11px] whitespace-nowrap text-gold-400 tabular">{meta}</div>}
+        {meta && (
+          <div className="shrink-0 font-mono text-xs whitespace-nowrap text-[var(--neu-accent)] tabular">
+            {meta}
+          </div>
+        )}
       </header>
       {children}
     </section>
@@ -46,7 +49,7 @@ export function Panel({
 }
 
 export function Label({ children }: { children: ReactNode }) {
-  return <div className="font-mono text-[10px] font-semibold tracking-widest text-gold-400 uppercase">{children}</div>;
+  return <div className="text-xs font-semibold text-[var(--neu-accent)]">{children}</div>;
 }
 
 export function Button({
@@ -70,11 +73,9 @@ export function Button({
       onClick={onClick}
       title={title}
       className={cx(
-        'inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-all active:scale-95',
-        active
-          ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian'
-          : 'border-navy-800 bg-navy-950 text-slate-200 hover:border-gold-400/60 hover:text-gold-400',
-        danger && 'hover:border-rose-500/60 hover:text-rose-400',
+        'inline-flex h-10 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold',
+        active ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
+        danger && !active && 'hover:text-[var(--neu-danger)]',
         className,
       )}
     >
@@ -96,7 +97,7 @@ export function Segmented<T extends string>({
 }) {
   return (
     <div
-      className={cx('inline-flex h-9 rounded-full border border-navy-800 bg-navy-950 p-0.5', fullWidth && 'flex w-full')}
+      className={cx('neu-recessed inline-flex h-10 rounded-full p-1', fullWidth && 'flex w-full')}
       role="radiogroup"
     >
       {options.map((o) => (
@@ -108,11 +109,11 @@ export function Segmented<T extends string>({
           title={o.title}
           onClick={() => onChange(o.value)}
           className={cx(
-            'cursor-pointer rounded-full px-3 text-xs font-medium transition-colors',
+            'rounded-full px-3.5 text-xs font-semibold transition-colors',
             fullWidth && 'flex-1',
             value === o.value
-              ? 'bg-gold-400 font-semibold text-obsidian'
-              : 'text-slate-300 hover:text-white',
+              ? 'neu-btn-accent'
+              : 'text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]',
           )}
         >
           {o.label}
@@ -123,7 +124,7 @@ export function Segmented<T extends string>({
 }
 
 export function pct(p: number): string {
-  if (!Number.isFinite(p)) return '—';
+  if (!Number.isFinite(p)) return '-';
   if (p > 0 && p < 0.001) return '<0.1%';
   if (p < 1 && p > 0.999) return '>99.9%';
   return `${(p * 100).toFixed(1)}%`;
@@ -153,4 +154,15 @@ export function useScrollLock(locked: boolean) {
       }
     };
   }, [locked]);
+}
+
+export function useEscapeKey(active: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [active, onClose]);
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookOpen, RotateCcw, Sparkles, Target, X } from 'lucide-react';
 import {
   buildStudentLedger,
@@ -21,9 +21,40 @@ import { WhatIfPanel } from './components/WhatIfPanel';
 import { cx } from './components/ui';
 
 const SIM_SEED = 0x9e3779b9;
+const THEME_KEY = 'gtl-theme';
+
+function useTheme(): ['dark' | 'light', () => void] {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {
+      // ignore storage access issues
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#21242B' : '#E0E5EC');
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
+
+  const toggle = useCallback(() => {
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+  }, []);
+
+  return [theme, toggle];
+}
 
 export default function App() {
   const { state, dispatch, clearAll, toast, undo, dismissToast, notify } = useAppState();
+  const [theme, toggleTheme] = useTheme();
   const [entered, setEntered] = useState(false);
   const [mobileTab, setMobileTab] = useState<'grades' | 'goal' | 'probability'>('grades');
   const { honorsMode: mode, target, sim } = state.settings;
@@ -45,8 +76,6 @@ export default function App() {
     const explicitRemaining = ledger.pending.map((x) => ({ units: x.course.units, mean: x.midterm }));
     const yearsEntered = ledger.yearsWithSubjectsCount ?? 0;
     const missingYears = yearsEntered > 0 && yearsEntered < 4 ? 4 - yearsEntered : 0;
-    // Each missing academic year in a 4-year USTP degree is modeled as 12 × 3-unit courses (36 units/yr)
-    // so 1st-year, sophomore, and 3rd-year students are never assumed 100% locked into their current GWA.
     const estimatedFutureCourses = Array.from({ length: missingYears * 12 }, () => ({ units: 3 }));
 
     return {
@@ -87,22 +116,24 @@ export default function App() {
   }, [clearAll]);
 
   if (!entered) {
-    return <LandingPage onEnter={() => setEntered(true)} />;
+    return <LandingPage theme={theme} onToggleTheme={toggleTheme} onEnter={() => setEntered(true)} />;
   }
 
   return (
-    <div className="min-h-screen bg-obsidian pb-20 text-slate-100 lg:pb-12">
+    <div className="min-h-screen bg-[var(--neu-bg)] pb-24 text-[var(--neu-ink)] lg:pb-12">
       <Header
+        theme={theme}
+        onToggleTheme={toggleTheme}
         onHome={() => setEntered(false)}
         onExport={onExport}
         onImport={onImport}
         onClear={onClear}
       />
 
-      <main className="mx-auto max-w-[1360px] px-3.5 sm:px-6 md:px-8">
+      <main className="mx-auto max-w-[1360px] px-4 sm:px-6 md:px-8">
         <SummaryStrip ledger={ledger} mode={mode} target={target} />
 
-        <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+        <div className="grid gap-6 lg:grid-cols-12">
           {/* Left Column: Student-built Years, Semesters & Subjects */}
           <section
             className={cx('min-w-0 lg:col-span-7 xl:col-span-8', mobileTab !== 'grades' && 'hidden lg:block')}
@@ -114,12 +145,12 @@ export default function App() {
           {/* Right Column: Goal, What-If, and Forecast */}
           <aside
             className={cx(
-              'min-w-0 space-y-4 sm:space-y-5 lg:col-span-5 xl:col-span-4',
+              'min-w-0 space-y-6 lg:col-span-5 xl:col-span-4',
               mobileTab === 'grades' && 'hidden lg:block',
             )}
           >
-            <div className="space-y-4 sm:space-y-5">
-              <div className={cx('space-y-4 sm:space-y-5', mobileTab !== 'goal' && 'hidden lg:block')}>
+            <div className="space-y-6">
+              <div className={cx('space-y-6', mobileTab !== 'goal' && 'hidden lg:block')}>
                 <TargetSolver
                   ledger={ledger}
                   target={target}
@@ -157,9 +188,14 @@ export default function App() {
         <div
           role="status"
           aria-live="polite"
-          className="animate-pop-in fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-navy-700 bg-navy-950/95 px-4 py-3 text-xs text-slate-100 shadow-2xl backdrop-blur sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
+          className="animate-pop-in neu-card fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs text-[var(--neu-ink)] sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
         >
-          <span className={cx('truncate font-medium', toast.tone === 'error' ? 'text-rose-300' : 'text-slate-100')}>
+          <span
+            className={cx(
+              'truncate font-medium',
+              toast.tone === 'error' ? 'text-[var(--neu-danger)]' : 'text-[var(--neu-ink)]',
+            )}
+          >
             {toast.message}
           </span>
           <div className="flex shrink-0 items-center gap-2">
@@ -167,18 +203,18 @@ export default function App() {
               <button
                 type="button"
                 onClick={undo}
-                className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-full bg-gold-400 px-3 text-xs font-bold text-obsidian hover:bg-gold-300"
+                className="neu-btn-accent inline-flex h-8 items-center gap-1 rounded-full px-3 text-xs font-bold"
               >
-                <RotateCcw size={12} /> Undo
+                <RotateCcw size={12} aria-hidden="true" /> Undo
               </button>
             )}
             <button
               type="button"
               onClick={dismissToast}
               aria-label="Dismiss notification"
-              className="cursor-pointer p-1 text-slate-400 hover:text-white"
+              className="neu-btn inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
             >
-              <X size={14} />
+              <X size={13} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -187,24 +223,24 @@ export default function App() {
       {/* Mobile Bottom Navigation Bar */}
       <nav
         aria-label="Mobile navigation"
-        className="fixed right-0 bottom-0 left-0 z-30 border-t border-navy-800 bg-navy-950/95 backdrop-blur lg:hidden"
+        className="fixed right-0 bottom-0 left-0 z-30 border-t border-[var(--neu-border)] bg-[var(--neu-bg)]/95 backdrop-blur-sm lg:hidden"
       >
         <div className="grid h-16 grid-cols-3">
           <button
             type="button"
             onClick={() => setMobileTab('grades')}
             className={cx(
-              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
-              mobileTab === 'grades' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
+              'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'grades' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
             )}
           >
             <span
               className={cx(
-                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
-                mobileTab === 'grades' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+                'inline-flex h-7 w-12 items-center justify-center rounded-full',
+                mobileTab === 'grades' ? 'neu-pressed text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
               )}
             >
-              <BookOpen size={15} className="shrink-0" />
+              <BookOpen size={15} className="shrink-0" aria-hidden="true" />
             </span>
             <span>Subjects</span>
           </button>
@@ -212,17 +248,17 @@ export default function App() {
             type="button"
             onClick={() => setMobileTab('goal')}
             className={cx(
-              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
-              mobileTab === 'goal' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
+              'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'goal' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
             )}
           >
             <span
               className={cx(
-                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
-                mobileTab === 'goal' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+                'inline-flex h-7 w-12 items-center justify-center rounded-full',
+                mobileTab === 'goal' ? 'neu-pressed text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
               )}
             >
-              <Target size={15} className="shrink-0" />
+              <Target size={15} className="shrink-0" aria-hidden="true" />
             </span>
             <span>Goal &amp; Test</span>
           </button>
@@ -230,26 +266,26 @@ export default function App() {
             type="button"
             onClick={() => setMobileTab('probability')}
             className={cx(
-              'flex cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
-              mobileTab === 'probability' ? 'text-gold-300' : 'text-slate-400 hover:text-slate-200',
+              'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
+              mobileTab === 'probability' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
             )}
           >
             <span
               className={cx(
-                'inline-flex h-6 w-12 items-center justify-center rounded-full transition-colors',
-                mobileTab === 'probability' ? 'bg-gold-400/20 text-gold-300' : 'text-slate-400',
+                'inline-flex h-7 w-12 items-center justify-center rounded-full',
+                mobileTab === 'probability' ? 'neu-pressed text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
               )}
             >
-              <Sparkles size={15} className="shrink-0" />
+              <Sparkles size={15} className="shrink-0" aria-hidden="true" />
             </span>
             <span>Probability</span>
           </button>
         </div>
       </nav>
 
-      <footer className="mt-12 border-t border-navy-800 sm:mt-16">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-center px-4 py-5 text-center text-xs text-slate-400 sm:justify-start sm:px-6 md:px-8">
-          <span>100% Private — Your subjects and grades are saved only in your browser.</span>
+      <footer className="mt-12 border-t border-[var(--neu-border)] sm:mt-16">
+        <div className="mx-auto flex max-w-[1360px] items-center justify-center px-4 py-5 text-center text-xs text-[var(--neu-ink-muted)] sm:justify-start sm:px-6 md:px-8">
+          <span>100% Private: Your subjects and grades are saved only in your browser.</span>
         </div>
       </footer>
     </div>

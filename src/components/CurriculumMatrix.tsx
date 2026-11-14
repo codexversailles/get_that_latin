@@ -26,13 +26,13 @@ import {
   type StudentYear,
 } from '../engine';
 import type { Dispatch } from '../lib/state';
-import { Button, cx, useScrollLock } from './ui';
+import { Button, cx, useEscapeKey, useScrollLock } from './ui';
 
 export function gradeTone(g: GradeState | undefined): string {
-  if (g === null || g === undefined) return 'text-slate-300 border-navy-800 bg-navy-950';
-  if (g === 'INC' || g === 'IP') return 'text-amber-300 border-amber-500/40 bg-amber-500/10';
-  if (g >= FAILING_GRADE) return 'text-rose-300 border-rose-500/40 bg-rose-500/10';
-  return 'text-gold-300 border-gold-500/50 bg-gold-500/10';
+  if (g === null || g === undefined) return 'text-[var(--neu-ink-muted)]';
+  if (g === 'INC' || g === 'IP') return 'text-[var(--neu-warn)]';
+  if (g >= FAILING_GRADE) return 'text-[var(--neu-danger)]';
+  return 'text-[var(--neu-accent)]';
 }
 
 export const GRADE_OPTIONS: Array<{ label: string; shortLabel: string; value: string; state: GradeState }> = [
@@ -76,29 +76,29 @@ const SubjectRow = memo(function SubjectRow({
   return (
     <div
       className={cx(
-        'border-b border-navy-800/70 transition-colors hover:bg-navy-900/40',
+        'border-b border-[var(--neu-border)] transition-colors hover:bg-[var(--neu-surface-alt)]/35',
         excluded && 'opacity-50',
       )}
     >
-      {/* Mobile Card-Based Row (< sm): Tap anywhere to open the Edit Subject Bottom Sheet */}
+      {/* Mobile Row (< sm) */}
       <button
         type="button"
         onClick={() => onMobileEdit(sub)}
-        className="flex w-full cursor-pointer items-center justify-between gap-3 px-3.5 py-3 text-left transition-colors active:bg-navy-900/80 sm:hidden"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:hidden"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
-            <span className="truncate text-sm font-semibold text-white">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--neu-accent)]" />
+            <span className="truncate text-sm font-semibold text-[var(--neu-ink)]">
               {sub.name || 'Untitled Subject'}
             </span>
           </div>
           <div className="mt-1 flex items-center gap-2 pl-3.5">
-            <span className="font-mono text-[11px] text-slate-400">
+            <span className="font-mono text-[11px] text-[var(--neu-ink-muted)]">
               {sub.units} {sub.units === 1 ? 'unit' : 'units'}
             </span>
             {sub.isNstp && (
-              <span className="rounded-full border border-gold-500/40 bg-gold-500/15 px-2 py-0.5 font-mono text-[10px] font-semibold text-gold-300">
+              <span className="neu-recessed rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold text-[var(--neu-accent)]">
                 NSTP
               </span>
             )}
@@ -108,7 +108,7 @@ const SubjectRow = memo(function SubjectRow({
         <div className="flex shrink-0 items-center gap-2">
           <span
             className={cx(
-              'inline-flex h-8 min-w-[4.75rem] items-center justify-center rounded-full border px-3 font-mono text-xs font-semibold tabular transition-colors',
+              'neu-recessed inline-flex h-8 min-w-[4.75rem] items-center justify-center rounded-full px-3 font-mono text-xs font-semibold tabular',
               gradeTone(sub.grade),
             )}
           >
@@ -117,10 +117,10 @@ const SubjectRow = memo(function SubjectRow({
         </div>
       </button>
 
-      {/* Desktop Inline Row (sm+): Rounded pill chips & selects consistent with mobile */}
-      <div className="hidden items-center gap-2 px-4 py-2.5 sm:flex">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+      {/* Desktop Inline Row (sm+) */}
+      <div className="hidden items-center gap-2.5 px-4 py-2.5 sm:flex">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--neu-accent)]" />
           <input
             type="text"
             value={sub.name}
@@ -129,25 +129,30 @@ const SubjectRow = memo(function SubjectRow({
             }
             placeholder="Subject name (e.g. IT 111)"
             aria-label="Subject name"
-            className="h-8 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2.5 text-sm font-medium text-white placeholder:text-slate-400 transition-colors hover:border-navy-700 focus:border-gold-400 focus:bg-navy-950 focus:outline-none"
+            className="h-9 min-w-0 flex-1 rounded-xl bg-transparent px-2.5 text-sm font-medium text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] focus:bg-[var(--neu-bg)] focus:shadow-[var(--neu-recessed)] focus:outline-none"
           />
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
+            aria-pressed={sub.isNstp}
             onClick={() =>
               dispatch({ type: 'updateSubject', subId: sub.id, patch: { isNstp: !sub.isNstp } })
             }
             title="Toggle NSTP (excluded from Latin Honors GWA per RA 9163)"
             className={cx(
-              'inline-flex h-8 shrink-0 cursor-pointer items-center rounded-full border px-2.5 font-mono text-[11px] font-medium transition-colors',
-              sub.isNstp
-                ? 'border-gold-500/50 bg-gold-500/15 text-gold-300'
-                : 'border-navy-800 text-slate-400 hover:text-slate-200',
+              'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 font-mono text-[11px] font-semibold',
+              sub.isNstp ? 'neu-pressed text-[var(--neu-accent)]' : 'neu-btn text-[var(--neu-ink-muted)]',
             )}
           >
-            NSTP
+            <span
+              className={cx(
+                'h-1.5 w-1.5 rounded-full',
+                sub.isNstp ? 'bg-[var(--neu-accent)]' : 'bg-[var(--neu-ink-subtle)] opacity-40',
+              )}
+            />
+            <span>NSTP</span>
           </button>
 
           <select
@@ -160,10 +165,10 @@ const SubjectRow = memo(function SubjectRow({
                 patch: { units: Number(e.target.value) },
               })
             }
-            className="h-8 shrink-0 cursor-pointer rounded-full border border-navy-800 bg-navy-950 px-2.5 font-mono text-xs text-slate-200 transition-colors outline-none hover:border-navy-700 focus:border-gold-400"
+            className="neu-recessed h-8 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
           >
             {UNIT_OPTIONS.map((u) => (
-              <option key={u} value={u} className="bg-obsidian">
+              <option key={u} value={u} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                 {u} {u === 1 ? 'unit' : 'units'}
               </option>
             ))}
@@ -181,12 +186,12 @@ const SubjectRow = memo(function SubjectRow({
               });
             }}
             className={cx(
-              'h-8 w-32 flex-none cursor-pointer rounded-full border px-3 font-mono text-xs font-semibold outline-none transition-colors focus:border-gold-400',
+              'neu-recessed h-8 w-32 flex-none rounded-full px-3 font-mono text-xs font-semibold outline-none',
               gradeTone(sub.grade),
             )}
           >
             {GRADE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value} className="bg-obsidian text-white">
+              <option key={o.value} value={o.value} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                 {o.shortLabel}
               </option>
             ))}
@@ -197,9 +202,9 @@ const SubjectRow = memo(function SubjectRow({
             onClick={() => dispatch({ type: 'removeSubject', subId: sub.id })}
             title="Remove subject"
             aria-label={`Remove ${sub.name}`}
-            className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+            className="neu-btn inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
           >
-            <X size={15} />
+            <X size={14} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -240,21 +245,17 @@ function AddSubjectForm({
     addNow();
   };
 
-  /* Desktop Inline Form (sm+) — Mobile uses the circular + FAB instead */
   return (
-    <form
-      onSubmit={onSubmit}
-      className="hidden items-center gap-2 border-t border-navy-800/60 bg-navy-950/35 px-4 py-3 sm:flex"
-    >
-      <div className="relative flex h-9 min-w-0 flex-1 items-center">
-        <Plus size={14} className="pointer-events-none absolute left-3 text-gold-400/80" />
+    <form onSubmit={onSubmit} className="hidden items-center gap-2.5 px-4 py-3.5 sm:flex">
+      <div className="relative flex h-10 min-w-0 flex-1 items-center">
+        <Plus size={14} className="pointer-events-none absolute left-3.5 text-[var(--neu-accent)]" aria-hidden="true" />
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Add subject (e.g. IT 111, PurCom, NSTP)…"
+          placeholder="Add subject (e.g. IT 111, PurCom, NSTP)..."
           aria-label="New subject name"
-          className="h-full w-full rounded-full border border-navy-700/80 bg-navy-900/70 pr-3.5 pl-8 text-xs text-white placeholder:text-slate-400 transition-colors focus:border-gold-400 focus:bg-navy-950 focus:outline-none"
+          className="neu-recessed h-full w-full rounded-full pr-4 pl-9 text-xs text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
         />
       </div>
 
@@ -263,10 +264,10 @@ function AddSubjectForm({
           aria-label="New subject units"
           value={units}
           onChange={(e) => setUnits(Number(e.target.value))}
-          className="h-9 shrink-0 cursor-pointer rounded-full border border-navy-700/80 bg-navy-900/70 px-3 font-mono text-xs text-slate-200 transition-colors outline-none hover:border-navy-600 focus:border-gold-400"
+          className="neu-recessed h-10 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
         >
           {UNIT_OPTIONS.map((u) => (
-            <option key={u} value={u} className="bg-obsidian text-white">
+            <option key={u} value={u} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
               {u} {u === 1 ? 'unit' : 'units'}
             </option>
           ))}
@@ -276,10 +277,10 @@ function AddSubjectForm({
           aria-label="New subject grade"
           value={grade}
           onChange={(e) => setGrade(e.target.value)}
-          className="h-9 w-32 flex-none cursor-pointer rounded-full border border-navy-700/80 bg-navy-900/70 px-3 font-mono text-xs text-slate-200 transition-colors outline-none hover:border-navy-600 focus:border-gold-400"
+          className="neu-recessed h-10 w-32 flex-none rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
         >
           {GRADE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value} className="bg-obsidian text-white">
+            <option key={o.value} value={o.value} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
               {o.shortLabel}
             </option>
           ))}
@@ -287,9 +288,9 @@ function AddSubjectForm({
 
         <button
           type="submit"
-          className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-gold-400 px-4 text-xs font-bold text-obsidian shadow-[0_0_14px_rgba(244,181,42,0.18)] transition-all hover:bg-gold-300 active:scale-95"
+          className="neu-btn-accent inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold"
         >
-          <Plus size={14} strokeWidth={2.5} />
+          <Plus size={14} strokeWidth={2.5} aria-hidden="true" />
           <span>Add</span>
         </button>
       </div>
@@ -334,19 +335,19 @@ function SemesterBlock({
   }
 
   return (
-    <div className="border-t border-navy-800 first:border-t-0">
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-navy-950 px-3 py-2.5 sm:px-4">
+    <div className="border-t border-[var(--neu-border)] first:border-t-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--neu-surface-alt)]/45 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
-            className="inline-flex cursor-pointer items-center gap-1.5 text-left font-mono text-xs font-semibold tracking-wide text-slate-200 uppercase transition-colors hover:text-gold-300"
+            className="inline-flex items-center gap-1.5 text-left text-xs font-bold text-[var(--neu-ink)] transition-colors hover:text-[var(--neu-accent)]"
             aria-expanded={!collapsed}
           >
             {collapsed ? (
-              <ChevronDown size={14} className="text-slate-400" />
+              <ChevronDown size={14} className="text-[var(--neu-ink-muted)]" aria-hidden="true" />
             ) : (
-              <ChevronUp size={14} className="text-slate-400" />
+              <ChevronUp size={14} className="text-[var(--neu-ink-muted)]" aria-hidden="true" />
             )}
             <span>{sem.name}</span>
           </button>
@@ -354,25 +355,20 @@ function SemesterBlock({
             <button
               type="button"
               onClick={() => setShowDlInfo((v) => !v)}
-              className={cx(
-                'inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] font-bold tracking-wide transition-opacity hover:opacity-90',
-                dl.tier === 'First Honors'
-                  ? 'border-gold-400/60 bg-gold-400/15 text-gold-300'
-                  : 'border-slate-400/50 bg-slate-400/10 text-slate-200',
-              )}
+              className="neu-recessed inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold text-[var(--neu-accent)]"
               title="Tap to view Dean's List criteria"
             >
-              <Award size={11} className="shrink-0 text-gold-400" />
+              <Award size={11} className="shrink-0" aria-hidden="true" />
               <span>DL: {dl.tier}</span>
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2.5 font-mono text-xs tabular sm:gap-3">
-          <span className="text-slate-400">
+        <div className="flex items-center gap-3 font-mono text-xs tabular">
+          <span className="text-[var(--neu-ink-muted)]">
             {summary.gradedUnits.toFixed(0)}/{summary.totalUnits.toFixed(0)} units
           </span>
-          <span className={summary.gwa === null ? 'text-slate-500' : 'font-semibold text-gold-400'}>
+          <span className={summary.gwa === null ? 'text-[var(--neu-ink-subtle)]' : 'font-semibold text-[var(--neu-accent)]'}>
             GWA {formatGwa(summary.gwa, 2)}
           </span>
           {canRemove && (
@@ -381,9 +377,9 @@ function SemesterBlock({
               onClick={() => dispatch({ type: 'removeSemester', yearId, semId: sem.id })}
               title={`Remove ${sem.name}`}
               aria-label={`Remove ${sem.name}`}
-              className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+              className="neu-btn inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
             >
-              <Trash2 size={13} />
+              <Trash2 size={12} aria-hidden="true" />
             </button>
           )}
         </div>
@@ -392,10 +388,11 @@ function SemesterBlock({
       {!collapsed && (
         <>
           {dl.qualified && showDlInfo && (
-            <div className="animate-pop-in border-b border-navy-800 bg-navy-900/60 px-3.5 py-2 text-xs text-slate-300">
-              <strong className="text-gold-300">Dean&apos;s List ({dl.tier}):</strong> Semester GWA ≤{' '}
+            <div className="animate-pop-in border-b border-[var(--neu-border)] bg-[var(--neu-surface-alt)]/30 px-4 py-2.5 text-xs text-[var(--neu-ink-muted)]">
+              <strong className="text-[var(--neu-accent)]">Dean&apos;s List ({dl.tier}):</strong> Semester GWA ≤{' '}
               {dl.tier === 'First Honors' ? '1.40' : '1.75'}, no subject grade below{' '}
-              {dl.tier === 'First Honors' ? '2.00' : '2.25'}, and ≥ 12 graded academic units (based on common USTP criteria).
+              {dl.tier === 'First Honors' ? '2.00' : '2.25'}, and ≥ 12 graded academic units (based on common USTP
+              criteria).
             </div>
           )}
 
@@ -412,8 +409,9 @@ function SemesterBlock({
               ))}
             </div>
           ) : (
-            <div className="px-4 py-4 text-center text-xs text-slate-500 sm:hidden">
-              No subjects in this term yet — tap the <strong className="text-gold-400">+</strong> button below to add one.
+            <div className="px-4 py-4 text-center text-xs text-[var(--neu-ink-subtle)] sm:hidden">
+              No subjects in this term yet. Tap the <strong className="text-[var(--neu-accent)]">+</strong> button
+              below to add one.
             </div>
           )}
 
@@ -445,8 +443,9 @@ export function CurriculumMatrix({
   const [fabOpen, setFabOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
   useScrollLock(fabOpen || sheet !== null);
+  useEscapeKey(fabOpen, () => setFabOpen(false));
+  useEscapeKey(sheet !== null, () => setSheet(null));
 
-  // Add-subject bottom sheet local state
   const [draftName, setDraftName] = useState('');
   const [draftUnits, setDraftUnits] = useState<number>(3);
   const [draftGrade, setDraftGrade] = useState<GradeState>(null);
@@ -483,7 +482,6 @@ export function CurriculumMatrix({
     setSheet({ mode: 'edit', subId: sub.id });
   };
 
-  // Find live subject when editing in bottom sheet
   const editingSub: StudentSubject | null =
     sheet?.mode === 'edit'
       ? (years
@@ -510,23 +508,20 @@ export function CurriculumMatrix({
 
   return (
     <div>
-      {/* Top Year Tabs Bar + Desktop Actions (Search & Add Year) */}
-      <div className="mb-3.5 space-y-2.5 border-b border-navy-800 pb-2.5 sm:mb-4 sm:pb-3">
-        <div className="flex items-center justify-between gap-2">
-          {/* Year Tabs */}
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+      {/* Top Year Tabs Bar + Desktop Actions */}
+      <div className="mb-5 space-y-3 border-b border-[var(--neu-border)] pb-3.5">
+        <div className="flex items-center justify-between gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-x-auto px-1 py-1.5">
             {years.length > 1 && (
               <button
                 type="button"
                 onClick={() => setActiveYearId('ALL')}
                 className={cx(
-                  'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                  validFilter === 'ALL'
-                    ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
-                    : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
+                  'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold',
+                  validFilter === 'ALL' ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
                 )}
               >
-                {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} />}
+                {validFilter === 'ALL' && <Check size={12} strokeWidth={2.5} aria-hidden="true" />}
                 <span>All ({years.length})</span>
               </button>
             )}
@@ -539,21 +534,18 @@ export function CurriculumMatrix({
                   type="button"
                   onClick={() => setActiveYearId(y.id)}
                   className={cx(
-                    'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-full border px-3 text-xs font-medium transition-all active:scale-95',
-                    isSelected
-                      ? 'border-gold-400 bg-gold-400 font-semibold text-obsidian shadow-xs'
-                      : 'border-navy-800 bg-obsidian-soft text-slate-300 hover:border-navy-600 hover:text-white',
+                    'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold',
+                    isSelected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
                   )}
                 >
-                  {isSelected && <Check size={12} strokeWidth={2.5} />}
+                  {isSelected && <Check size={12} strokeWidth={2.5} aria-hidden="true" />}
                   <span>{y.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Desktop Search & Add Year (Hidden on mobile) */}
-          <div className="hidden shrink-0 items-center gap-1.5 sm:flex">
+          <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
             <button
               type="button"
               onClick={() => {
@@ -566,44 +558,45 @@ export function CurriculumMatrix({
                 });
               }}
               aria-label="Search and filter subjects"
-              title="Search & filter subjects"
+              title="Search and filter subjects"
               className={cx(
-                'inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border transition-all active:scale-95',
+                'inline-flex h-9 w-9 items-center justify-center rounded-full',
                 searchOpen || searchQuery || statusFilter !== 'ALL'
-                  ? 'border-gold-400 bg-gold-400/15 text-gold-300'
-                  : 'border-navy-800 bg-navy-950 text-slate-300 hover:border-navy-600 hover:text-white',
+                  ? 'neu-pressed text-[var(--neu-accent)]'
+                  : 'neu-btn text-[var(--neu-ink)]',
               )}
             >
-              <Search size={13} />
+              <Search size={14} aria-hidden="true" />
             </button>
 
             <Button
               onClick={() => dispatch({ type: 'addYear' })}
               title="Add another Academic Year"
-              className="h-8 shrink-0 rounded-full border-gold-500/40 bg-navy-950 px-3 text-gold-400 hover:border-gold-400 hover:text-gold-300"
+              className="h-9 text-[var(--neu-accent)]"
             >
-              <CalendarPlus size={13} />
-              <span>+ Add Year Level</span>
+              <CalendarPlus size={13} aria-hidden="true" />
+              <span>Add Year Level</span>
             </Button>
           </div>
         </div>
 
-        {/* Expandable Search Input + Status Filter Chips (Opened via the + Menu) */}
+        {/* Expandable Search Input + Status Filter Chips */}
         {searchOpen && (
-          <div className="animate-pop-in flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
+          <div className="animate-pop-in flex flex-col gap-2.5 pt-1 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search
                 size={13}
-                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[var(--neu-ink-muted)]"
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search subject name (e.g. IT 111, Calculus)…"
+                placeholder="Search subject name (e.g. IT 111, Calculus)..."
                 aria-label="Search subjects"
                 autoFocus
-                className="h-9 w-full rounded-full border border-navy-700 bg-navy-950 pr-8 pl-8 text-xs text-white placeholder:text-slate-400 focus:border-gold-400 focus:outline-none"
+                className="neu-recessed h-10 w-full rounded-full pr-9 pl-9 text-xs text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
               />
               <button
                 type="button"
@@ -614,13 +607,13 @@ export function CurriculumMatrix({
                 }}
                 aria-label="Close search"
                 title="Close search"
-                className="absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-white"
+                className="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]"
               >
-                <X size={14} />
+                <X size={14} aria-hidden="true" />
               </button>
             </div>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto">
+            <div className="flex items-center gap-2 overflow-x-auto px-1 py-1">
               {(
                 [
                   { id: 'ALL', label: 'All Subjects' },
@@ -633,10 +626,10 @@ export function CurriculumMatrix({
                   type="button"
                   onClick={() => setStatusFilter(chip.id)}
                   className={cx(
-                    'h-7 shrink-0 cursor-pointer rounded-full border px-2.5 text-[11px] font-medium transition-colors',
+                    'h-8 shrink-0 rounded-full px-3 text-[11px] font-semibold',
                     statusFilter === chip.id
-                      ? 'border-gold-400/70 bg-gold-400/15 text-gold-300'
-                      : 'border-navy-800 bg-navy-950 text-slate-400 hover:text-slate-200',
+                      ? 'neu-pressed text-[var(--neu-accent)]'
+                      : 'neu-btn text-[var(--neu-ink-muted)]',
                   )}
                 >
                   {chip.label}
@@ -651,40 +644,42 @@ export function CurriculumMatrix({
       {visibleYears.map((y) => {
         const ySum = studentYearSummary(y, mode);
         return (
-          <section
-            key={y.id}
-            className="mb-5 overflow-hidden rounded-2xl border border-navy-800 bg-obsidian-soft shadow-sm sm:mb-6"
-          >
-            <header className="flex items-center justify-between gap-2 border-b border-navy-800 bg-navy-900/80 px-3.5 py-2.5 sm:px-4 sm:py-3">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-sm font-bold text-white">{y.label}</h3>
-                <span className="font-mono text-xs text-slate-400 tabular">
+          <section key={y.id} className="neu-card mb-6 overflow-hidden rounded-3xl">
+            <header className="flex items-center justify-between gap-2 border-b border-[var(--neu-border)] px-4 py-3 sm:px-5 sm:py-3.5">
+              <div className="flex items-center gap-3">
+                <h3 className="text-sm font-bold text-[var(--neu-ink)]">{y.label}</h3>
+                <span className="font-mono text-xs text-[var(--neu-ink-muted)] tabular">
                   <span className="hidden sm:inline">
-                    {ySum.gradedUnits.toFixed(0)}/{ySum.totalUnits.toFixed(0)} units ·{' '}
+                    {ySum.gradedUnits.toFixed(0)}/{ySum.totalUnits.toFixed(0)} units,{' '}
                   </span>
                   GWA{' '}
-                  <span className={ySum.gwa === null ? 'text-slate-500' : 'font-semibold text-gold-400'}>
+                  <span
+                    className={
+                      ySum.gwa === null ? 'text-[var(--neu-ink-subtle)]' : 'font-semibold text-[var(--neu-accent)]'
+                    }
+                  >
                     {formatGwa(ySum.gwa, 2)}
                   </span>
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => dispatch({ type: 'addSemester', yearId: y.id })}
-                  className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-full border border-navy-700 bg-navy-950 px-2.5 text-[11px] font-medium text-slate-200 transition-all hover:border-gold-400/60 hover:text-gold-400 active:scale-95"
+                  className="neu-btn inline-flex h-8 items-center gap-1 rounded-full px-3 text-[11px] font-semibold text-[var(--neu-ink)]"
                 >
-                  <Plus size={11} className="text-gold-400" /> Term
+                  <Plus size={11} className="text-[var(--neu-accent)]" aria-hidden="true" /> Term
                 </button>
                 {years.length > 1 && (
                   <button
                     type="button"
                     onClick={() => dispatch({ type: 'removeYear', yearId: y.id })}
                     title={`Delete ${y.label}`}
-                    className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-full border border-navy-700 bg-navy-950 px-2 text-[11px] text-slate-400 transition-all hover:border-rose-500/50 hover:text-rose-400 active:scale-95"
+                    aria-label={`Delete ${y.label}`}
+                    className="neu-btn inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
                   >
-                    <Trash2 size={11} />
+                    <Trash2 size={12} aria-hidden="true" />
                   </button>
                 )}
               </div>
@@ -709,7 +704,7 @@ export function CurriculumMatrix({
         );
       })}
 
-      {/* Mobile Speed Dial Floating Action Button (+): Hidden on Desktop (sm+) */}
+      {/* Mobile Speed Dial FAB */}
       {typeof document !== 'undefined' &&
         createPortal(
           <div className="sm:hidden">
@@ -718,67 +713,63 @@ export function CurriculumMatrix({
                 aria-hidden="true"
                 onClick={() => setFabOpen(false)}
                 onTouchMove={(e) => e.preventDefault()}
-                className="animate-backdrop fixed inset-0 z-40 bg-obsidian/70 backdrop-blur-sm touch-none overscroll-none"
+                className="animate-backdrop fixed inset-0 z-40 bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none"
               />
             )}
 
             <div className="fixed right-4 bottom-20 z-50 flex flex-col items-end gap-3">
               {fabOpen && (
                 <div className="mb-1 flex flex-col items-end gap-3">
-                  {/* 3. Search (top-most, staggered 3rd) */}
                   <button
                     type="button"
                     onClick={() => {
                       setFabOpen(false);
                       setSearchOpen(true);
                     }}
-                    className="animate-speed-dial-3 group flex cursor-pointer items-center gap-3 active:scale-95"
+                    className="animate-speed-dial-3 group flex items-center gap-3"
                   >
-                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                    <span className="neu-card rounded-full px-3.5 py-1.5 text-xs font-semibold text-[var(--neu-ink)]">
                       Search
                     </span>
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
-                      <Search size={18} />
+                    <span className="neu-btn flex h-11 w-11 items-center justify-center rounded-full text-[var(--neu-accent)]">
+                      <Search size={18} aria-hidden="true" />
                     </span>
                   </button>
 
-                  {/* 2. Add Year (middle, staggered 2nd) */}
                   <button
                     type="button"
                     onClick={() => {
                       setFabOpen(false);
                       dispatch({ type: 'addYear' });
                     }}
-                    className="animate-speed-dial-2 group flex cursor-pointer items-center gap-3 active:scale-95"
+                    className="animate-speed-dial-2 group flex items-center gap-3"
                   >
-                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                    <span className="neu-card rounded-full px-3.5 py-1.5 text-xs font-semibold text-[var(--neu-ink)]">
                       Add Year
                     </span>
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
-                      <CalendarPlus size={18} />
+                    <span className="neu-btn flex h-11 w-11 items-center justify-center rounded-full text-[var(--neu-accent)]">
+                      <CalendarPlus size={18} aria-hidden="true" />
                     </span>
                   </button>
 
-                  {/* 1. Add Subject (closest to +, staggered 1st) */}
                   <button
                     type="button"
                     onClick={() => {
                       setFabOpen(false);
                       openMobileAdd();
                     }}
-                    className="animate-speed-dial-1 group flex cursor-pointer items-center gap-3 active:scale-95"
+                    className="animate-speed-dial-1 group flex items-center gap-3"
                   >
-                    <span className="rounded-full border border-navy-700 bg-navy-950/95 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg transition-colors group-hover:border-gold-400/60 group-hover:text-gold-300">
+                    <span className="neu-card rounded-full px-3.5 py-1.5 text-xs font-semibold text-[var(--neu-ink)]">
                       Add Subject
                     </span>
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-navy-700 bg-navy-900 text-gold-400 shadow-xl transition-all group-hover:scale-105 group-hover:border-gold-400 group-hover:bg-gold-400 group-hover:text-obsidian">
-                      <BookOpen size={18} />
+                    <span className="neu-btn flex h-11 w-11 items-center justify-center rounded-full text-[var(--neu-accent)]">
+                      <BookOpen size={18} aria-hidden="true" />
                     </span>
                   </button>
                 </div>
               )}
 
-              {/* Main + FAB: turns slightly larger and rotates 45° when open */}
               <button
                 type="button"
                 onClick={() => setFabOpen((v) => !v)}
@@ -786,25 +777,23 @@ export function CurriculumMatrix({
                 aria-label={fabOpen ? 'Close quick actions' : 'Open quick actions'}
                 title="Add Subject, Add Year, or Search"
                 className={cx(
-                  'inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gold-400 text-obsidian shadow-[0_6px_24px_rgba(244,181,42,0.4)] transition-all duration-300 ease-out active:scale-95',
-                  fabOpen
-                    ? 'scale-110 rotate-45 bg-gold-300 shadow-[0_0_32px_rgba(244,181,42,0.65)]'
-                    : 'hover:scale-105',
+                  'neu-btn-accent inline-flex h-14 w-14 items-center justify-center rounded-full transition-transform duration-200',
+                  fabOpen ? 'scale-105 rotate-45' : 'hover:scale-105',
                 )}
               >
-                <Plus size={26} strokeWidth={2.75} />
+                <Plus size={26} strokeWidth={2.75} aria-hidden="true" />
               </button>
             </div>
           </div>,
           document.body,
         )}
 
-      {/* Mobile Modal Bottom Sheet: Edit Subject (Rendered via Portal to document.body) */}
+      {/* Mobile Bottom Sheet: Edit Subject */}
       {editingSub &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-black/75 backdrop-blur-xs touch-none overscroll-none sm:hidden"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none sm:hidden"
             onClick={() => setSheet(null)}
             onTouchMove={(e) => {
               if (e.target === e.currentTarget) e.preventDefault();
@@ -815,28 +804,27 @@ export function CurriculumMatrix({
               aria-modal="true"
               aria-label="Edit subject"
               onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up max-h-[88vh] w-full overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl touch-pan-y overscroll-contain"
+              className="animate-sheet-up neu-card max-h-[88vh] w-full overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 touch-pan-y overscroll-contain"
             >
-              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700" />
+              <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full" />
 
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">
+                <h3 className="text-sm font-bold text-[var(--neu-ink)]">
                   {editingSub.name || 'Subject Details'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setSheet(null)}
                   aria-label="Close sheet"
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-navy-800 bg-navy-950 text-slate-400 hover:text-white"
+                  className="neu-btn inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
                 >
-                  <X size={15} />
+                  <X size={15} aria-hidden="true" />
                 </button>
               </div>
 
               <div className="space-y-4">
-                {/* Subject Name Input */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Subject Name / Code
                   </label>
                   <input
@@ -850,22 +838,22 @@ export function CurriculumMatrix({
                       })
                     }
                     placeholder="e.g. IT 111, Calculus 1"
-                    className="h-10 w-full rounded-xl border border-navy-700 bg-navy-950 px-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none"
+                    className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
                   />
                 </div>
 
-                {/* Choice Chips: Grade Picker */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Final Grade
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {GRADE_OPTIONS.map((opt) => {
                       const selected = stateToValue(editingSub.grade) === opt.value;
                       return (
                         <button
                           key={opt.value || 'none'}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() =>
                             dispatch({
                               type: 'updateSubject',
@@ -874,10 +862,8 @@ export function CurriculumMatrix({
                             })
                           }
                           className={cx(
-                            'flex h-9 cursor-pointer items-center justify-center rounded-xl border font-mono text-xs font-semibold transition-all active:scale-95',
-                            selected
-                              ? 'border-gold-400 bg-gold-400 text-obsidian shadow-[0_0_12px_rgba(244,181,42,0.25)]'
-                              : 'border-navy-800 bg-navy-950 text-slate-200 hover:border-navy-600',
+                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
+                            selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
                           )}
                         >
                           {opt.shortLabel}
@@ -887,18 +873,18 @@ export function CurriculumMatrix({
                   </div>
                 </div>
 
-                {/* Choice Chips: Units */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Academic Units
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {UNIT_OPTIONS.map((u) => {
                       const selected = editingSub.units === u;
                       return (
                         <button
                           key={u}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() =>
                             dispatch({
                               type: 'updateSubject',
@@ -907,10 +893,10 @@ export function CurriculumMatrix({
                             })
                           }
                           className={cx(
-                            'flex h-9 cursor-pointer items-center justify-center rounded-xl border font-mono text-xs font-semibold transition-all active:scale-95',
+                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
                             selected
-                              ? 'border-gold-400 bg-gold-400/20 text-gold-300'
-                              : 'border-navy-800 bg-navy-950 text-slate-300',
+                              ? 'neu-pressed text-[var(--neu-accent)]'
+                              : 'neu-btn text-[var(--neu-ink-muted)]',
                           )}
                         >
                           {u} {u === 1 ? 'unit' : 'units'}
@@ -920,11 +906,12 @@ export function CurriculumMatrix({
                   </div>
                 </div>
 
-                {/* Switch Control: NSTP Toggle */}
-                <div className="flex items-center justify-between rounded-xl border border-navy-800 bg-navy-950 px-3.5 py-3">
+                <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
                   <div>
-                    <div className="text-xs font-semibold text-white">NSTP / Non-Academic Subject</div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-xs font-semibold text-[var(--neu-ink)]">
+                      NSTP / Non-Academic Subject
+                    </div>
+                    <div className="text-[11px] text-[var(--neu-ink-muted)]">
                       Excluded from Latin Honors GWA per RA 9163
                     </div>
                   </div>
@@ -940,40 +927,37 @@ export function CurriculumMatrix({
                       })
                     }
                     className={cx(
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border transition-colors',
-                      editingSub.isNstp
-                        ? 'border-gold-400 bg-gold-400'
-                        : 'border-navy-700 bg-navy-900',
+                      'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
+                      editingSub.isNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
                     )}
                   >
                     <span
                       className={cx(
-                        'inline-block h-4 w-4 rounded-full transition-transform',
+                        'inline-block h-5 w-5 rounded-full transition-transform',
                         editingSub.isNstp
-                          ? 'translate-x-5 bg-obsidian'
-                          : 'translate-x-1 bg-slate-400',
+                          ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
+                          : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
                       )}
                     />
                   </button>
                 </div>
 
-                {/* Bottom Actions: Delete & Done */}
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => {
                       dispatch({ type: 'removeSubject', subId: editingSub.id });
                       setSheet(null);
                     }}
-                    className="inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-950/25 px-3.5 text-xs font-semibold text-rose-300 transition-transform active:scale-95"
+                    className="neu-btn inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl px-4 text-xs font-semibold text-[var(--neu-danger)]"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={14} aria-hidden="true" />
                     <span>Delete</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setSheet(null)}
-                    className="inline-flex h-10 flex-1 cursor-pointer items-center justify-center rounded-xl bg-gold-400 text-xs font-bold text-obsidian transition-transform active:scale-95"
+                    className="neu-btn-accent inline-flex h-11 flex-1 items-center justify-center rounded-2xl text-xs font-bold"
                   >
                     Done
                   </button>
@@ -984,12 +968,12 @@ export function CurriculumMatrix({
           document.body,
         )}
 
-      {/* Modal Bottom Sheet / Dialog: Add Subject (No "NEW SUBJECT" header above title) */}
+      {/* Modal Bottom Sheet / Dialog: Add Subject */}
       {sheet?.mode === 'add' &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-xs touch-none overscroll-none sm:items-center sm:p-4"
+            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none sm:items-center sm:p-4"
             onClick={() => setSheet(null)}
             onTouchMove={(e) => {
               if (e.target === e.currentTarget) e.preventDefault();
@@ -1001,27 +985,26 @@ export function CurriculumMatrix({
               aria-label="Add subject"
               onSubmit={submitMobileAdd}
               onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-navy-700 bg-obsidian-soft px-4 pt-3 pb-7 shadow-2xl touch-pan-y overscroll-contain sm:rounded-2xl sm:border sm:p-5"
+              className="animate-sheet-up neu-card max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 touch-pan-y overscroll-contain sm:rounded-3xl sm:p-6"
             >
-              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-navy-700 sm:hidden" />
+              <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full sm:hidden" />
 
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Add Subject to Curriculum</h3>
+                <h3 className="text-sm font-bold text-[var(--neu-ink)]">Add Subject to Curriculum</h3>
                 <button
                   type="button"
                   onClick={() => setSheet(null)}
                   aria-label="Close sheet"
-                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-navy-800 bg-navy-950 text-slate-400 hover:text-white"
+                  className="neu-btn inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
                 >
-                  <X size={15} />
+                  <X size={15} aria-hidden="true" />
                 </button>
               </div>
 
               <div className="space-y-4">
-                {/* Target Year & Term Picker */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="mb-1 block font-mono text-[10px] text-slate-400 uppercase">
+                    <label className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                       Year Level
                     </label>
                     <select
@@ -1033,26 +1016,26 @@ export function CurriculumMatrix({
                           setDraftSemId(nextYear.semesters[0].id);
                         }
                       }}
-                      className="h-9 w-full rounded-xl border border-navy-700 bg-navy-950 px-2.5 text-xs text-white focus:border-gold-400 focus:outline-none"
+                      className="neu-recessed h-10 w-full rounded-2xl px-3 text-xs text-[var(--neu-ink)] outline-none"
                     >
                       {years.map((y) => (
-                        <option key={y.id} value={y.id} className="bg-obsidian">
+                        <option key={y.id} value={y.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                           {y.label}
                         </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block font-mono text-[10px] text-slate-400 uppercase">
+                    <label className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                       Semester / Term
                     </label>
                     <select
                       value={draftSemId}
                       onChange={(e) => setDraftSemId(e.target.value)}
-                      className="h-9 w-full rounded-xl border border-navy-700 bg-navy-950 px-2.5 text-xs text-white focus:border-gold-400 focus:outline-none"
+                      className="neu-recessed h-10 w-full rounded-2xl px-3 text-xs text-[var(--neu-ink)] outline-none"
                     >
                       {(years.find((y) => y.id === draftYearId)?.semesters ?? []).map((s) => (
-                        <option key={s.id} value={s.id} className="bg-obsidian">
+                        <option key={s.id} value={s.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                           {s.name}
                         </option>
                       ))}
@@ -1060,9 +1043,8 @@ export function CurriculumMatrix({
                   </div>
                 </div>
 
-                {/* Subject Name */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Subject Name / Code
                   </label>
                   <input
@@ -1071,26 +1053,26 @@ export function CurriculumMatrix({
                     onChange={(e) => setDraftName(e.target.value)}
                     placeholder="e.g. IT 111, PurCom, NSTP 1"
                     autoFocus
-                    className="h-10 w-full rounded-xl border border-navy-700 bg-navy-950 px-3 text-sm text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none"
+                    className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
                   />
                 </div>
 
-                {/* Choice Chips: Units */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Academic Units
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {UNIT_OPTIONS.map((u) => (
                       <button
                         key={u}
                         type="button"
+                        aria-pressed={draftUnits === u}
                         onClick={() => setDraftUnits(u)}
                         className={cx(
-                          'flex h-9 cursor-pointer items-center justify-center rounded-xl border font-mono text-xs font-semibold transition-all active:scale-95',
+                          'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
                           draftUnits === u
-                            ? 'border-gold-400 bg-gold-400/20 text-gold-300'
-                            : 'border-navy-800 bg-navy-950 text-slate-300',
+                            ? 'neu-pressed text-[var(--neu-accent)]'
+                            : 'neu-btn text-[var(--neu-ink-muted)]',
                         )}
                       >
                         {u} {u === 1 ? 'unit' : 'units'}
@@ -1099,24 +1081,22 @@ export function CurriculumMatrix({
                   </div>
                 </div>
 
-                {/* Choice Chips: Grade */}
                 <div>
-                  <label className="mb-1.5 block font-mono text-[11px] text-slate-300 uppercase">
+                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
                     Grade (or leave as No grade for upcoming subjects)
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {GRADE_OPTIONS.map((opt) => {
                       const selected = stateToValue(draftGrade) === opt.value;
                       return (
                         <button
                           key={opt.value || 'none'}
                           type="button"
+                          aria-pressed={selected}
                           onClick={() => setDraftGrade(opt.state)}
                           className={cx(
-                            'flex h-9 cursor-pointer items-center justify-center rounded-xl border font-mono text-xs font-semibold transition-all active:scale-95',
-                            selected
-                              ? 'border-gold-400 bg-gold-400 text-obsidian shadow-[0_0_12px_rgba(244,181,42,0.25)]'
-                              : 'border-navy-800 bg-navy-950 text-slate-200',
+                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
+                            selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
                           )}
                         >
                           {opt.shortLabel}
@@ -1126,11 +1106,12 @@ export function CurriculumMatrix({
                   </div>
                 </div>
 
-                {/* Switch Control: NSTP */}
-                <div className="flex items-center justify-between rounded-xl border border-navy-800 bg-navy-950 px-3.5 py-3">
+                <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
                   <div>
-                    <div className="text-xs font-semibold text-white">NSTP / Non-Academic Subject</div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-xs font-semibold text-[var(--neu-ink)]">
+                      NSTP / Non-Academic Subject
+                    </div>
+                    <div className="text-[11px] text-[var(--neu-ink-muted)]">
                       Excluded from Latin Honors GWA per RA 9163
                     </div>
                   </div>
@@ -1140,14 +1121,16 @@ export function CurriculumMatrix({
                     aria-checked={draftNstp}
                     onClick={() => setDraftNstp((v) => !v)}
                     className={cx(
-                      'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border transition-colors',
-                      draftNstp ? 'border-gold-400 bg-gold-400' : 'border-navy-700 bg-navy-900',
+                      'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
+                      draftNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
                     )}
                   >
                     <span
                       className={cx(
-                        'inline-block h-4 w-4 rounded-full transition-transform',
-                        draftNstp ? 'translate-x-5 bg-obsidian' : 'translate-x-1 bg-slate-400',
+                        'inline-block h-5 w-5 rounded-full transition-transform',
+                        draftNstp
+                          ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
+                          : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
                       )}
                     />
                   </button>
@@ -1155,9 +1138,9 @@ export function CurriculumMatrix({
 
                 <button
                   type="submit"
-                  className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold-400 text-xs font-bold text-obsidian shadow-[0_0_18px_rgba(244,181,42,0.25)] transition-transform active:scale-95"
+                  className="neu-btn-accent inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl text-xs font-bold"
                 >
-                  <Plus size={16} strokeWidth={2.5} />
+                  <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
                   <span>Add Subject</span>
                 </button>
               </div>

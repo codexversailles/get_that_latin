@@ -51,19 +51,19 @@ export function ProbabilityPanel({
       subtitle={`Simulated across ${sim.runs.toLocaleString()} possible graduation futures.`}
       meta={
         <span className="inline-flex items-center gap-1">
-          {busy ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+          {busy ? <Loader2 size={11} className="animate-spin" aria-hidden="true" /> : <Sparkles size={11} aria-hidden="true" />}
           <span>{busy ? 'Updating' : 'Live'}</span>
         </span>
       }
     >
       {hardDisqualified && (
-        <div className="mb-3 rounded-xl border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-300">
-          A failing grade (5.00) is on record — Latin Honors eligibility is zero.
+        <div className="neu-recessed mb-3.5 rounded-2xl p-3 text-xs text-[var(--neu-danger)]">
+          A failing grade (5.00) is on record. Latin Honors eligibility is zero.
         </div>
       )}
 
       {!hardDisqualified && missingYears > 0 && (
-        <div className="mb-3 rounded-xl border border-amber-400/40 bg-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
+        <div className="neu-recessed mb-3.5 rounded-2xl p-3 text-[11px] leading-relaxed text-[var(--neu-warn)]">
           <strong>Yr {yearsEntered} of 4 entered:</strong> Automatically simulating your remaining{' '}
           <strong>
             {missingYears} unentered year{missingYears > 1 ? 's' : ''} ({missingYears * 36} units)
@@ -73,17 +73,18 @@ export function ProbabilityPanel({
       )}
 
       {result && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-navy-800 bg-navy-950/90 p-3">
+        <div className="neu-recessed mb-4 flex items-center justify-between rounded-2xl p-3.5">
           <div>
-            <div className="text-xs font-semibold text-white">Overall Honors Chance</div>
-            <div className="mt-0.5 text-[11px] text-slate-400">
-              Projected GWA: <span className="font-mono text-gold-400">{formatGwa(result.p50, 2)}</span>
+            <div className="text-xs font-semibold text-[var(--neu-ink)]">Overall Honors Chance</div>
+            <div className="mt-0.5 text-[11px] text-[var(--neu-ink-muted)]">
+              Projected GWA:{' '}
+              <span className="font-mono font-semibold text-[var(--neu-accent)]">{formatGwa(result.p50, 2)}</span>
             </div>
           </div>
           <span
             className={cx(
               'font-mono text-2xl font-bold tabular',
-              result.pAny > 0.5 ? 'text-gold-400' : 'text-white',
+              result.pAny > 0.5 ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink)]',
             )}
           >
             {pct(result.pAny)}
@@ -91,109 +92,128 @@ export function ProbabilityPanel({
         </div>
       )}
 
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {probs.map(([label, range, p]) => (
           <div key={label}>
             <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-200">
-                {label} <span className="font-mono text-[11px] text-slate-500">({range})</span>
+              <span className="text-xs font-medium text-[var(--neu-ink)]">
+                {label} <span className="font-mono text-[11px] text-[var(--neu-ink-subtle)]">({range})</span>
               </span>
-              <span className="font-mono text-xs font-semibold text-gold-400 tabular">{pct(p)}</span>
+              <span className="font-mono text-xs font-semibold text-[var(--neu-accent)] tabular">{pct(p)}</span>
             </div>
-            <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-navy-900">
+            <div className="neu-recessed mt-1.5 h-2.5 w-full overflow-hidden rounded-full p-0.5">
               <div
-                className="h-full rounded-full bg-gold-400 transition-[width] duration-200"
-                style={{ width: `${Math.min(100, p * 100)}%` }}
+                className="h-full w-full origin-left rounded-full bg-[var(--neu-accent)] transition-transform duration-200"
+                style={{ transform: `scaleX(${Math.min(1, Math.max(0, p))})` }}
               />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Simple Future Outlook Presets */}
-      <div className="mt-4 border-t border-navy-800 pt-3.5">
-        <div className="mb-2 text-[11px] font-medium text-slate-300">Expected pace in upcoming semesters:</div>
-        <div className="grid grid-cols-3 gap-1.5">
+      {/* Future Outlook Presets */}
+      <div className="mt-5 border-t border-[var(--neu-border)] pt-4">
+        <div className="mb-2.5 text-[11px] font-semibold text-[var(--neu-ink-muted)]">
+          Expected pace in upcoming semesters:
+        </div>
+        <div className="grid grid-cols-3 gap-2.5">
           {PRESETS.map((pr) => {
             const active = Math.abs(sim.shift - pr.shift) < 0.03;
             return (
               <button
                 key={pr.label}
                 type="button"
+                aria-pressed={active}
                 onClick={() => onSim({ shift: pr.shift })}
                 className={cx(
-                  'cursor-pointer rounded-xl border p-2 text-left transition-all active:scale-95',
-                  active
-                    ? 'border-gold-400 bg-gold-400 text-obsidian shadow-xs'
-                    : 'border-navy-800 bg-navy-950/70 text-slate-200 hover:border-navy-700',
+                  'rounded-2xl p-2.5 text-left transition-[box-shadow,transform,color] duration-150',
+                  active ? 'neu-pressed translate-y-[1px]' : 'neu-btn',
                 )}
               >
-                <div className="text-xs font-bold">{pr.label}</div>
-                <div className={cx('mt-0.5 text-[10px]', active ? 'text-obsidian/80' : 'text-slate-400')}>
-                  {pr.desc}
+                <div className="flex items-center justify-between gap-1">
+                  <span
+                    className={cx(
+                      'text-xs font-bold',
+                      active ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink)]',
+                    )}
+                  >
+                    {pr.label}
+                  </span>
+                  <span
+                    className={cx(
+                      'h-1.5 w-1.5 rounded-full',
+                      active
+                        ? 'bg-[var(--neu-accent)] shadow-[0_0_5px_var(--neu-accent)]'
+                        : 'bg-[var(--neu-ink-subtle)] opacity-35',
+                    )}
+                  />
                 </div>
+                <div className="mt-0.5 text-[10px] text-[var(--neu-ink-muted)]">{pr.desc}</div>
               </button>
             );
           })}
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
-        Statistical estimate based on your grade history — not an official registrar evaluation.
+      <p className="mt-3.5 text-[11px] leading-relaxed text-[var(--neu-ink-subtle)]">
+        Statistical estimate based on your grade history, not an official registrar evaluation.
       </p>
 
       {pendingInc > 0 && (
-        <p className="mt-2 text-[11px] text-amber-300/90">
-          Note: Assumes {pendingInc} incomplete (INC) subject{pendingInc > 1 ? 's are' : ' is'} completed with a passing grade.
+        <p className="mt-2 text-[11px] text-[var(--neu-warn)]">
+          Note: Assumes {pendingInc} incomplete (INC) subject{pendingInc > 1 ? 's are' : ' is'} completed with a
+          passing grade.
         </p>
       )}
 
       {/* Collapsible Advanced Chart & Math Controls */}
-      <div className="mt-4 border-t border-navy-800 pt-2.5">
+      <div className="mt-4 border-t border-[var(--neu-border)] pt-3">
         <button
           type="button"
           onClick={() => setShowAdvanced((v) => !v)}
-          className="flex w-full cursor-pointer items-center justify-between text-left text-xs text-slate-400 hover:text-gold-400"
+          aria-expanded={showAdvanced}
+          className="flex w-full items-center justify-between text-left text-xs font-medium text-[var(--neu-ink-muted)] hover:text-[var(--neu-accent)]"
         >
-          <span>{showAdvanced ? 'Hide distribution chart & details' : 'Show distribution chart & details'}</span>
-          {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          <span>{showAdvanced ? 'Hide distribution chart and details' : 'Show distribution chart and details'}</span>
+          {showAdvanced ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
         </button>
 
         {showAdvanced && (
-          <div className="mt-3 space-y-4">
+          <div className="mt-3.5 space-y-4">
             <div>
               <DensityChart result={result} marker={marker} />
-              <div className="mt-1 flex justify-between font-mono text-[10px] text-slate-400 tabular">
+              <div className="mt-1.5 flex justify-between font-mono text-[10px] text-[var(--neu-ink-muted)] tabular">
                 <span>
-                  Best 5%: {formatGwa(result?.p05, 2)} · Median: {formatGwa(result?.p50, 2)} · Worst 5%: {formatGwa(result?.p95, 2)}
+                  Best 5%: {formatGwa(result?.p05, 2)} | Median: {formatGwa(result?.p50, 2)} | Worst 5%:{' '}
+                  {formatGwa(result?.p95, 2)}
                 </span>
-                {marker !== null && <span className="text-gold-400">■ current</span>}
+                {marker !== null && <span className="font-semibold text-[var(--neu-accent)]">Current</span>}
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 rounded-xl border border-navy-800 bg-navy-950 p-2.5 font-mono text-[11px] tabular">
+            <div className="neu-recessed grid grid-cols-3 gap-2 rounded-2xl p-3 font-mono text-[11px] tabular">
               <div>
-                <div className="font-sans text-[10px] text-slate-400">Your avg</div>
-                <div className="text-white">{moments.mean.toFixed(2)}</div>
+                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Your avg</div>
+                <div className="font-semibold text-[var(--neu-ink)]">{moments.mean.toFixed(2)}</div>
               </div>
               <div>
-                <div className="font-sans text-[10px] text-slate-400">Spread</div>
-                <div className="text-white">±{moments.std.toFixed(2)}</div>
+                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Spread</div>
+                <div className="font-semibold text-[var(--neu-ink)]">±{moments.std.toFixed(2)}</div>
               </div>
               <div>
-                <div className="font-sans text-[10px] text-slate-400">Graded</div>
-                <div className="text-white">{moments.n}</div>
+                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Graded</div>
+                <div className="font-semibold text-[var(--neu-ink)]">{moments.n}</div>
               </div>
             </div>
 
             <label className="block">
-              <div className="flex justify-between text-xs text-slate-300">
-                <span>Grade consistency (Volatility)</span>
-                <span className="font-mono text-gold-400">{sim.volatility.toFixed(2)}×</span>
+              <div className="flex justify-between text-xs text-[var(--neu-ink)]">
+                <span>Grade consistency (volatility)</span>
+                <span className="font-mono font-semibold text-[var(--neu-accent)]">{sim.volatility.toFixed(2)}×</span>
               </div>
               <input
                 type="range"
-                className="range"
+                className="range mt-1"
                 min={0.25}
                 max={2.5}
                 step={0.05}

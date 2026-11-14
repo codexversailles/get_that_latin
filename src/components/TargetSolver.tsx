@@ -12,8 +12,8 @@ function describeStatus(
   if (totalUnits === 0) {
     return {
       badge: `≤ ${maxCutoff.toFixed(2)}`,
-      detail: 'Add completed & upcoming subjects on the left to calculate your required average.',
-      tone: 'text-gold-400 border-navy-700 bg-navy-950',
+      detail: 'Add completed and upcoming subjects on the left to calculate your required average.',
+      tone: 'text-[var(--neu-accent)]',
       reachable: true,
     };
   }
@@ -26,25 +26,25 @@ function describeStatus(
           r.remainingUnits > 0
             ? `Any passing grade (up to 3.00) across your remaining ${r.remainingUnits.toFixed(0)} units keeps you in ${label}.`
             : `All 4 years are graded and your final GWA qualifies for ${label}.`,
-        tone: 'text-gold-300 border-gold-500/50 bg-gold-500/15',
+        tone: 'text-[var(--neu-accent)]',
         reachable: true,
       };
     case 'INCOMPLETE_CURRICULUM':
       return {
         badge: `Yr ${gradedYearsCount} of 4 only`,
-        detail: `Only ${gradedYearsCount} of 4 years graded so far. Add your remaining years & ungraded subjects to calculate the average needed for ${label}.`,
-        tone: 'text-amber-300 border-amber-500/40 bg-amber-500/10',
+        detail: `Only ${gradedYearsCount} of 4 years graded so far. Add your remaining years and ungraded subjects to calculate the average needed for ${label}.`,
+        tone: 'text-[var(--neu-warn)]',
         reachable: true,
       };
     case 'FEASIBLE': {
       const partialNote =
         yearsWithSubjectsCount > 0 && yearsWithSubjectsCount < 4
-          ? ` (Only ${yearsWithSubjectsCount} of 4 years added so far — add remaining years for full graduation accuracy.)`
+          ? ` (Only ${yearsWithSubjectsCount} of 4 years added so far; add remaining years for full graduation accuracy.)`
           : '';
       return {
         badge: `Avg ≤ ${formatGwa(r.requiredAverage, 2)}`,
         detail: `Need at least a ${formatGwa(r.requiredAverage, 2)} average (≈ straight ${r.requiredStep?.toFixed(2)}s) across ${r.remainingUnits.toFixed(0)} ungraded units.${partialNote}`,
-        tone: 'text-white border-navy-700 bg-navy-900',
+        tone: 'text-[var(--neu-ink)]',
         reachable: true,
       };
     }
@@ -52,21 +52,21 @@ function describeStatus(
       return {
         badge: 'Out of reach',
         detail: `Even straight 1.00s in your remaining ${r.remainingUnits.toFixed(0)} units finish at ${formatGwa(r.bestPossibleGwa, 4)} (short by ${r.deficit?.toFixed(4)}).`,
-        tone: 'text-rose-300 border-rose-500/40 bg-rose-500/10',
+        tone: 'text-[var(--neu-danger)]',
         reachable: false,
       };
     case 'MISSED':
       return {
         badge: 'Above cutoff',
         detail: 'Final GWA across all 4 years is above this cutoff.',
-        tone: 'text-amber-300 border-amber-500/40 bg-amber-500/10',
+        tone: 'text-[var(--neu-warn)]',
         reachable: false,
       };
     case 'DISQUALIFIED':
       return {
         badge: 'Disqualified',
         detail: 'A failing grade (5.00) on record disqualifies Latin Honors.',
-        tone: 'text-rose-300 border-rose-500/40 bg-rose-500/10',
+        tone: 'text-[var(--neu-danger)]',
         reachable: false,
       };
   }
@@ -90,7 +90,7 @@ export function TargetSolver({
       subtitle="Select a Latin Honor tier to see the average grade required across your remaining subjects."
       meta={`${ledger.remainingUnits.toFixed(0)} units ungraded`}
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         {HONOR_TIERS.map((t) => {
           const r = solveTarget(ledger, t.max);
           const info = describeStatus(r, t.label, ledger, t.max);
@@ -100,51 +100,69 @@ export function TargetSolver({
             <button
               key={t.id}
               type="button"
+              aria-pressed={selected}
               onClick={() => onTarget(t.max)}
               className={cx(
-                'block w-full cursor-pointer rounded-xl border p-3 text-left transition-all',
-                selected
-                  ? 'border-gold-400/60 bg-navy-900/90 shadow-xs'
-                  : 'border-navy-800 bg-navy-950/60 hover:border-navy-700',
+                'block w-full rounded-2xl p-3.5 text-left transition-[box-shadow,transform,color] duration-150',
+                selected ? 'neu-pressed translate-y-[1px]' : 'neu-btn',
               )}
             >
               <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span
+                    className={cx(
+                      'h-2 w-2 shrink-0 rounded-full',
+                      selected
+                        ? 'bg-[var(--neu-accent)] shadow-[0_0_6px_var(--neu-accent)]'
+                        : 'bg-[var(--neu-ink-subtle)] opacity-40',
+                    )}
+                  />
                   {info.reachable ? (
-                    <CheckCircle2 size={14} className="shrink-0 text-gold-400" />
+                    <CheckCircle2 size={14} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
                   ) : (
-                    <XCircle size={14} className="shrink-0 text-rose-400" />
+                    <XCircle size={14} className="shrink-0 text-[var(--neu-danger)]" aria-hidden="true" />
                   )}
-                  <span className="truncate text-xs font-bold text-white sm:text-sm">{t.label}</span>
+                  <span
+                    className={cx(
+                      'truncate text-xs font-bold sm:text-sm',
+                      selected ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink)]',
+                    )}
+                  >
+                    {t.label}
+                  </span>
                 </div>
-                <span className={cx('shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-medium whitespace-nowrap', info.tone)}>
+                <span
+                  className={cx(
+                    'neu-recessed shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px] font-semibold whitespace-nowrap',
+                    info.tone,
+                  )}
+                >
                   {info.badge}
                 </span>
               </div>
               {selected && (
-                <p className="mt-1.5 pl-5 text-xs leading-relaxed text-slate-300">{info.detail}</p>
+                <p className="mt-2 pl-6 text-xs leading-relaxed text-[var(--neu-ink-muted)]">{info.detail}</p>
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Best vs Worst case summary */}
       {ledger.totalUnits > 0 && activeResult.bestPossibleGwa !== null && (
-        <div className="mt-4 grid grid-cols-2 gap-2.5 border-t border-navy-800 pt-3.5">
-          <div className="rounded-xl border border-navy-800 bg-navy-950/80 p-2.5">
-            <div className="text-[11px] text-slate-400">Best reachable GWA</div>
-            <div className="mt-0.5 font-mono text-base font-bold text-gold-400 tabular">
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[var(--neu-border)] pt-4">
+          <div className="neu-recessed rounded-2xl p-3">
+            <div className="text-[11px] text-[var(--neu-ink-muted)]">Best reachable GWA</div>
+            <div className="mt-0.5 font-mono text-base font-bold text-[var(--neu-accent)] tabular">
               {formatGwa(activeResult.bestPossibleGwa)}
             </div>
-            <div className="text-[10px] text-slate-500">with straight 1.00s left</div>
+            <div className="text-[10px] text-[var(--neu-ink-subtle)]">with straight 1.00s left</div>
           </div>
-          <div className="rounded-xl border border-navy-800 bg-navy-950/80 p-2.5">
-            <div className="text-[11px] text-slate-400">Safest passing GWA</div>
-            <div className="mt-0.5 font-mono text-base font-bold text-white tabular">
+          <div className="neu-recessed rounded-2xl p-3">
+            <div className="text-[11px] text-[var(--neu-ink-muted)]">Safest passing GWA</div>
+            <div className="mt-0.5 font-mono text-base font-bold text-[var(--neu-ink)] tabular">
               {formatGwa(activeResult.worstPassingGwa)}
             </div>
-            <div className="text-[10px] text-slate-500">with straight 3.00s left</div>
+            <div className="text-[10px] text-[var(--neu-ink-subtle)]">with straight 3.00s left</div>
           </div>
         </div>
       )}

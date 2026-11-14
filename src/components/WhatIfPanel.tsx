@@ -34,7 +34,7 @@ export function WhatIfPanel({
         title="What-If Grade Tester"
         subtitle="Add upcoming subjects with 'Not graded yet' to test how hypothetical grades affect your GWA."
       >
-        <div className="rounded-xl border border-navy-800 bg-navy-950/60 px-3.5 py-2.5 text-xs text-slate-400">
+        <div className="neu-recessed rounded-2xl px-4 py-3 text-xs text-[var(--neu-ink-muted)]">
           No ungraded subjects yet. Add an upcoming subject on the left to test grades here.
         </div>
       </Panel>
@@ -48,32 +48,31 @@ export function WhatIfPanel({
       subtitle="Pick an ungraded subject to test how a specific grade changes your GWA."
       meta={
         active.length > 0 ? (
-          <Button onClick={() => dispatch({ type: 'clearAllWhatIf' })} className="h-7 px-2 text-[11px]">
-            <RotateCcw size={11} /> Reset ({active.length})
+          <Button onClick={() => dispatch({ type: 'clearAllWhatIf' })} className="h-8 px-3 text-[11px]">
+            <RotateCcw size={11} aria-hidden="true" /> Reset ({active.length})
           </Button>
         ) : undefined
       }
     >
       {active.length > 0 && (
-        <ul className="mb-3 divide-y divide-navy-800">
+        <ul className="mb-4 divide-y divide-[var(--neu-border)]">
           {active.map(({ subject: sub, yearLabel, semName }) => {
             const value = sub.whatIf ?? snapToStep(defaultGrade);
             const excluded = !inScope(sub, mode);
 
             return (
-              <li key={sub.id} className={cx('py-3 first:pt-0', excluded && 'opacity-45')}>
+              <li key={sub.id} className={cx('py-3.5 first:pt-0', excluded && 'opacity-45')}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-semibold text-white" title={sub.name}>
+                    <div className="truncate text-xs font-semibold text-[var(--neu-ink)]" title={sub.name}>
                       {sub.name}
                     </div>
-                    <div className="text-[11px] text-slate-400">
-                      {yearLabel} · {semName} ({sub.units} {sub.units === 1 ? 'unit' : 'units'})
+                    <div className="text-[11px] text-[var(--neu-ink-muted)]">
+                      {yearLabel}, {semName} ({sub.units} {sub.units === 1 ? 'unit' : 'units'})
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-1">
-                    {/* Stepper Controls (− / +) alongside Discrete Grade Picker */}
+                  <div className="flex shrink-0 items-center gap-1.5">
                     <button
                       type="button"
                       disabled={value <= 1.0}
@@ -85,10 +84,10 @@ export function WhatIfPanel({
                         })
                       }
                       aria-label={`Improve ${sub.name} grade by 0.25`}
-                      title="Better grade (−0.25)"
-                      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-l-lg border border-navy-700 bg-navy-950 text-slate-300 transition-colors hover:border-gold-400 hover:text-gold-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      title="Better grade (-0.25)"
+                      className="neu-btn inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink)] disabled:opacity-35"
                     >
-                      <Minus size={12} />
+                      <Minus size={12} aria-hidden="true" />
                     </button>
 
                     <select
@@ -101,10 +100,10 @@ export function WhatIfPanel({
                           patch: { whatIf: Number(e.target.value) },
                         })
                       }
-                      className="h-8 border-y border-gold-500/50 bg-gold-500/15 px-2 font-mono text-xs font-semibold text-gold-300 outline-none"
+                      className="neu-recessed h-8 rounded-full px-2.5 font-mono text-xs font-semibold text-[var(--neu-accent)] outline-none"
                     >
                       {PASSING_STEPS.map((n) => (
-                        <option key={n} value={n.toFixed(2)} className="bg-obsidian text-white">
+                        <option key={n} value={n.toFixed(2)} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                           {n.toFixed(2)}
                         </option>
                       ))}
@@ -122,9 +121,9 @@ export function WhatIfPanel({
                       }
                       aria-label={`Lower ${sub.name} grade by 0.25`}
                       title="Lower grade (+0.25)"
-                      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-r-lg border border-navy-700 bg-navy-950 text-slate-300 transition-colors hover:border-gold-400 hover:text-gold-300 disabled:cursor-not-allowed disabled:opacity-35"
+                      className="neu-btn inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink)] disabled:opacity-35"
                     >
-                      <Plus size={12} />
+                      <Plus size={12} aria-hidden="true" />
                     </button>
 
                     <button
@@ -136,16 +135,17 @@ export function WhatIfPanel({
                           patch: { whatIf: null },
                         })
                       }
-                      className="ml-1 cursor-pointer p-1 text-slate-400 hover:text-white"
+                      aria-label={`Remove ${sub.name} from What-If`}
+                      className="neu-btn ml-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
                       title="Remove from What-If"
                     >
-                      <X size={14} />
+                      <X size={13} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-2 flex items-center gap-3">
-                  <span className="font-mono text-[10px] text-gold-400">1.00</span>
+                <div className="mt-2.5 flex items-center gap-3">
+                  <span className="font-mono text-[10px] font-semibold text-[var(--neu-accent)]">1.00</span>
                   <input
                     type="range"
                     className="range flex-1"
@@ -162,7 +162,7 @@ export function WhatIfPanel({
                     }
                     aria-label={`${sub.name} scenario slider`}
                   />
-                  <span className="font-mono text-[10px] text-slate-400">3.00</span>
+                  <span className="font-mono text-[10px] text-[var(--neu-ink-muted)]">3.00</span>
                 </div>
               </li>
             );
@@ -171,8 +171,8 @@ export function WhatIfPanel({
       )}
 
       {addable.length > 0 && (
-        <div className="flex min-w-0 items-center gap-2">
-          <Plus size={14} className="shrink-0 text-gold-400" />
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Plus size={14} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
           <select
             value=""
             onChange={(e) => {
@@ -183,13 +183,13 @@ export function WhatIfPanel({
                 patch: { whatIf: snapToStep(defaultGrade) },
               });
             }}
-            className="h-9 w-full min-w-0 truncate rounded-xl border border-navy-800 bg-navy-950 px-2.5 text-xs text-slate-200 outline-none focus:border-gold-400"
+            className="neu-recessed h-10 w-full min-w-0 truncate rounded-2xl px-3.5 text-xs text-[var(--neu-ink)] outline-none"
             aria-label="Select an ungraded subject to test"
           >
-            <option value="">Select an ungraded subject to test…</option>
+            <option value="">Select an ungraded subject to test...</option>
             {addable.map(({ subject: sub, yearLabel }) => (
-              <option key={sub.id} value={sub.id} className="bg-obsidian text-white">
-                {sub.name} ({sub.units} {sub.units === 1 ? 'unit' : 'units'} · {yearLabel})
+              <option key={sub.id} value={sub.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
+                {sub.name} ({sub.units} {sub.units === 1 ? 'unit' : 'units'}, {yearLabel})
               </option>
             ))}
           </select>

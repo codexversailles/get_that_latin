@@ -1,3 +1,5 @@
+/* hallmark: custom neumorphism | dark-slate & alabaster | tactile-gwa-workbench | 2026-11-14 */
+/* critique: mid-tone #21242B dark slate and #E0E5EC alabaster substrates with 135deg dual shadows and high-contrast ink; accent gold shifted to #B45309 in light mode for WCAG AA */
 @import 'tailwindcss';
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/jetbrains-mono';
@@ -6,46 +8,211 @@
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
 
-  /* 60% Dominant: Soft Matte Black / Neutral Dark Charcoal (easy on the eyes) */
-  --color-obsidian: #090a0f;
-  --color-obsidian-soft: #0d0f17;
+  --color-obsidian: var(--neu-bg);
+  --color-obsidian-soft: var(--neu-bg);
+  --color-navy-950: var(--neu-bg);
+  --color-navy-900: var(--neu-surface-alt);
+  --color-navy-800: var(--neu-border);
+  --color-navy-700: var(--neu-border-strong);
+  --color-navy-600: var(--neu-ink-muted);
 
-  /* 30% Secondary: Muted Midnight Blue (blends #191851 with calm neutral slate so borders & cards never strain the eyes) */
-  --color-navy-950: #0f111c;
-  --color-navy-900: #141629;
-  --color-navy-800: #1e213a;
-  --color-navy-700: #282c4d;
-  --color-navy-600: #363b63;
+  --color-gold-500: var(--neu-accent-strong);
+  --color-gold-400: var(--neu-accent);
+  --color-gold-300: var(--neu-accent-soft);
+}
 
-  /* 10% Accent: Warm Gold (#f4b52a) */
-  --color-gold-500: #e0a31b;
-  --color-gold-400: #f4b52a;
-  --color-gold-300: #f7c654;
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --neu-bg: #21242b;
+  --neu-surface-alt: #262a33;
+  --neu-ink: #f1f5f9;
+  --neu-ink-muted: #94a3b8;
+  --neu-ink-subtle: #64748b;
+
+  --neu-accent: #f4b52a;
+  --neu-accent-strong: #e0a31b;
+  --neu-accent-soft: #f7c654;
+  --neu-accent-ink: #16181d;
+
+  --neu-danger: #fb7185;
+  --neu-danger-bg: rgba(244, 63, 94, 0.14);
+  --neu-warn: #fbbf24;
+  --neu-warn-bg: rgba(245, 158, 11, 0.14);
+
+  --neu-shadow-dark: #15171c;
+  --neu-shadow-light: #2d313a;
+  --neu-specular: rgba(255, 255, 255, 0.06);
+  --neu-border: rgba(255, 255, 255, 0.06);
+  --neu-border-strong: rgba(255, 255, 255, 0.12);
+  --neu-backdrop: rgba(15, 17, 22, 0.78);
+
+  --neu-chart-band: rgba(255, 255, 255, 0.05);
+  --neu-chart-grid: #383e4b;
+
+  --neu-extruded:
+    8px 8px 16px var(--neu-shadow-dark),
+    -8px -8px 16px var(--neu-shadow-light),
+    inset 1px 1px 0 var(--neu-specular);
+
+  --neu-button:
+    4px 4px 9px var(--neu-shadow-dark),
+    -4px -4px 9px var(--neu-shadow-light),
+    inset 1px 1px 0 var(--neu-specular);
+
+  --neu-recessed:
+    inset 4px 4px 8px var(--neu-shadow-dark),
+    inset -4px -4px 8px var(--neu-shadow-light);
+
+  --neu-pressed:
+    inset 3px 3px 6px var(--neu-shadow-dark),
+    inset -3px -3px 6px var(--neu-shadow-light);
+
+  --neu-accent-glow:
+    4px 4px 10px var(--neu-shadow-dark),
+    -4px -4px 10px var(--neu-shadow-light),
+    0 0 18px rgba(244, 181, 42, 0.25);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --neu-bg: #e0e5ec;
+  --neu-surface-alt: #d8dee7;
+  --neu-ink: #1e293b;
+  --neu-ink-muted: #475569;
+  --neu-ink-subtle: #64748b;
+
+  --neu-accent: #b45309;
+  --neu-accent-strong: #92400e;
+  --neu-accent-soft: #d97706;
+  --neu-accent-ink: #ffffff;
+
+  --neu-danger: #be123c;
+  --neu-danger-bg: rgba(225, 29, 72, 0.1);
+  --neu-warn: #b45309;
+  --neu-warn-bg: rgba(217, 119, 6, 0.12);
+
+  --neu-shadow-dark: #bec3c9;
+  --neu-shadow-light: #ffffff;
+  --neu-specular: rgba(255, 255, 255, 0.72);
+  --neu-border: rgba(30, 41, 59, 0.08);
+  --neu-border-strong: rgba(30, 41, 59, 0.14);
+  --neu-backdrop: rgba(203, 213, 225, 0.76);
+
+  --neu-chart-band: rgba(30, 41, 59, 0.06);
+  --neu-chart-grid: #94a3b8;
+
+  --neu-extruded:
+    8px 8px 16px var(--neu-shadow-dark),
+    -8px -8px 16px var(--neu-shadow-light),
+    inset 1px 1px 0 var(--neu-specular);
+
+  --neu-button:
+    4px 4px 9px var(--neu-shadow-dark),
+    -4px -4px 9px var(--neu-shadow-light),
+    inset 1px 1px 0 var(--neu-specular);
+
+  --neu-recessed:
+    inset 4px 4px 8px var(--neu-shadow-dark),
+    inset -4px -4px 8px var(--neu-shadow-light);
+
+  --neu-pressed:
+    inset 3px 3px 6px var(--neu-shadow-dark),
+    inset -3px -3px 6px var(--neu-shadow-light);
+
+  --neu-accent-glow:
+    4px 4px 10px var(--neu-shadow-dark),
+    -4px -4px 10px var(--neu-shadow-light),
+    0 0 16px rgba(180, 83, 9, 0.22);
 }
 
 @layer base {
-  html {
-    color-scheme: dark;
+  html,
+  body {
+    overflow-x: clip;
+    background: var(--neu-bg);
+    color: var(--neu-ink);
     font-feature-settings: 'cv11', 'ss01';
   }
-  body {
-    background: #090a0f;
-    color: #f1f5f9;
-  }
+
   ::selection {
-    background: #f4b52a;
-    color: #090a0f;
+    background: var(--neu-accent);
+    color: var(--neu-accent-ink);
   }
+
   :focus-visible {
-    outline: 1px solid #f4b52a;
-    outline-offset: 1px;
+    outline: 2px solid var(--neu-accent);
+    outline-offset: 2px;
   }
+
+  button:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  summary,
+  [role='button']:not([aria-disabled='true']),
+  [role='switch']:not([aria-disabled='true']),
+  [role='radio']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* Intro fade-up animations */
+/* Tactile Neumorphic Surfaces */
+.neu-card {
+  background: var(--neu-bg);
+  box-shadow: var(--neu-extruded);
+}
+
+.neu-btn {
+  background: var(--neu-bg);
+  box-shadow: var(--neu-button);
+  transition: box-shadow 0.16s ease, transform 0.14s ease, color 0.16s ease;
+}
+
+.neu-btn:hover:not(:disabled) {
+  color: var(--neu-accent);
+}
+
+.neu-btn:active:not(:disabled) {
+  box-shadow: var(--neu-pressed);
+  transform: translateY(1px);
+}
+
+.neu-btn-accent {
+  background: var(--neu-accent);
+  color: var(--neu-accent-ink);
+  box-shadow: var(--neu-accent-glow);
+  transition: box-shadow 0.16s ease, transform 0.14s ease, background-color 0.16s ease;
+}
+
+.neu-btn-accent:hover:not(:disabled) {
+  background: var(--neu-accent-soft);
+}
+
+.neu-btn-accent:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.neu-recessed {
+  background: var(--neu-bg);
+  box-shadow: var(--neu-recessed);
+}
+
+.neu-pressed {
+  background: var(--neu-bg);
+  box-shadow: var(--neu-pressed);
+}
+
+/* Intro & modal animations */
 @keyframes introTitle {
   0% {
     opacity: 0;
@@ -69,20 +236,19 @@
 }
 
 .animate-intro-title {
-  animation: introTitle 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: introTitle 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-intro-cta {
   opacity: 0;
-  animation: introFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
+  animation: introFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
 }
 
 .animate-intro-dev {
   opacity: 0;
-  animation: introFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+  animation: introFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards;
 }
 
-/* Smooth UI animations for sheets, snackbars, and cards */
 @keyframes backdropFadeIn {
   0% {
     opacity: 0;
@@ -106,7 +272,7 @@
 @keyframes popIn {
   0% {
     opacity: 0;
-    transform: scale(0.95) translateY(8px);
+    transform: scale(0.96) translateY(6px);
   }
   100% {
     opacity: 1;
@@ -119,17 +285,17 @@
 }
 
 .animate-sheet-up {
-  animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-pop-in {
-  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes speedDialPop {
   0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.75);
+    transform: translateY(16px) scale(0.8);
   }
   100% {
     opacity: 1;
@@ -139,59 +305,83 @@
 
 .animate-speed-dial-1 {
   opacity: 0;
-  animation: speedDialPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.02s forwards;
+  animation: speedDialPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.02s forwards;
 }
 
 .animate-speed-dial-2 {
   opacity: 0;
-  animation: speedDialPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s forwards;
+  animation: speedDialPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s forwards;
 }
 
 .animate-speed-dial-3 {
   opacity: 0;
-  animation: speedDialPop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+  animation: speedDialPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s forwards;
 }
 
-/* Gold (#f4b52a) & Muted Navy range slider */
+/* Tactile Neumorphic Range Slider */
 input[type='range'].range {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 16px;
+  height: 22px;
   background: transparent;
   cursor: pointer;
 }
 input[type='range'].range::-webkit-slider-runnable-track {
-  height: 2px;
-  background: #282c4d;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-recessed);
 }
 input[type='range'].range::-moz-range-track {
-  height: 2px;
-  background: #282c4d;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-recessed);
 }
 input[type='range'].range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   margin-top: -5px;
-  background: #f4b52a;
-  border: 0;
-  border-radius: 0;
+  border-radius: 9999px;
+  background: var(--neu-accent);
+  border: 2px solid var(--neu-bg);
+  box-shadow: var(--neu-button);
 }
 input[type='range'].range::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  background: #f4b52a;
-  border: 0;
-  border-radius: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--neu-accent);
+  border: 2px solid var(--neu-bg);
+  box-shadow: var(--neu-button);
 }
 input[type='range'].range:disabled {
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .animate-intro-cta,
+  .animate-intro-dev,
+  .animate-speed-dial-1,
+  .animate-speed-dial-2,
+  .animate-speed-dial-3 {
+    opacity: 1 !important;
+  }
 }
 
 /* Thin scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #282c4d transparent;
+  scrollbar-color: var(--neu-shadow-dark) transparent;
 }
