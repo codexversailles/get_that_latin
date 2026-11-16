@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, RotateCcw, Sparkles, Target, X } from 'lucide-react';
+import { BookOpen, RotateCcw, Target, TrendingUp, X } from 'lucide-react';
 import {
   buildStudentLedger,
   historicalMoments,
@@ -10,7 +10,7 @@ import {
 import { useAppState } from './lib/state';
 import { useMonteCarlo } from './lib/useMonteCarlo';
 import { buildExport, downloadJson, readImport } from './lib/transfer';
-import type { SimSettings } from './lib/storage';
+import { hasSavedRecords, type SimSettings } from './lib/storage';
 import { LandingPage } from './components/LandingPage';
 import { Header } from './components/Header';
 import { SummaryStrip } from './components/SummaryStrip';
@@ -23,11 +23,34 @@ import { cx } from './components/ui';
 const SIM_SEED = 0x9e3779b9;
 const THEME_KEY = 'gtl-theme';
 
+type MobileTab = 'grades' | 'goal' | 'probability';
+
+function parseHashRoute(): { entered: boolean; tab: MobileTab } | null {
+  if (typeof window === 'undefined') return null;
+  const h = window.location.hash;
+  if (!h) return null;
+  if (h === '#/' || h === '#') return { entered: false, tab: 'grades' };
+  if (h === '#/app/goal') return { entered: true, tab: 'goal' };
+  if (h === '#/app/probability') return { entered: true, tab: 'probability' };
+  if (h.startsWith('#/app')) return { entered: true, tab: 'grades' };
+  return null;
+}
+
+function hashForRoute(entered: boolean, tab: MobileTab): string {
+  if (!entered) return '#/';
+  if (tab === 'goal') return '#/app/goal';
+  if (tab === 'probability') return '#/app/probability';
+  return '#/app';
+}
+
 function useTheme(): ['dark' | 'light', () => void] {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
       const saved = localStorage.getItem(THEME_KEY);
       if (saved === 'light' || saved === 'dark') return saved;
+      if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+        return 'light';
+      }
     } catch {
       // ignore storage access issues
     }
@@ -37,7 +60,7 @@ function useTheme(): ['dark' | 'light', () => void] {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#21242B' : '#E0E5EC');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#21242b' : '#e0e5ec');
     try {
       localStorage.setItem(THEME_KEY, theme);
     } catch {
@@ -55,8 +78,40 @@ function useTheme(): ['dark' | 'light', () => void] {
 export default function App() {
   const { state, dispatch, clearAll, toast, undo, dismissToast, notify } = useAppState();
   const [theme, toggleTheme] = useTheme();
-  const [entered, setEntered] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'grades' | 'goal' | 'probability'>('grades');
+  const [route, setRoute] = useState<{ entered: boolean; tab: MobileTab }>(() => {
+    const parsed = parseHashRoute();
+    if (parsed) return parsed;
+    if (hasSavedRecords(state)) {
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', '#/app');
+      }
+      return { entered: true, tab: 'grades' };
+    }
+    return { entered: false, tab: 'grades' };
+  });
+
+  useEffect(() => {
+    const onHash = () => {
+      const parsed = parseHashRoute();
+      if (parsed) {
+        setRoute(parsed);
+      } else {
+        setRoute({ entered: false, tab: 'grades' });
+      }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const navigate = useCallback((entered: boolean, tab: MobileTab = 'grades') => {
+    const targetHash = hashForRoute(entered, tab);
+    if (typeof window !== 'undefined' && window.location.hash !== targetHash) {
+      window.location.hash = targetHash;
+    }
+    setRoute({ entered, tab });
+  }, []);
+
+  const { entered, tab: mobileTab } = route;
   const { honorsMode: mode, target, sim } = state.settings;
 
   const { prospectus, record } = useMemo(
@@ -116,7 +171,13 @@ export default function App() {
   }, [clearAll]);
 
   if (!entered) {
-    return <LandingPage theme={theme} onToggleTheme={toggleTheme} onEnter={() => setEntered(true)} />;
+    return (
+      <LandingPage
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onEnter={() => navigate(true, 'grades')}
+      />
+    );
   }
 
   return (
@@ -124,7 +185,7 @@ export default function App() {
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}
-        onHome={() => setEntered(false)}
+        onHome={() => navigate(false, 'grades')}
         onExport={onExport}
         onImport={onImport}
         onClear={onClear}
@@ -133,13 +194,18 @@ export default function App() {
       <main className="mx-auto max-w-[1360px] px-4 sm:px-6 md:px-8">
         <SummaryStrip ledger={ledger} mode={mode} target={target} />
 
-        <div className="grid gap-6 lg:grid-cols-12">
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Student-built Years, Semesters & Subjects */}
           <section
             className={cx('min-w-0 lg:col-span-7 xl:col-span-8', mobileTab !== 'grades' && 'hidden lg:block')}
             aria-label="Your Subjects and Grades"
           >
-            <CurriculumMatrix years={state.years} mode={mode} dispatch={dispatch} />
+            <CurriculumMatrix
+              years={state.years}
+              mode={mode}
+              dispatch={dispatch}
+              isMobileActive={mobileTab === 'grades'}
+            />
           </section>
 
           {/* Right Column: Goal, What-If, and Forecast */}
@@ -186,14 +252,14 @@ export default function App() {
       {/* Bottom-Center Snackbar (Undo / Action Notification) */}
       {toast && (
         <div
-          role="status"
-          aria-live="polite"
+          role={toast.tone === 'error' ? 'alert' : 'status'}
+          aria-live={toast.tone === 'error' ? 'assertive' : 'polite'}
           className="animate-pop-in neu-card fixed right-3 bottom-20 left-3 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs text-[var(--neu-ink)] sm:right-6 sm:left-auto sm:w-96 lg:bottom-6"
         >
           <span
             className={cx(
-              'truncate font-medium',
-              toast.tone === 'error' ? 'text-[var(--neu-danger)]' : 'text-[var(--neu-ink)]',
+              'font-medium leading-snug',
+              toast.tone === 'error' ? 'text-[var(--neu-danger)]' : 'truncate text-[var(--neu-ink)]',
             )}
           >
             {toast.message}
@@ -212,7 +278,7 @@ export default function App() {
               type="button"
               onClick={dismissToast}
               aria-label="Dismiss notification"
-              className="neu-btn inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
+              className="neu-btn inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
             >
               <X size={13} aria-hidden="true" />
             </button>
@@ -228,7 +294,8 @@ export default function App() {
         <div className="grid h-16 grid-cols-3">
           <button
             type="button"
-            onClick={() => setMobileTab('grades')}
+            onClick={() => navigate(true, 'grades')}
+            aria-current={mobileTab === 'grades' ? 'page' : undefined}
             className={cx(
               'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
               mobileTab === 'grades' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
@@ -246,7 +313,8 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setMobileTab('goal')}
+            onClick={() => navigate(true, 'goal')}
+            aria-current={mobileTab === 'goal' ? 'page' : undefined}
             className={cx(
               'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
               mobileTab === 'goal' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
@@ -264,7 +332,8 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setMobileTab('probability')}
+            onClick={() => navigate(true, 'probability')}
+            aria-current={mobileTab === 'probability' ? 'page' : undefined}
             className={cx(
               'flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors',
               mobileTab === 'probability' ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
@@ -276,7 +345,7 @@ export default function App() {
                 mobileTab === 'probability' ? 'neu-pressed text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]',
               )}
             >
-              <Sparkles size={15} className="shrink-0" aria-hidden="true" />
+              <TrendingUp size={15} className="shrink-0" aria-hidden="true" />
             </span>
             <span>Probability</span>
           </button>

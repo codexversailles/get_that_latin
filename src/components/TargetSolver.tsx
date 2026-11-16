@@ -108,28 +108,25 @@ export function TargetSolver({
               )}
             >
               <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2.5">
-                  <span
-                    className={cx(
-                      'h-2 w-2 shrink-0 rounded-full',
-                      selected
-                        ? 'bg-[var(--neu-accent)] shadow-[0_0_6px_var(--neu-accent)]'
-                        : 'bg-[var(--neu-ink-subtle)] opacity-40',
-                    )}
-                  />
+                <div className="flex min-w-0 items-center gap-2">
                   {info.reachable ? (
-                    <CheckCircle2 size={14} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
+                    <CheckCircle2 size={15} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
                   ) : (
-                    <XCircle size={14} className="shrink-0 text-[var(--neu-danger)]" aria-hidden="true" />
+                    <XCircle size={15} className="shrink-0 text-[var(--neu-danger)]" aria-hidden="true" />
                   )}
-                  <span
-                    className={cx(
-                      'truncate text-xs font-bold sm:text-sm',
-                      selected ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink)]',
-                    )}
-                  >
-                    {t.label}
-                  </span>
+                  <div className="min-w-0">
+                    <div
+                      className={cx(
+                        'truncate text-xs font-bold sm:text-sm',
+                        selected ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink)]',
+                      )}
+                    >
+                      {t.label}
+                    </div>
+                    <div className="font-mono text-[11px] text-[var(--neu-ink-subtle)]">
+                      GWA ≤ {t.max.toFixed(2)}
+                    </div>
+                  </div>
                 </div>
                 <span
                   className={cx(
@@ -149,20 +146,20 @@ export function TargetSolver({
       </div>
 
       {ledger.totalUnits > 0 && activeResult.bestPossibleGwa !== null && (
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[var(--neu-border)] pt-4">
-          <div className="neu-recessed rounded-2xl p-3">
+        <div className="mt-4 grid grid-cols-2 divide-x divide-[var(--neu-border)] border-t border-[var(--neu-border)] pt-4">
+          <div className="pr-3">
             <div className="text-[11px] text-[var(--neu-ink-muted)]">Best reachable GWA</div>
             <div className="mt-0.5 font-mono text-base font-bold text-[var(--neu-accent)] tabular">
               {formatGwa(activeResult.bestPossibleGwa)}
             </div>
-            <div className="text-[10px] text-[var(--neu-ink-subtle)]">with straight 1.00s left</div>
+            <div className="text-[11px] text-[var(--neu-ink-subtle)]">with straight 1.00s left</div>
           </div>
-          <div className="neu-recessed rounded-2xl p-3">
+          <div className="pl-3">
             <div className="text-[11px] text-[var(--neu-ink-muted)]">Safest passing GWA</div>
             <div className="mt-0.5 font-mono text-base font-bold text-[var(--neu-ink)] tabular">
               {formatGwa(activeResult.worstPassingGwa)}
             </div>
-            <div className="text-[10px] text-[var(--neu-ink-subtle)]">with straight 3.00s left</div>
+            <div className="text-[11px] text-[var(--neu-ink-subtle)]">with straight 3.00s left</div>
           </div>
         </div>
       )}

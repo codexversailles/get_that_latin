@@ -1,4 +1,4 @@
-import { memo, useState, type FormEvent } from 'react';
+import { memo, useEffect, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Award,
@@ -6,7 +6,9 @@ import {
   CalendarPlus,
   Check,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
+  Lightbulb,
   Plus,
   Search,
   Trash2,
@@ -26,7 +28,7 @@ import {
   type StudentYear,
 } from '../engine';
 import type { Dispatch } from '../lib/state';
-import { Button, cx, useEscapeKey, useScrollLock } from './ui';
+import { Button, ModalDialog, cx, useEscapeKey, useScrollLock } from './ui';
 
 export function gradeTone(g: GradeState | undefined): string {
   if (g === null || g === undefined) return 'text-[var(--neu-ink-muted)]';
@@ -77,23 +79,21 @@ const SubjectRow = memo(function SubjectRow({
     <div
       className={cx(
         'border-b border-[var(--neu-border)] transition-colors hover:bg-[var(--neu-surface-alt)]/35',
-        excluded && 'opacity-50',
+        excluded && 'opacity-55',
       )}
     >
       {/* Mobile Row (< sm) */}
       <button
         type="button"
         onClick={() => onMobileEdit(sub)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:hidden"
+        aria-label={`Edit ${sub.name || 'Untitled Subject'}, ${sub.units} ${sub.units === 1 ? 'unit' : 'units'}, ${formatGradeChipLabel(sub.grade)}`}
+        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left sm:hidden"
       >
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--neu-accent)]" />
-            <span className="truncate text-sm font-semibold text-[var(--neu-ink)]">
-              {sub.name || 'Untitled Subject'}
-            </span>
+          <div className="truncate text-sm font-semibold text-[var(--neu-ink)]">
+            {sub.name || 'Untitled Subject'}
           </div>
-          <div className="mt-1 flex items-center gap-2 pl-3.5">
+          <div className="mt-1 flex items-center gap-2">
             <span className="font-mono text-[11px] text-[var(--neu-ink-muted)]">
               {sub.units} {sub.units === 1 ? 'unit' : 'units'}
             </span>
@@ -105,7 +105,7 @@ const SubjectRow = memo(function SubjectRow({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <span
             className={cx(
               'neu-recessed inline-flex h-8 min-w-[4.75rem] items-center justify-center rounded-full px-3 font-mono text-xs font-semibold tabular',
@@ -114,13 +114,13 @@ const SubjectRow = memo(function SubjectRow({
           >
             {formatGradeChipLabel(sub.grade)}
           </span>
+          <ChevronRight size={14} className="text-[var(--neu-ink-subtle)]" aria-hidden="true" />
         </div>
       </button>
 
       {/* Desktop Inline Row (sm+) */}
       <div className="hidden items-center gap-2.5 px-4 py-2.5 sm:flex">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--neu-accent)]" />
+        <div className="flex min-w-0 flex-1 items-center">
           <input
             type="text"
             value={sub.name}
@@ -129,7 +129,7 @@ const SubjectRow = memo(function SubjectRow({
             }
             placeholder="Subject name (e.g. IT 111)"
             aria-label="Subject name"
-            className="h-9 min-w-0 flex-1 rounded-xl bg-transparent px-2.5 text-sm font-medium text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] focus:bg-[var(--neu-bg)] focus:shadow-[var(--neu-recessed)] focus:outline-none"
+            className="h-9 min-w-0 flex-1 rounded-xl bg-transparent px-2.5 text-sm font-medium text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] focus:bg-[var(--neu-bg)] focus:shadow-[var(--neu-recessed)]"
           />
         </div>
 
@@ -140,18 +140,23 @@ const SubjectRow = memo(function SubjectRow({
             onClick={() =>
               dispatch({ type: 'updateSubject', subId: sub.id, patch: { isNstp: !sub.isNstp } })
             }
-            title="Toggle NSTP (excluded from Latin Honors GWA per RA 9163)"
+            title="Mark as NSTP (excluded from Latin Honors GWA per RA 9163)"
             className={cx(
-              'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 font-mono text-[11px] font-semibold',
+              'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 font-mono text-[11px] font-semibold',
               sub.isNstp ? 'neu-pressed text-[var(--neu-accent)]' : 'neu-btn text-[var(--neu-ink-muted)]',
             )}
           >
             <span
               className={cx(
-                'h-1.5 w-1.5 rounded-full',
-                sub.isNstp ? 'bg-[var(--neu-accent)]' : 'bg-[var(--neu-ink-subtle)] opacity-40',
+                'inline-flex h-3.5 w-3.5 items-center justify-center rounded border',
+                sub.isNstp
+                  ? 'border-[var(--neu-accent)] bg-[var(--neu-accent)] text-[var(--neu-accent-ink)]'
+                  : 'border-[var(--neu-border-strong)]',
               )}
-            />
+              aria-hidden="true"
+            >
+              {sub.isNstp && <Check size={10} strokeWidth={3} />}
+            </span>
             <span>NSTP</span>
           </button>
 
@@ -165,7 +170,7 @@ const SubjectRow = memo(function SubjectRow({
                 patch: { units: Number(e.target.value) },
               })
             }
-            className="neu-recessed h-8 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
+            className="neu-recessed h-8 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)]"
           >
             {UNIT_OPTIONS.map((u) => (
               <option key={u} value={u} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
@@ -186,7 +191,7 @@ const SubjectRow = memo(function SubjectRow({
               });
             }}
             className={cx(
-              'neu-recessed h-8 w-32 flex-none rounded-full px-3 font-mono text-xs font-semibold outline-none',
+              'neu-recessed h-8 w-32 flex-none rounded-full px-3 font-mono text-xs font-semibold',
               gradeTone(sub.grade),
             )}
           >
@@ -255,7 +260,7 @@ function AddSubjectForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="Add subject (e.g. IT 111, PurCom, NSTP)..."
           aria-label="New subject name"
-          className="neu-recessed h-full w-full rounded-full pr-4 pl-9 text-xs text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
+          className="neu-recessed h-full w-full rounded-full pr-4 pl-9 text-xs text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)]"
         />
       </div>
 
@@ -264,7 +269,7 @@ function AddSubjectForm({
           aria-label="New subject units"
           value={units}
           onChange={(e) => setUnits(Number(e.target.value))}
-          className="neu-recessed h-10 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
+          className="neu-recessed h-10 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)]"
         >
           {UNIT_OPTIONS.map((u) => (
             <option key={u} value={u} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
@@ -277,7 +282,7 @@ function AddSubjectForm({
           aria-label="New subject grade"
           value={grade}
           onChange={(e) => setGrade(e.target.value)}
-          className="neu-recessed h-10 w-32 flex-none rounded-full px-3 font-mono text-xs text-[var(--neu-ink)] outline-none"
+          className="neu-recessed h-10 w-32 flex-none rounded-full px-3 font-mono text-xs text-[var(--neu-ink)]"
         >
           {GRADE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
@@ -336,12 +341,12 @@ function SemesterBlock({
 
   return (
     <div className="border-t border-[var(--neu-border)] first:border-t-0">
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--neu-surface-alt)]/45 px-4 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 bg-[var(--neu-surface-alt)]/45 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-left text-xs font-bold text-[var(--neu-ink)] transition-colors hover:text-[var(--neu-accent)]"
+            className="inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1.5 -ml-1.5 py-1 text-left text-xs font-bold text-[var(--neu-ink)] transition-colors hover:text-[var(--neu-accent)]"
             aria-expanded={!collapsed}
           >
             {collapsed ? (
@@ -355,7 +360,8 @@ function SemesterBlock({
             <button
               type="button"
               onClick={() => setShowDlInfo((v) => !v)}
-              className="neu-recessed inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-bold text-[var(--neu-accent)]"
+              aria-expanded={showDlInfo}
+              className="neu-recessed inline-flex min-h-7 items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[11px] font-bold text-[var(--neu-accent)]"
               title="Tap to view Dean's List criteria"
             >
               <Award size={11} className="shrink-0" aria-hidden="true" />
@@ -377,7 +383,7 @@ function SemesterBlock({
               onClick={() => dispatch({ type: 'removeSemester', yearId, semId: sem.id })}
               title={`Remove ${sem.name}`}
               aria-label={`Remove ${sem.name}`}
-              className="neu-btn inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
+              className="neu-btn inline-flex h-8 w-8 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-danger)]"
             >
               <Trash2 size={12} aria-hidden="true" />
             </button>
@@ -409,9 +415,8 @@ function SemesterBlock({
               ))}
             </div>
           ) : (
-            <div className="px-4 py-4 text-center text-xs text-[var(--neu-ink-subtle)] sm:hidden">
-              No subjects in this term yet. Tap the <strong className="text-[var(--neu-accent)]">+</strong> button
-              below to add one.
+            <div className="px-4 py-4 text-center text-xs text-[var(--neu-ink-muted)] sm:hidden">
+              No subjects in this term yet. Tap <strong className="text-[var(--neu-accent)]">+</strong> below to add one.
             </div>
           )}
 
@@ -431,20 +436,30 @@ export function CurriculumMatrix({
   years,
   mode,
   dispatch,
+  isMobileActive = true,
 }: {
   years: StudentYear[];
   mode: HonorsMode;
   dispatch: Dispatch;
+  isMobileActive?: boolean;
 }) {
   const [activeYearId, setActiveYearId] = useState<string | 'ALL'>('ALL');
+  const [collapsedYears, setCollapsedYears] = useState<Record<string, boolean>>({});
+  const [tipDismissed, setTipDismissed] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'GRADED' | 'UNGRADED'>('ALL');
   const [fabOpen, setFabOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
-  useScrollLock(fabOpen || sheet !== null);
+
+  useScrollLock(fabOpen);
   useEscapeKey(fabOpen, () => setFabOpen(false));
-  useEscapeKey(sheet !== null, () => setSheet(null));
+
+  useEffect(() => {
+    if (!isMobileActive) {
+      setFabOpen(false);
+    }
+  }, [isMobileActive]);
 
   const [draftName, setDraftName] = useState('');
   const [draftUnits, setDraftUnits] = useState<number>(3);
@@ -453,10 +468,19 @@ export function CurriculumMatrix({
   const [draftYearId, setDraftYearId] = useState('');
   const [draftSemId, setDraftSemId] = useState('');
 
+  const totalSubjectCount = years.reduce(
+    (sum, y) => sum + y.semesters.reduce((sSum, sem) => sSum + sem.subjects.length, 0),
+    0,
+  );
+
   const validFilter =
     activeYearId === 'ALL' || years.some((y) => y.id === activeYearId) ? activeYearId : 'ALL';
 
   const visibleYears = validFilter === 'ALL' ? years : years.filter((y) => y.id === validFilter);
+
+  const toggleYearCollapse = (yearId: string) => {
+    setCollapsedYears((prev) => ({ ...prev, [yearId]: !prev[yearId] }));
+  };
 
   const openMobileAdd = (yearId?: string, semId?: string) => {
     const targetYear =
@@ -508,14 +532,37 @@ export function CurriculumMatrix({
 
   return (
     <div>
+      {/* Empty-curriculum inline guidance (replaces blocking landing modal) */}
+      {totalSubjectCount === 0 && !tipDismissed && (
+        <div className="neu-recessed mb-5 flex items-start justify-between gap-3 rounded-2xl px-4 py-3 text-xs leading-relaxed text-[var(--neu-ink-muted)]">
+          <div className="flex items-start gap-2.5">
+            <Lightbulb size={15} className="mt-0.5 shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
+            <span>
+              <strong className="text-[var(--neu-ink)]">Start with your curriculum:</strong> Add completed grades and
+              upcoming terms across all years (or use Restore to load a JSON backup) so target grades account for your
+              remaining units.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTipDismissed(true)}
+            aria-label="Dismiss tip"
+            className="neu-btn inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
+          >
+            <X size={13} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
       {/* Top Year Tabs Bar + Desktop Actions */}
       <div className="mb-5 space-y-3 border-b border-[var(--neu-border)] pb-3.5">
         <div className="flex items-center justify-between gap-2.5">
-          <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-x-auto px-1 py-1.5">
+          <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-2.5 overflow-x-auto px-1 py-1.5">
             {years.length > 1 && (
               <button
                 type="button"
                 onClick={() => setActiveYearId('ALL')}
+                aria-pressed={validFilter === 'ALL'}
                 className={cx(
                   'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold',
                   validFilter === 'ALL' ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
@@ -533,6 +580,7 @@ export function CurriculumMatrix({
                   key={y.id}
                   type="button"
                   onClick={() => setActiveYearId(y.id)}
+                  aria-pressed={isSelected}
                   className={cx(
                     'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold',
                     isSelected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
@@ -557,6 +605,7 @@ export function CurriculumMatrix({
                   return !v;
                 });
               }}
+              aria-expanded={searchOpen}
               aria-label="Search and filter subjects"
               title="Search and filter subjects"
               className={cx(
@@ -596,7 +645,7 @@ export function CurriculumMatrix({
                 placeholder="Search subject name (e.g. IT 111, Calculus)..."
                 aria-label="Search subjects"
                 autoFocus
-                className="neu-recessed h-10 w-full rounded-full pr-9 pl-9 text-xs text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
+                className="neu-recessed h-10 w-full rounded-full pr-10 pl-9 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] sm:text-xs"
               />
               <button
                 type="button"
@@ -607,13 +656,13 @@ export function CurriculumMatrix({
                 }}
                 aria-label="Close search"
                 title="Close search"
-                className="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]"
+                className="absolute top-1/2 right-1.5 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]"
               >
                 <X size={14} aria-hidden="true" />
               </button>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto px-1 py-1">
+            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-1 py-1">
               {(
                 [
                   { id: 'ALL', label: 'All Subjects' },
@@ -624,6 +673,7 @@ export function CurriculumMatrix({
                 <button
                   key={chip.id}
                   type="button"
+                  aria-pressed={statusFilter === chip.id}
                   onClick={() => setStatusFilter(chip.id)}
                   className={cx(
                     'h-8 shrink-0 rounded-full px-3 text-[11px] font-semibold',
@@ -643,11 +693,24 @@ export function CurriculumMatrix({
       {/* Year Cards */}
       {visibleYears.map((y) => {
         const ySum = studentYearSummary(y, mode);
+        const yearCollapsed = !!collapsedYears[y.id] && !searchQuery && statusFilter === 'ALL';
         return (
           <section key={y.id} className="neu-card mb-6 overflow-hidden rounded-3xl">
-            <header className="flex items-center justify-between gap-2 border-b border-[var(--neu-border)] px-4 py-3 sm:px-5 sm:py-3.5">
+            <header className="flex items-center justify-between gap-2 border-b border-[var(--neu-border)] px-4 py-2.5 sm:px-5 sm:py-3">
               <div className="flex items-center gap-3">
-                <h3 className="text-sm font-bold text-[var(--neu-ink)]">{y.label}</h3>
+                <button
+                  type="button"
+                  onClick={() => toggleYearCollapse(y.id)}
+                  aria-expanded={!yearCollapsed}
+                  className="inline-flex min-h-8 items-center gap-1.5 rounded-lg px-1.5 -ml-1.5 py-1 text-left text-sm font-bold text-[var(--neu-ink)] transition-colors hover:text-[var(--neu-accent)]"
+                >
+                  {yearCollapsed ? (
+                    <ChevronDown size={15} className="text-[var(--neu-ink-muted)]" aria-hidden="true" />
+                  ) : (
+                    <ChevronUp size={15} className="text-[var(--neu-ink-muted)]" aria-hidden="true" />
+                  )}
+                  <span>{y.label}</span>
+                </button>
                 <span className="font-mono text-xs text-[var(--neu-ink-muted)] tabular">
                   <span className="hidden sm:inline">
                     {ySum.gradedUnits.toFixed(0)}/{ySum.totalUnits.toFixed(0)} units,{' '}
@@ -685,35 +748,39 @@ export function CurriculumMatrix({
               </div>
             </header>
 
-            <div>
-              {y.semesters.map((sem) => (
-                <SemesterBlock
-                  key={sem.id}
-                  yearId={y.id}
-                  sem={sem}
-                  canRemove={y.semesters.length > 1}
-                  mode={mode}
-                  searchQuery={searchQuery}
-                  statusFilter={statusFilter}
-                  dispatch={dispatch}
-                  onMobileEdit={openMobileEdit}
-                />
-              ))}
-            </div>
+            {!yearCollapsed && (
+              <div>
+                {y.semesters.map((sem) => (
+                  <SemesterBlock
+                    key={sem.id}
+                    yearId={y.id}
+                    sem={sem}
+                    canRemove={y.semesters.length > 1}
+                    mode={mode}
+                    searchQuery={searchQuery}
+                    statusFilter={statusFilter}
+                    dispatch={dispatch}
+                    onMobileEdit={openMobileEdit}
+                  />
+                ))}
+              </div>
+            )}
           </section>
         );
       })}
 
-      {/* Mobile Speed Dial FAB */}
-      {typeof document !== 'undefined' &&
+      {/* Mobile Speed Dial FAB (Subjects tab only) */}
+      {isMobileActive &&
+        typeof document !== 'undefined' &&
         createPortal(
           <div className="sm:hidden">
             {fabOpen && (
-              <div
-                aria-hidden="true"
+              <button
+                type="button"
+                aria-label="Close quick actions menu"
                 onClick={() => setFabOpen(false)}
                 onTouchMove={(e) => e.preventDefault()}
-                className="animate-backdrop fixed inset-0 z-40 bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none"
+                className="animate-backdrop fixed inset-0 z-40 w-full cursor-default bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none"
               />
             )}
 
@@ -778,7 +845,7 @@ export function CurriculumMatrix({
                 title="Add Subject, Add Year, or Search"
                 className={cx(
                   'neu-btn-accent inline-flex h-14 w-14 items-center justify-center rounded-full transition-transform duration-200',
-                  fabOpen ? 'scale-105 rotate-45' : 'hover:scale-105',
+                  fabOpen && 'rotate-45',
                 )}
               >
                 <Plus size={26} strokeWidth={2.75} aria-hidden="true" />
@@ -789,365 +856,347 @@ export function CurriculumMatrix({
         )}
 
       {/* Mobile Bottom Sheet: Edit Subject */}
-      {editingSub &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none sm:hidden"
-            onClick={() => setSheet(null)}
-            onTouchMove={(e) => {
-              if (e.target === e.currentTarget) e.preventDefault();
-            }}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Edit subject"
-              onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up neu-card max-h-[88vh] w-full overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 touch-pan-y overscroll-contain"
-            >
-              <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full" />
+      <ModalDialog
+        open={!!editingSub}
+        onClose={() => setSheet(null)}
+        label="Edit subject"
+        variant="sheet"
+        className="sm:hidden"
+      >
+        {editingSub && (
+          <>
+            <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full" />
 
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-[var(--neu-ink)]">
-                  {editingSub.name || 'Subject Details'}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setSheet(null)}
-                  aria-label="Close sheet"
-                  className="neu-btn inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
-                >
-                  <X size={15} aria-hidden="true" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Subject Name / Code
-                  </label>
-                  <input
-                    type="text"
-                    value={editingSub.name}
-                    onChange={(e) =>
-                      dispatch({
-                        type: 'updateSubject',
-                        subId: editingSub.id,
-                        patch: { name: e.target.value },
-                      })
-                    }
-                    placeholder="e.g. IT 111, Calculus 1"
-                    className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Final Grade
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {GRADE_OPTIONS.map((opt) => {
-                      const selected = stateToValue(editingSub.grade) === opt.value;
-                      return (
-                        <button
-                          key={opt.value || 'none'}
-                          type="button"
-                          aria-pressed={selected}
-                          onClick={() =>
-                            dispatch({
-                              type: 'updateSubject',
-                              subId: editingSub.id,
-                              patch: { grade: opt.state },
-                            })
-                          }
-                          className={cx(
-                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
-                            selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
-                          )}
-                        >
-                          {opt.shortLabel}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Academic Units
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {UNIT_OPTIONS.map((u) => {
-                      const selected = editingSub.units === u;
-                      return (
-                        <button
-                          key={u}
-                          type="button"
-                          aria-pressed={selected}
-                          onClick={() =>
-                            dispatch({
-                              type: 'updateSubject',
-                              subId: editingSub.id,
-                              patch: { units: u },
-                            })
-                          }
-                          className={cx(
-                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
-                            selected
-                              ? 'neu-pressed text-[var(--neu-accent)]'
-                              : 'neu-btn text-[var(--neu-ink-muted)]',
-                          )}
-                        >
-                          {u} {u === 1 ? 'unit' : 'units'}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
-                  <div>
-                    <div className="text-xs font-semibold text-[var(--neu-ink)]">
-                      NSTP / Non-Academic Subject
-                    </div>
-                    <div className="text-[11px] text-[var(--neu-ink-muted)]">
-                      Excluded from Latin Honors GWA per RA 9163
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={editingSub.isNstp}
-                    onClick={() =>
-                      dispatch({
-                        type: 'updateSubject',
-                        subId: editingSub.id,
-                        patch: { isNstp: !editingSub.isNstp },
-                      })
-                    }
-                    className={cx(
-                      'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
-                      editingSub.isNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
-                    )}
-                  >
-                    <span
-                      className={cx(
-                        'inline-block h-5 w-5 rounded-full transition-transform',
-                        editingSub.isNstp
-                          ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
-                          : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
-                      )}
-                    />
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      dispatch({ type: 'removeSubject', subId: editingSub.id });
-                      setSheet(null);
-                    }}
-                    className="neu-btn inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl px-4 text-xs font-semibold text-[var(--neu-danger)]"
-                  >
-                    <Trash2 size={14} aria-hidden="true" />
-                    <span>Delete</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSheet(null)}
-                    className="neu-btn-accent inline-flex h-11 flex-1 items-center justify-center rounded-2xl text-xs font-bold"
-                  >
-                    Done
-                  </button>
-                </div>
-              </div>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[var(--neu-ink)]">
+                {editingSub.name || 'Subject Details'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setSheet(null)}
+                aria-label="Close sheet"
+                className="neu-btn inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
+              >
+                <X size={15} aria-hidden="true" />
+              </button>
             </div>
-          </div>,
-          document.body,
-        )}
 
-      {/* Modal Bottom Sheet / Dialog: Add Subject */}
-      {sheet?.mode === 'add' &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            className="animate-backdrop fixed inset-0 z-50 flex items-end justify-center bg-[var(--neu-backdrop)] backdrop-blur-xs touch-none overscroll-none sm:items-center sm:p-4"
-            onClick={() => setSheet(null)}
-            onTouchMove={(e) => {
-              if (e.target === e.currentTarget) e.preventDefault();
-            }}
-          >
-            <form
-              role="dialog"
-              aria-modal="true"
-              aria-label="Add subject"
-              onSubmit={submitMobileAdd}
-              onClick={(e) => e.stopPropagation()}
-              className="animate-sheet-up neu-card max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 touch-pan-y overscroll-contain sm:rounded-3xl sm:p-6"
-            >
-              <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full sm:hidden" />
-
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-[var(--neu-ink)]">Add Subject to Curriculum</h3>
-                <button
-                  type="button"
-                  onClick={() => setSheet(null)}
-                  aria-label="Close sheet"
-                  className="neu-btn inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
-                >
-                  <X size={15} aria-hidden="true" />
-                </button>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="edit-sub-name" className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                  Subject Name / Code
+                </label>
+                <input
+                  id="edit-sub-name"
+                  type="text"
+                  value={editingSub.name}
+                  onChange={(e) =>
+                    dispatch({
+                      type: 'updateSubject',
+                      subId: editingSub.id,
+                      patch: { name: e.target.value },
+                    })
+                  }
+                  placeholder="e.g. IT 111, Calculus 1"
+                  className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)]"
+                />
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                      Year Level
-                    </label>
-                    <select
-                      value={draftYearId}
-                      onChange={(e) => {
-                        const nextYear = years.find((y) => y.id === e.target.value);
-                        setDraftYearId(e.target.value);
-                        if (nextYear && nextYear.semesters[0]) {
-                          setDraftSemId(nextYear.semesters[0].id);
+              <fieldset>
+                <legend className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                  Final Grade
+                </legend>
+                <div className="grid grid-cols-4 gap-2">
+                  {GRADE_OPTIONS.map((opt) => {
+                    const selected = stateToValue(editingSub.grade) === opt.value;
+                    return (
+                      <button
+                        key={opt.value || 'none'}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() =>
+                          dispatch({
+                            type: 'updateSubject',
+                            subId: editingSub.id,
+                            patch: { grade: opt.state },
+                          })
                         }
-                      }}
-                      className="neu-recessed h-10 w-full rounded-2xl px-3 text-xs text-[var(--neu-ink)] outline-none"
-                    >
-                      {years.map((y) => (
-                        <option key={y.id} value={y.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
-                          {y.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                      Semester / Term
-                    </label>
-                    <select
-                      value={draftSemId}
-                      onChange={(e) => setDraftSemId(e.target.value)}
-                      className="neu-recessed h-10 w-full rounded-2xl px-3 text-xs text-[var(--neu-ink)] outline-none"
-                    >
-                      {(years.find((y) => y.id === draftYearId)?.semesters ?? []).map((s) => (
-                        <option key={s.id} value={s.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                        className={cx(
+                          'flex h-11 items-center justify-center rounded-2xl px-1.5 text-center font-mono text-[11px] leading-tight font-semibold',
+                          selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
+                        )}
+                      >
+                        {opt.shortLabel}
+                      </button>
+                    );
+                  })}
                 </div>
+              </fieldset>
 
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Subject Name / Code
-                  </label>
-                  <input
-                    type="text"
-                    value={draftName}
-                    onChange={(e) => setDraftName(e.target.value)}
-                    placeholder="e.g. IT 111, PurCom, NSTP 1"
-                    autoFocus
-                    className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Academic Units
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {UNIT_OPTIONS.map((u) => (
+              <fieldset>
+                <legend className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                  Academic Units
+                </legend>
+                <div className="grid grid-cols-4 gap-2">
+                  {UNIT_OPTIONS.map((u) => {
+                    const selected = editingSub.units === u;
+                    return (
                       <button
                         key={u}
                         type="button"
-                        aria-pressed={draftUnits === u}
-                        onClick={() => setDraftUnits(u)}
+                        aria-pressed={selected}
+                        onClick={() =>
+                          dispatch({
+                            type: 'updateSubject',
+                            subId: editingSub.id,
+                            patch: { units: u },
+                          })
+                        }
                         className={cx(
-                          'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
-                          draftUnits === u
-                            ? 'neu-pressed text-[var(--neu-accent)]'
-                            : 'neu-btn text-[var(--neu-ink-muted)]',
+                          'flex h-11 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
+                          selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
                         )}
                       >
                         {u} {u === 1 ? 'unit' : 'units'}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </fieldset>
 
+              <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
-                    Grade (or leave as No grade for upcoming subjects)
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {GRADE_OPTIONS.map((opt) => {
-                      const selected = stateToValue(draftGrade) === opt.value;
-                      return (
-                        <button
-                          key={opt.value || 'none'}
-                          type="button"
-                          aria-pressed={selected}
-                          onClick={() => setDraftGrade(opt.state)}
-                          className={cx(
-                            'flex h-10 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
-                            selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
-                          )}
-                        >
-                          {opt.shortLabel}
-                        </button>
-                      );
-                    })}
+                  <div className="text-xs font-semibold text-[var(--neu-ink)]">
+                    NSTP / Non-Academic Subject
+                  </div>
+                  <div className="text-[11px] text-[var(--neu-ink-muted)]">
+                    Excluded from Latin Honors GWA per RA 9163
                   </div>
                 </div>
-
-                <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
-                  <div>
-                    <div className="text-xs font-semibold text-[var(--neu-ink)]">
-                      NSTP / Non-Academic Subject
-                    </div>
-                    <div className="text-[11px] text-[var(--neu-ink-muted)]">
-                      Excluded from Latin Honors GWA per RA 9163
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={draftNstp}
-                    onClick={() => setDraftNstp((v) => !v)}
-                    className={cx(
-                      'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
-                      draftNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
-                    )}
-                  >
-                    <span
-                      className={cx(
-                        'inline-block h-5 w-5 rounded-full transition-transform',
-                        draftNstp
-                          ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
-                          : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
-                      )}
-                    />
-                  </button>
-                </div>
-
                 <button
-                  type="submit"
-                  className="neu-btn-accent inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl text-xs font-bold"
+                  type="button"
+                  role="switch"
+                  aria-checked={editingSub.isNstp}
+                  aria-label="NSTP or non-academic subject"
+                  onClick={() =>
+                    dispatch({
+                      type: 'updateSubject',
+                      subId: editingSub.id,
+                      patch: { isNstp: !editingSub.isNstp },
+                    })
+                  }
+                  className={cx(
+                    'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
+                    editingSub.isNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
+                  )}
                 >
-                  <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
-                  <span>Add Subject</span>
+                  <span
+                    className={cx(
+                      'inline-block h-5 w-5 rounded-full transition-transform',
+                      editingSub.isNstp
+                        ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
+                        : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
+                    )}
+                  />
                 </button>
               </div>
-            </form>
-          </div>,
-          document.body,
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'removeSubject', subId: editingSub.id });
+                    setSheet(null);
+                  }}
+                  className="neu-btn inline-flex h-11 items-center justify-center gap-1.5 rounded-2xl px-4 text-xs font-semibold text-[var(--neu-danger)]"
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                  <span>Delete</span>
+                </button>
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={() => setSheet(null)}
+                  className="neu-btn-accent inline-flex h-11 flex-1 items-center justify-center rounded-2xl text-xs font-bold"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </>
         )}
+      </ModalDialog>
+
+      {/* Modal Bottom Sheet / Dialog: Add Subject */}
+      <ModalDialog
+        open={sheet?.mode === 'add'}
+        onClose={() => setSheet(null)}
+        label="Add subject"
+        variant="sheet"
+        panelClassName="max-w-md"
+      >
+        <form onSubmit={submitMobileAdd}>
+          <div className="neu-recessed mx-auto mb-3 h-1.5 w-10 rounded-full sm:hidden" />
+
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-[var(--neu-ink)]">Add Subject to Curriculum</h3>
+            <button
+              type="button"
+              onClick={() => setSheet(null)}
+              aria-label="Close sheet"
+              className="neu-btn inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
+            >
+              <X size={15} aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <label htmlFor="add-year-select" className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                  Year Level
+                </label>
+                <select
+                  id="add-year-select"
+                  value={draftYearId}
+                  onChange={(e) => {
+                    const nextYear = years.find((y) => y.id === e.target.value);
+                    setDraftYearId(e.target.value);
+                    if (nextYear && nextYear.semesters[0]) {
+                      setDraftSemId(nextYear.semesters[0].id);
+                    }
+                  }}
+                  className="neu-recessed h-11 w-full rounded-2xl px-3 text-base text-[var(--neu-ink)] sm:text-xs"
+                >
+                  {years.map((y) => (
+                    <option key={y.id} value={y.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
+                      {y.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="add-sem-select" className="mb-1 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                  Semester / Term
+                </label>
+                <select
+                  id="add-sem-select"
+                  value={draftSemId}
+                  onChange={(e) => setDraftSemId(e.target.value)}
+                  className="neu-recessed h-11 w-full rounded-2xl px-3 text-base text-[var(--neu-ink)] sm:text-xs"
+                >
+                  {(years.find((y) => y.id === draftYearId)?.semesters ?? []).map((s) => (
+                    <option key={s.id} value={s.id} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="add-sub-name" className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                Subject Name / Code
+              </label>
+              <input
+                id="add-sub-name"
+                type="text"
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                placeholder="e.g. IT 111, PurCom, NSTP 1"
+                autoFocus
+                className="neu-recessed h-11 w-full rounded-2xl px-3.5 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)]"
+              />
+            </div>
+
+            <fieldset>
+              <legend className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                Academic Units
+              </legend>
+              <div className="grid grid-cols-4 gap-2">
+                {UNIT_OPTIONS.map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    aria-pressed={draftUnits === u}
+                    onClick={() => setDraftUnits(u)}
+                    className={cx(
+                      'flex h-11 items-center justify-center rounded-2xl font-mono text-xs font-semibold',
+                      draftUnits === u ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
+                    )}
+                  >
+                    {u} {u === 1 ? 'unit' : 'units'}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend className="mb-1.5 block text-xs font-semibold text-[var(--neu-ink-muted)]">
+                Grade (or leave as No grade for upcoming subjects)
+              </legend>
+              <div className="grid grid-cols-4 gap-2">
+                {GRADE_OPTIONS.map((opt) => {
+                  const selected = stateToValue(draftGrade) === opt.value;
+                  return (
+                    <button
+                      key={opt.value || 'none'}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => setDraftGrade(opt.state)}
+                      className={cx(
+                        'flex h-11 items-center justify-center rounded-2xl px-1.5 text-center font-mono text-[11px] leading-tight font-semibold',
+                        selected ? 'neu-btn-accent' : 'neu-btn text-[var(--neu-ink)]',
+                      )}
+                    >
+                      {opt.shortLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <div className="neu-recessed flex items-center justify-between rounded-2xl px-3.5 py-3">
+              <div>
+                <div className="text-xs font-semibold text-[var(--neu-ink)]">
+                  NSTP / Non-Academic Subject
+                </div>
+                <div className="text-[11px] text-[var(--neu-ink-muted)]">
+                  Excluded from Latin Honors GWA per RA 9163
+                </div>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={draftNstp}
+                aria-label="NSTP or non-academic subject"
+                onClick={() => setDraftNstp((v) => !v)}
+                className={cx(
+                  'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-colors',
+                  draftNstp ? 'bg-[var(--neu-accent)]' : 'neu-recessed',
+                )}
+              >
+                <span
+                  className={cx(
+                    'inline-block h-5 w-5 rounded-full transition-transform',
+                    draftNstp
+                      ? 'translate-x-5 bg-[var(--neu-accent-ink)]'
+                      : 'neu-btn translate-x-0 bg-[var(--neu-bg)]',
+                  )}
+                />
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="neu-btn-accent inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl text-xs font-bold"
+            >
+              <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
+              <span>Add Subject</span>
+            </button>
+          </div>
+        </form>
+      </ModalDialog>
     </div>
   );
 }

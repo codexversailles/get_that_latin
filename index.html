@@ -5,9 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#21242B" />
+    <meta name="theme-color" content="#21242b" />
     <meta name="description" content="Private, client-side GWA forecaster and Latin honors simulator. Your records never leave your browser." />
     <title>GetThatLatin - GWA &amp; Latin Honors Forecaster</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('gtl-theme');
+          var theme =
+            saved === 'light' || saved === 'dark'
+              ? saved
+              : window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.dataset.theme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#21242b' : '#e0e5ec');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="antialiased">
     <div id="root"></div>

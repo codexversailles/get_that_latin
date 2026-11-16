@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import { HONOR_TIERS, type SimResult } from '../engine';
 
 const W = 360;
-const H = 150;
-const PAD = { l: 14, r: 14, t: 14, b: 20 };
+const H = 158;
+const PAD = { l: 16, r: 16, t: 18, b: 22 };
 
 /** SVG density curve of simulated graduation GWAs with Latin-honors bands. */
 export function DensityChart({ result, marker }: { result: SimResult | null; marker: number | null }) {
+  const clipId = useId();
   const geo = useMemo(() => {
     if (!result || result.runs === 0) return null;
     const { histogram, histMin, binWidth } = result;
@@ -47,14 +48,13 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
 
   if (!geo) {
     return (
-      <div className="flex h-[150px] items-center justify-center font-mono text-xs text-[var(--neu-ink-subtle)]">
+      <div className="flex h-[158px] items-center justify-center font-mono text-xs text-[var(--neu-ink-subtle)]">
         No distribution yet
       </div>
     );
   }
 
   const { x, base, line, area, ticks, hi, honorsX } = geo;
-  const clipId = 'honors-clip';
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="Simulated graduation GWA density">
@@ -79,11 +79,11 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
             />
             <text
               x={(a + b) / 2}
-              y={10}
+              y={11}
               textAnchor="middle"
               fill="var(--neu-accent)"
               className="font-mono font-semibold"
-              fontSize={8}
+              fontSize={9.5}
             >
               {t.short}
             </text>
@@ -93,7 +93,7 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
 
       <path d={area} fill="var(--neu-chart-band)" />
       <path d={area} fill="var(--neu-accent)" opacity={0.22} clipPath={`url(#${clipId})`} />
-      <path d={line} fill="none" stroke="var(--neu-accent)" strokeWidth={1.5} />
+      <path d={line} fill="none" stroke="var(--neu-accent)" strokeWidth={1.75} />
 
       {HONOR_TIERS.map((t) => (
         <line
@@ -111,7 +111,7 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
       {marker !== null && marker >= 1 && marker <= hi && (
         <g>
           <line x1={x(marker)} x2={x(marker)} y1={PAD.t - 2} y2={base} stroke="var(--neu-accent)" strokeWidth={1.5} />
-          <circle cx={x(marker)} cy={PAD.t - 2} r={2.5} fill="var(--neu-accent)" />
+          <circle cx={x(marker)} cy={PAD.t - 2} r={2.8} fill="var(--neu-accent)" />
         </g>
       )}
 
@@ -119,7 +119,7 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
       {ticks.map((t) => (
         <g key={t}>
           <line x1={x(t)} x2={x(t)} y1={base} y2={base + 3} stroke="var(--neu-chart-grid)" strokeWidth={0.75} />
-          <text x={x(t)} y={H - 6} textAnchor="middle" fill="var(--neu-ink-muted)" className="font-mono" fontSize={8}>
+          <text x={x(t)} y={H - 5} textAnchor="middle" fill="var(--neu-ink-muted)" className="font-mono" fontSize={9.5}>
             {t.toFixed(2)}
           </text>
         </g>

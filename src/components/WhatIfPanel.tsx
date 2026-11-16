@@ -34,9 +34,9 @@ export function WhatIfPanel({
         title="What-If Grade Tester"
         subtitle="Add upcoming subjects with 'Not graded yet' to test how hypothetical grades affect your GWA."
       >
-        <div className="neu-recessed rounded-2xl px-4 py-3 text-xs text-[var(--neu-ink-muted)]">
-          No ungraded subjects yet. Add an upcoming subject on the left to test grades here.
-        </div>
+        <p className="text-xs leading-relaxed text-[var(--neu-ink-muted)]">
+          No ungraded subjects yet. Add an upcoming subject to test hypothetical grades here.
+        </p>
       </Panel>
     );
   }
@@ -100,7 +100,7 @@ export function WhatIfPanel({
                           patch: { whatIf: Number(e.target.value) },
                         })
                       }
-                      className="neu-recessed h-8 rounded-full px-2.5 font-mono text-xs font-semibold text-[var(--neu-accent)] outline-none"
+                      className="neu-recessed h-8 rounded-full px-2.5 font-mono text-xs font-semibold text-[var(--neu-accent)]"
                     >
                       {PASSING_STEPS.map((n) => (
                         <option key={n} value={n.toFixed(2)} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
@@ -145,7 +145,7 @@ export function WhatIfPanel({
                 </div>
 
                 <div className="mt-2.5 flex items-center gap-3">
-                  <span className="font-mono text-[10px] font-semibold text-[var(--neu-accent)]">1.00</span>
+                  <span className="font-mono text-[11px] font-semibold text-[var(--neu-accent)]">1.00</span>
                   <input
                     type="range"
                     className="range flex-1"
@@ -162,7 +162,7 @@ export function WhatIfPanel({
                     }
                     aria-label={`${sub.name} scenario slider`}
                   />
-                  <span className="font-mono text-[10px] text-[var(--neu-ink-muted)]">3.00</span>
+                  <span className="font-mono text-[11px] text-[var(--neu-ink-muted)]">3.00</span>
                 </div>
               </li>
             );
@@ -183,7 +183,7 @@ export function WhatIfPanel({
                 patch: { whatIf: snapToStep(defaultGrade) },
               });
             }}
-            className="neu-recessed h-10 w-full min-w-0 truncate rounded-2xl px-3.5 text-xs text-[var(--neu-ink)] outline-none"
+            className="neu-recessed h-10 w-full min-w-0 truncate rounded-2xl px-3.5 text-base text-[var(--neu-ink)] sm:text-xs"
             aria-label="Select an ungraded subject to test"
           >
             <option value="">Select an ungraded subject to test...</option>

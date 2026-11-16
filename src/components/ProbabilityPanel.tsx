@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Loader2, Sparkles } from 'lucide-react';
+import { BarChart3, Check, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { HONOR_TIERS, formatGwa, type Moments, type SimResult } from '../engine';
 import type { SimSettings } from '../lib/storage';
 import { DensityChart } from './DensityChart';
@@ -39,8 +39,8 @@ export function ProbabilityPanel({
   const probs: Array<[string, string, number]> = result
     ? [
         [HONOR_TIERS[0].label, '1.00–1.25', result.pSumma],
-        [HONOR_TIERS[1].label, '1.25–1.50', result.pMagna],
-        [HONOR_TIERS[2].label, '1.50–1.75', result.pCum],
+        [HONOR_TIERS[1].label, '1.2501–1.50', result.pMagna],
+        [HONOR_TIERS[2].label, '1.5001–1.75', result.pCum],
       ]
     : [];
 
@@ -50,20 +50,24 @@ export function ProbabilityPanel({
       title="Honors Probability"
       subtitle={`Simulated across ${sim.runs.toLocaleString()} possible graduation futures.`}
       meta={
-        <span className="inline-flex items-center gap-1">
-          {busy ? <Loader2 size={11} className="animate-spin" aria-hidden="true" /> : <Sparkles size={11} aria-hidden="true" />}
-          <span>{busy ? 'Updating' : 'Live'}</span>
+        <span className="inline-flex items-center gap-1.5">
+          {busy ? (
+            <Loader2 size={12} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <BarChart3 size={12} aria-hidden="true" />
+          )}
+          <span>{busy ? 'Calculating' : `${(sim.runs / 1000).toFixed(0)}k runs`}</span>
         </span>
       }
     >
       {hardDisqualified && (
-        <div className="neu-recessed mb-3.5 rounded-2xl p-3 text-xs text-[var(--neu-danger)]">
+        <div className="mb-3.5 border-l-2 border-[var(--neu-danger)] pl-3 text-xs text-[var(--neu-danger)]">
           A failing grade (5.00) is on record. Latin Honors eligibility is zero.
         </div>
       )}
 
       {!hardDisqualified && missingYears > 0 && (
-        <div className="neu-recessed mb-3.5 rounded-2xl p-3 text-[11px] leading-relaxed text-[var(--neu-warn)]">
+        <div className="mb-3.5 border-l-2 border-[var(--neu-warn)] pl-3 text-[11px] leading-relaxed text-[var(--neu-warn)]">
           <strong>Yr {yearsEntered} of 4 entered:</strong> Automatically simulating your remaining{' '}
           <strong>
             {missingYears} unentered year{missingYears > 1 ? 's' : ''} ({missingYears * 36} units)
@@ -93,22 +97,32 @@ export function ProbabilityPanel({
       )}
 
       <div className="space-y-3">
-        {probs.map(([label, range, p]) => (
-          <div key={label}>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs font-medium text-[var(--neu-ink)]">
-                {label} <span className="font-mono text-[11px] text-[var(--neu-ink-subtle)]">({range})</span>
-              </span>
-              <span className="font-mono text-xs font-semibold text-[var(--neu-accent)] tabular">{pct(p)}</span>
-            </div>
-            <div className="neu-recessed mt-1.5 h-2.5 w-full overflow-hidden rounded-full p-0.5">
+        {probs.map(([label, range, p]) => {
+          const percentInt = Math.round(Math.min(1, Math.max(0, p)) * 100);
+          return (
+            <div key={label}>
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs font-medium text-[var(--neu-ink)]">
+                  {label} <span className="font-mono text-[11px] text-[var(--neu-ink-subtle)]">({range})</span>
+                </span>
+                <span className="font-mono text-xs font-semibold text-[var(--neu-accent)] tabular">{pct(p)}</span>
+              </div>
               <div
-                className="h-full w-full origin-left rounded-full bg-[var(--neu-accent)] transition-transform duration-200"
-                style={{ transform: `scaleX(${Math.min(1, Math.max(0, p))})` }}
-              />
+                role="progressbar"
+                aria-label={`${label} probability`}
+                aria-valuenow={percentInt}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                className="neu-recessed mt-1.5 h-2.5 w-full overflow-hidden rounded-full p-0.5"
+              >
+                <div
+                  className="h-full w-full origin-left rounded-full bg-[var(--neu-accent)] transition-transform duration-200"
+                  style={{ transform: `scaleX(${Math.min(1, Math.max(0, p))})` }}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Future Outlook Presets */}
@@ -139,16 +153,9 @@ export function ProbabilityPanel({
                   >
                     {pr.label}
                   </span>
-                  <span
-                    className={cx(
-                      'h-1.5 w-1.5 rounded-full',
-                      active
-                        ? 'bg-[var(--neu-accent)] shadow-[0_0_5px_var(--neu-accent)]'
-                        : 'bg-[var(--neu-ink-subtle)] opacity-35',
-                    )}
-                  />
+                  {active && <Check size={12} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />}
                 </div>
-                <div className="mt-0.5 text-[10px] text-[var(--neu-ink-muted)]">{pr.desc}</div>
+                <div className="mt-0.5 text-[11px] leading-snug text-[var(--neu-ink-muted)]">{pr.desc}</div>
               </button>
             );
           })}
@@ -167,22 +174,22 @@ export function ProbabilityPanel({
       )}
 
       {/* Collapsible Advanced Chart & Math Controls */}
-      <div className="mt-4 border-t border-[var(--neu-border)] pt-3">
+      <div className="mt-4 border-t border-[var(--neu-border)] pt-2">
         <button
           type="button"
           onClick={() => setShowAdvanced((v) => !v)}
           aria-expanded={showAdvanced}
-          className="flex w-full items-center justify-between text-left text-xs font-medium text-[var(--neu-ink-muted)] hover:text-[var(--neu-accent)]"
+          className="flex min-h-9 w-full items-center justify-between rounded-xl px-1 py-2 text-left text-xs font-medium text-[var(--neu-ink-muted)] hover:text-[var(--neu-accent)]"
         >
           <span>{showAdvanced ? 'Hide distribution chart and details' : 'Show distribution chart and details'}</span>
           {showAdvanced ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
         </button>
 
         {showAdvanced && (
-          <div className="mt-3.5 space-y-4">
+          <div className="mt-2.5 space-y-4">
             <div>
               <DensityChart result={result} marker={marker} />
-              <div className="mt-1.5 flex justify-between font-mono text-[10px] text-[var(--neu-ink-muted)] tabular">
+              <div className="mt-1.5 flex justify-between font-mono text-[11px] text-[var(--neu-ink-muted)] tabular">
                 <span>
                   Best 5%: {formatGwa(result?.p05, 2)} | Median: {formatGwa(result?.p50, 2)} | Worst 5%:{' '}
                   {formatGwa(result?.p95, 2)}
@@ -191,22 +198,22 @@ export function ProbabilityPanel({
               </div>
             </div>
 
-            <div className="neu-recessed grid grid-cols-3 gap-2 rounded-2xl p-3 font-mono text-[11px] tabular">
-              <div>
-                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Your avg</div>
+            <div className="grid grid-cols-3 divide-x divide-[var(--neu-border)] border-t border-[var(--neu-border)] pt-3 font-mono text-xs tabular">
+              <div className="pr-2">
+                <div className="font-sans text-[11px] text-[var(--neu-ink-muted)]">Your avg</div>
                 <div className="font-semibold text-[var(--neu-ink)]">{moments.mean.toFixed(2)}</div>
               </div>
-              <div>
-                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Spread</div>
+              <div className="px-2">
+                <div className="font-sans text-[11px] text-[var(--neu-ink-muted)]">Spread</div>
                 <div className="font-semibold text-[var(--neu-ink)]">±{moments.std.toFixed(2)}</div>
               </div>
-              <div>
-                <div className="font-sans text-[10px] text-[var(--neu-ink-muted)]">Graded</div>
+              <div className="pl-2">
+                <div className="font-sans text-[11px] text-[var(--neu-ink-muted)]">Graded</div>
                 <div className="font-semibold text-[var(--neu-ink)]">{moments.n}</div>
               </div>
             </div>
 
-            <label className="block">
+            <label className="block border-t border-[var(--neu-border)] pt-3">
               <div className="flex justify-between text-xs text-[var(--neu-ink)]">
                 <span>Grade consistency (volatility)</span>
                 <span className="font-mono font-semibold text-[var(--neu-accent)]">{sim.volatility.toFixed(2)}×</span>

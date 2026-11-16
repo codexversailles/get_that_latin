@@ -4,7 +4,7 @@
   "description": "Private, client-side GWA forecaster and Latin honors simulator.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "background_color": "#21242b",
+  "theme_color": "#21242b",
   "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
 }

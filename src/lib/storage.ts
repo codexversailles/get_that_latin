@@ -92,6 +92,10 @@ export function parseState(raw: unknown): AppState | null {
   };
 }
 
+export function hasSavedRecords(s: AppState): boolean {
+  return s.years.some((y) => y.semesters.some((sem) => sem.subjects.length > 0));
+}
+
 export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -102,11 +106,12 @@ export function loadState(): AppState {
   }
 }
 
-export function saveState(s: AppState): void {
+export function saveState(s: AppState): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    return true;
   } catch {
-    /* quota / private mode */
+    return false;
   }
 }
 

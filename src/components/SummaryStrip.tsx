@@ -1,4 +1,4 @@
-import { AlertOctagon, Award, CheckCircle2, CircleAlert, Sparkles } from 'lucide-react';
+import { AlertOctagon, Award, CheckCircle2, CircleAlert, SlidersHorizontal } from 'lucide-react';
 import { HONOR_TIERS, classifyGwa, formatGwa, solveTarget, type Ledger } from '../engine';
 import { Label, cx } from './ui';
 
@@ -14,6 +14,7 @@ export function SummaryStrip({
   const tier = ledger.hardDisqualified ? null : classifyGwa(ledger.gwa);
   const projTier = ledger.hardDisqualified ? null : classifyGwa(ledger.projectedGwa);
   const progress = ledger.totalUnits > 0 ? ledger.completedUnits / ledger.totalUnits : 0;
+  const progressPct = Math.round(Math.min(1, Math.max(0, progress)) * 100);
   const hard = ledger.disqualifiers.filter((d) => d.severity === 'hard');
   const soft = ledger.disqualifiers.filter((d) => d.severity === 'pending');
 
@@ -58,34 +59,45 @@ export function SummaryStrip({
     }
   }
 
-  const standingLabel = ledger.hardDisqualified
+  const standingPrefix = ledger.hardDisqualified
     ? 'Not Eligible'
     : ledger.gwa === null
       ? 'Awaiting Grades'
       : !isGradComplete
         ? gradedYears < 4
-          ? `Yr ${gradedYears} of 4 (${tier ? `${tier.short} Pace` : '> 1.75'})`
-          : `In Progress (${tier ? `${tier.short} Pace` : '> 1.75'})`
+          ? `Yr ${gradedYears} of 4`
+          : 'In Progress'
         : tier
           ? tier.label
-          : 'Regular (> 1.75)';
+          : 'Regular';
+
+  const standingSuffix =
+    !ledger.hardDisqualified && ledger.gwa !== null
+      ? !isGradComplete
+        ? tier
+          ? `(${tier.short} Pace)`
+          : '(> 1.75)'
+        : !tier
+          ? '(> 1.75)'
+          : null
+      : null;
 
   return (
-    <section className="my-5 sm:my-6">
+    <section className="my-5 sm:my-6" aria-label="GWA and honors summary">
       {/* Mobile / Tablet Compact Summary Strip (< lg) */}
       <div className="neu-card rounded-3xl p-4 lg:hidden">
         <div className="grid grid-cols-3 divide-x divide-[var(--neu-border)]">
-          <div className="pr-3">
+          <div className="pr-2.5">
             <div className="text-[11px] font-semibold text-[var(--neu-accent)]">
               {mode === 'academic' ? 'Honors GWA' : 'GWA (All)'}
             </div>
             <div
               className={cx(
-                'mt-0.5 font-mono text-2xl font-bold tracking-tight tabular',
+                'mt-0.5 font-mono text-lg font-bold tracking-tight tabular sm:text-2xl',
                 ledger.gwa === null ? 'text-[var(--neu-ink-subtle)]' : 'text-[var(--neu-ink)]',
               )}
             >
-              {formatGwa(ledger.gwa, 2)}
+              {formatGwa(ledger.gwa, 4)}
             </div>
           </div>
 
@@ -101,7 +113,13 @@ export function SummaryStrip({
                     : 'text-[var(--neu-ink)]',
               )}
             >
-              {standingLabel}
+              {standingPrefix}
+              {standingSuffix && (
+                <>
+                  {' '}
+                  <span className="whitespace-nowrap">{standingSuffix}</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -121,7 +139,7 @@ export function SummaryStrip({
 
         {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
           <div className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--neu-border)] pt-2.5 font-mono text-[11px] font-semibold text-[var(--neu-accent)]">
-            <Sparkles size={11} className="shrink-0" aria-hidden="true" />
+            <SlidersHorizontal size={11} className="shrink-0" aria-hidden="true" />
             <span>
               What-If GWA: {formatGwa(ledger.projectedGwa)}
               {projTier ? ` (${projTier.short})` : ''}
@@ -158,7 +176,9 @@ export function SummaryStrip({
           </div>
           <div className="mt-2 font-mono text-[11px] text-[var(--neu-ink-muted)]">
             {ledger.completedUnits > 0
-              ? `${ledger.completedUnits.toFixed(0)} graded units, ${ledger.remainingUnits.toFixed(0)} ungraded units`
+              ? ledger.whatIfUnits > 0
+                ? `${ledger.completedUnits.toFixed(0)} graded, ${ledger.whatIfUnits.toFixed(0)} what-if, ${ledger.remainingUnits.toFixed(0)} ungraded`
+                : `${ledger.completedUnits.toFixed(0)} graded units, ${ledger.remainingUnits.toFixed(0)} ungraded units`
               : 'No graded subjects yet'}
           </div>
         </div>
@@ -189,15 +209,18 @@ export function SummaryStrip({
                     : 'text-[var(--neu-ink)]',
               )}
             >
-              {standingLabel}
+              {standingPrefix}
+              {standingSuffix ? ` ${standingSuffix}` : ''}
             </span>
           </div>
 
           {ledger.whatIfUnits > 0 && ledger.projectedGwa !== null && (
             <div className="neu-recessed mt-2.5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-semibold text-[var(--neu-accent)]">
-              <Sparkles size={11} aria-hidden="true" />
-              What-If: {formatGwa(ledger.projectedGwa)}
-              {projTier ? ` (${projTier.short})` : ''}
+              <SlidersHorizontal size={11} aria-hidden="true" />
+              <span>
+                What-If: {formatGwa(ledger.projectedGwa)}
+                {projTier ? ` (${projTier.short})` : ''}
+              </span>
             </div>
           )}
 
@@ -231,10 +254,17 @@ export function SummaryStrip({
           <div className="flex items-baseline justify-between">
             <Label>Curriculum Progress</Label>
             <span className="font-mono text-xs font-semibold text-[var(--neu-accent)] tabular">
-              {ledger.completedUnits.toFixed(0)} / {ledger.totalUnits.toFixed(0)} units ({(progress * 100).toFixed(0)}%)
+              {ledger.completedUnits.toFixed(0)} / {ledger.totalUnits.toFixed(0)} units ({progressPct}%)
             </span>
           </div>
-          <div className="neu-recessed mt-3 h-3 w-full overflow-hidden rounded-full p-0.5">
+          <div
+            role="progressbar"
+            aria-label="Curriculum completion"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="neu-recessed mt-3 h-3 w-full overflow-hidden rounded-full p-0.5"
+          >
             <div
               className="h-full w-full origin-left rounded-full bg-[var(--neu-accent)] transition-transform duration-300"
               style={{ transform: `scaleX(${Math.min(1, Math.max(0, progress))})` }}

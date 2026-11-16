@@ -233,6 +233,7 @@ export function useAppState() {
   stateRef.current = state;
   const undoStackRef = useRef<AppState | null>(null);
   const toastTimerRef = useRef<number | undefined>(undefined);
+  const storageWarnedRef = useRef(false);
   const timer = useRef<number | undefined>(undefined);
   const dirty = useRef(false);
   const cleared = useRef(false);
@@ -240,15 +241,30 @@ export function useAppState() {
   const showToast = useCallback((message: string, canUndo: boolean, tone: 'info' | 'error' = 'info') => {
     window.clearTimeout(toastTimerRef.current);
     setToast({ id: Date.now(), message, canUndo, tone });
-    toastTimerRef.current = window.setTimeout(() => {
-      setToast(null);
-    }, 6000);
+    if (tone !== 'error') {
+      toastTimerRef.current = window.setTimeout(() => {
+        setToast(null);
+      }, 6000);
+    }
   }, []);
 
   const dismissToast = useCallback(() => {
     window.clearTimeout(toastTimerRef.current);
     setToast(null);
   }, []);
+
+  const persist = useCallback(
+    (next: AppState) => {
+      const ok = saveState(next);
+      if (!ok && !storageWarnedRef.current) {
+        storageWarnedRef.current = true;
+        showToast('Could not save to browser storage. Use Backup to export a JSON file.', false, 'error');
+      } else if (ok) {
+        storageWarnedRef.current = false;
+      }
+    },
+    [showToast],
+  );
 
   const dispatch = useCallback(
     (action: Action) => {
@@ -274,7 +290,7 @@ export function useAppState() {
         showToast(`Deleted ${y?.label ?? 'Year'}`, true);
       } else if (action.type === 'replace') {
         undoStackRef.current = current;
-        showToast('Backup restored successfully', true);
+        showToast('Backup restored', true);
       }
       rawDispatch(action);
     },
@@ -288,8 +304,8 @@ export function useAppState() {
     window.clearTimeout(toastTimerRef.current);
     setToast(null);
     rawDispatch({ type: 'replace', state: prev });
-    saveState(prev);
-  }, []);
+    persist(prev);
+  }, [persist]);
 
   const notify = useCallback(
     (message: string, tone: 'info' | 'error' = 'info') => {
@@ -308,18 +324,18 @@ export function useAppState() {
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
       dirty.current = false;
-      saveState(state);
+      persist(state);
     }, 150);
     return () => window.clearTimeout(timer.current);
-  }, [state]);
+  }, [state, persist]);
 
   useEffect(() => {
     const flush = () => {
-      if (dirty.current) saveState(state);
+      if (dirty.current) persist(state);
     };
     window.addEventListener('pagehide', flush);
     return () => window.removeEventListener('pagehide', flush);
-  }, [state]);
+  }, [state, persist]);
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {

@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');
@@ -165,4 +165,88 @@ export function useEscapeKey(active: boolean, onClose: () => void) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [active, onClose]);
+}
+
+/**
+ * Native `<dialog>` modal/sheet wrapper providing top-layer stacking,
+ * native focus trapping, Escape dismissal, and focus restoration on close.
+ */
+export function ModalDialog({
+  open,
+  onClose,
+  label,
+  variant = 'center',
+  className,
+  panelClassName,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  label: string;
+  variant?: 'center' | 'sheet';
+  className?: string;
+  panelClassName?: string;
+  children: ReactNode;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  useScrollLock(open);
+
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    if (open) {
+      if (!el.open && typeof el.showModal === 'function') {
+        el.showModal();
+      }
+    } else if (el.open) {
+      el.close();
+    }
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-label={label}
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
+      onClick={(e) => {
+        if (e.target === dialogRef.current || e.target === frameRef.current) {
+          onClose();
+        }
+      }}
+      onTouchMove={(e) => {
+        if (e.target === dialogRef.current || e.target === frameRef.current) {
+          e.preventDefault();
+        }
+      }}
+      className={cx('neu-dialog animate-backdrop', className)}
+    >
+      <div
+        ref={frameRef}
+        className={cx(
+          'flex min-h-full w-full justify-center',
+          variant === 'sheet'
+            ? 'items-end sm:items-center sm:p-4'
+            : 'items-center p-3 sm:p-6',
+        )}
+      >
+        <div
+          className={cx(
+            'neu-dialog-panel w-full text-left touch-pan-y overscroll-contain',
+            variant === 'sheet'
+              ? 'animate-sheet-up max-h-[88vh] overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 sm:rounded-3xl sm:p-6'
+              : 'animate-pop-in my-auto rounded-3xl p-5 sm:p-7',
+            panelClassName,
+          )}
+        >
+          {children}
+        </div>
+      </div>
+    </dialog>
+  );
 }
