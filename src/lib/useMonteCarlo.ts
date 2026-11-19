@@ -7,12 +7,12 @@ import type { WorkerRequest, WorkerResponse } from '../engine/worker';
  * Requests are coalesced: while one job is in flight only the *latest* input is queued,
  * so dragging a slider never builds a backlog and the main thread stays at 60 FPS.
  */
-export function useMonteCarlo(input: SimInput | null): { result: SimResult | null; busy: boolean; viaWorker: boolean } {
+export function useMonteCarlo(input: SimInput | null): { result: SimResult | null; busy: boolean } {
   const [result, setResult] = useState<SimResult | null>(null);
   const [busy, setBusy] = useState(false);
-  const [viaWorker, setViaWorker] = useState(true);
   const workerRef = useRef<Worker | null>(null);
   const inflight = useRef(false);
+  const inflightInput = useRef<SimInput | null>(null);
   const queued = useRef<SimInput | null>(null);
   const seq = useRef(0);
   const send = useRef<(i: SimInput) => void>(() => {});
@@ -25,9 +25,10 @@ export function useMonteCarlo(input: SimInput | null): { result: SimResult | nul
       worker = null;
     }
     workerRef.current = worker;
-    setViaWorker(!!worker);
 
     const runInline = (i: SimInput) => {
+      inflight.current = false;
+      inflightInput.current = null;
       setResult(runMonteCarlo(i));
       setBusy(false);
     };
@@ -35,6 +36,7 @@ export function useMonteCarlo(input: SimInput | null): { result: SimResult | nul
     send.current = (i: SimInput) => {
       if (!workerRef.current) return runInline(i);
       inflight.current = true;
+      inflightInput.current = i;
       setBusy(true);
       const msg: WorkerRequest = { id: ++seq.current, input: i };
       workerRef.current.postMessage(msg);
@@ -44,6 +46,7 @@ export function useMonteCarlo(input: SimInput | null): { result: SimResult | nul
       worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
         setResult(e.data.result);
         inflight.current = false;
+        inflightInput.current = null;
         const next = queued.current;
         queued.current = null;
         if (next) send.current(next);
@@ -52,11 +55,12 @@ export function useMonteCarlo(input: SimInput | null): { result: SimResult | nul
       worker.onerror = () => {
         worker?.terminate();
         workerRef.current = null;
-        setViaWorker(false);
+        const fallback = queued.current ?? inflightInput.current;
         inflight.current = false;
-        const next = queued.current;
+        inflightInput.current = null;
         queued.current = null;
-        if (next) runInline(next);
+        if (fallback) runInline(fallback);
+        else setBusy(false);
       };
     }
 
@@ -64,15 +68,21 @@ export function useMonteCarlo(input: SimInput | null): { result: SimResult | nul
       worker?.terminate();
       workerRef.current = null;
       inflight.current = false;
+      inflightInput.current = null;
       queued.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (!input) return;
+    if (!input) {
+      queued.current = null;
+      setResult(null);
+      setBusy(false);
+      return;
+    }
     if (inflight.current) queued.current = input;
     else send.current(input);
   }, [input]);
 
-  return { result, busy, viaWorker };
+  return { result, busy };
 }

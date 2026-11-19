@@ -7,6 +7,7 @@ import {
   classifyDeansList,
   classifyGwa,
   emptyRecord,
+  formatRequiredAverage,
   parseGrade,
   runMonteCarlo,
   solveTarget,
@@ -54,6 +55,11 @@ describe('grades', () => {
     expect(stepGrade(3, 1)).toBe(5);
     expect(stepGrade(1, -1)).toBeNull();
   });
+  it('floors required averages to 2 decimals without rounding past cutoffs', () => {
+    expect(formatRequiredAverage(1.246)).toBe('1.24');
+    expect(formatRequiredAverage(1.25)).toBe('1.25');
+    expect(formatRequiredAverage(null)).toBe('—');
+  });
 });
 
 describe('honors classification', () => {
@@ -89,6 +95,24 @@ describe('honors classification', () => {
       { grade: 5.0, units: 3 },
     ];
     expect(classifyDeansList(1.25, withFail).qualified).toBe(false);
+
+    const withIp = [
+      { grade: 1.0, units: 3 },
+      { grade: 1.0, units: 3 },
+      { grade: 1.25, units: 3 },
+      { grade: 1.25, units: 3 },
+      { grade: 'IP' as const, units: 3 },
+    ];
+    expect(classifyDeansList(1.125, withIp).qualified).toBe(false);
+
+    const withUngraded = [
+      { grade: 1.0, units: 3 },
+      { grade: 1.0, units: 3 },
+      { grade: 1.25, units: 3 },
+      { grade: 1.25, units: 3 },
+      { grade: null, units: 3 },
+    ];
+    expect(classifyDeansList(1.125, withUngraded).qualified).toBe(false);
   });
 });
 

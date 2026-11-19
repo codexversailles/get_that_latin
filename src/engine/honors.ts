@@ -29,8 +29,8 @@ export interface DeansListResult {
 
 /**
  * USTP Dean's List evaluation for a semester:
- * - Minimum regular sem load: usually ≥ 15 graded academic units
- * - No failing grade (5.00), Dropped (DRP), or Incomplete (INC)
+ * - Minimum graded academic load: default ≥ 12 graded academic units (some colleges require 15)
+ * - All non-NSTP subjects in the semester must have final passing grades (no 5.00, INC, IP, or ungraded)
  * - First Honors: GWA ≤ 1.40 (no grade below 2.00)
  * - Second Honors: GWA ≤ 1.75 (no grade below 2.25)
  */
@@ -44,41 +44,58 @@ export function classifyDeansList(
   }
 
   let gradedUnits = 0;
+  let academicPoints = 0;
   let hasFailureOrInc = false;
+  let hasIncompleteTerm = false;
   let lowestGrade = 1.0;
 
   for (const s of subjects) {
     if (s.isNstp) continue; // NSTP excluded per academic honors rules
     if (s.grade === 'INC' || s.grade === 5) {
       hasFailureOrInc = true;
+    } else if (s.grade === 'IP' || s.grade === null || s.grade === undefined) {
+      hasIncompleteTerm = true;
     }
     if (typeof s.grade === 'number') {
       gradedUnits += s.units;
+      academicPoints += s.units * s.grade;
       if (s.grade > lowestGrade) {
         lowestGrade = s.grade;
       }
     }
   }
 
+  const academicGwa = gradedUnits > 0 ? academicPoints / gradedUnits : gwa;
+
   if (hasFailureOrInc) {
-    return { qualified: false, tier: null, gwa, gradedUnits, reason: 'Has 5.00 or INC' };
+    return { qualified: false, tier: null, gwa: academicGwa, gradedUnits, reason: 'Has 5.00 or INC' };
+  }
+
+  if (hasIncompleteTerm) {
+    return { qualified: false, tier: null, gwa: academicGwa, gradedUnits, reason: 'Term has ungraded or IP subjects' };
   }
 
   if (gradedUnits < minUnits) {
-    return { qualified: false, tier: null, gwa, gradedUnits, reason: `Underloaded (< ${minUnits} units)` };
+    return { qualified: false, tier: null, gwa: academicGwa, gradedUnits, reason: `Underloaded (< ${minUnits} units)` };
   }
 
-  const roundedGwa = round4(gwa);
+  const roundedGwa = round4(academicGwa);
 
   if (roundedGwa <= 1.40 && lowestGrade <= 2.0) {
-    return { qualified: true, tier: 'First Honors', gwa, gradedUnits };
+    return { qualified: true, tier: 'First Honors', gwa: academicGwa, gradedUnits };
   }
 
   if (roundedGwa <= 1.75 && lowestGrade <= 2.25) {
-    return { qualified: true, tier: 'Second Honors', gwa, gradedUnits };
+    return { qualified: true, tier: 'Second Honors', gwa: academicGwa, gradedUnits };
   }
 
-  return { qualified: false, tier: null, gwa, gradedUnits, reason: roundedGwa > 1.75 ? 'GWA > 1.75' : 'Subject grade below cutoff' };
+  return {
+    qualified: false,
+    tier: null,
+    gwa: academicGwa,
+    gradedUnits,
+    reason: roundedGwa > 1.75 ? 'GWA > 1.75' : 'Subject grade below cutoff',
+  };
 }
 
 /** GWA is evaluated at 4-decimal precision (matching the 1.2501 / 1.5001 band boundaries). */

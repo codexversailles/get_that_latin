@@ -16,6 +16,16 @@ export function isValidGrade(n: number): boolean {
   return GRADE_STEPS.some((s) => Math.abs(s - n) < 1e-9);
 }
 
+export function isValidPassingGrade(n: number): boolean {
+  return PASSING_STEPS.some((s) => Math.abs(s - n) < 1e-9);
+}
+
+/** Floor a required average down to 2 decimals so we never round up past a cutoff (e.g. 1.246 → "1.24"). */
+export function formatRequiredAverage(g: number | null | undefined): string {
+  if (g === null || g === undefined || !Number.isFinite(g)) return '—';
+  return (Math.floor((g + 1e-9) * 100) / 100).toFixed(2);
+}
+
 /** Snap any value to the nearest 0.25 passing step within [1.00, 3.00]. */
 export function snapToStep(x: number): number {
   const s = Math.round(x * 4) / 4;

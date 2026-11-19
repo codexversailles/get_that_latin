@@ -19,6 +19,7 @@ export function Header({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--neu-border)] bg-[var(--neu-bg)]/95 backdrop-blur-sm">
@@ -63,7 +64,7 @@ export function Header({
             <Button onClick={() => fileRef.current?.click()} title="Load subjects and grades from a backup file">
               <Upload size={13} strokeWidth={1.85} aria-hidden="true" /> Restore
             </Button>
-            <Button danger onClick={onClear} title="Clear all subjects and grades">
+            <Button danger onClick={() => setConfirmResetOpen(true)} title="Clear all subjects and grades">
               <Trash2 size={13} strokeWidth={1.85} aria-hidden="true" /> Reset
             </Button>
           </div>
@@ -158,7 +159,7 @@ export function Header({
             type="button"
             onClick={() => {
               setSheetOpen(false);
-              onClear();
+              setConfirmResetOpen(true);
             }}
             className="neu-btn flex w-full items-center gap-3.5 rounded-2xl p-3.5 text-left"
           >
@@ -169,6 +170,49 @@ export function Header({
               <div className="text-sm font-semibold text-[var(--neu-danger)]">Reset all data</div>
               <div className="text-xs text-[var(--neu-ink-muted)]">Clear all years and subjects (can undo)</div>
             </div>
+          </button>
+        </div>
+      </ModalDialog>
+
+      {/* Reset Confirmation Dialog */}
+      <ModalDialog
+        open={confirmResetOpen}
+        onClose={() => setConfirmResetOpen(false)}
+        label="Confirm reset all data"
+        panelClassName="max-w-sm"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-bold text-[var(--neu-ink)]">Reset all subjects and grades?</h2>
+          <button
+            type="button"
+            onClick={() => setConfirmResetOpen(false)}
+            aria-label="Cancel reset"
+            className="neu-btn inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--neu-ink-muted)]"
+          >
+            <X size={15} aria-hidden="true" />
+          </button>
+        </div>
+        <p className="mt-2.5 text-xs leading-relaxed text-[var(--neu-ink-muted)]">
+          This clears all years, semesters, and grades stored in this browser. You can still undo immediately after
+          resetting or restore from a JSON backup.
+        </p>
+        <div className="mt-5 flex justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={() => setConfirmResetOpen(false)}
+            className="neu-btn h-10 rounded-full px-4 text-xs font-semibold text-[var(--neu-ink)]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmResetOpen(false);
+              onClear();
+            }}
+            className="neu-btn h-10 rounded-full px-4 text-xs font-bold text-[var(--neu-danger)]"
+          >
+            Reset all
           </button>
         </div>
       </ModalDialog>

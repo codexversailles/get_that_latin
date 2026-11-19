@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookOpen, RotateCcw, Target, TrendingUp, X } from 'lucide-react';
 import {
-  buildStudentLedger,
+  buildLedger,
   historicalMoments,
   snapToStep,
   yearsToProspectusAndRecord,
@@ -119,8 +119,8 @@ export default function App() {
     [state.years],
   );
   const ledger = useMemo(
-    () => buildStudentLedger(state.years, mode),
-    [state.years, mode],
+    () => buildLedger(prospectus, record, mode),
+    [prospectus, record, mode],
   );
   const moments = useMemo(
     () => historicalMoments(prospectus, record, ledger),
@@ -234,7 +234,6 @@ export default function App() {
                 <ProbabilityPanel
                   result={mc.result}
                   busy={mc.busy}
-                  viaWorker={mc.viaWorker}
                   moments={moments}
                   sim={sim}
                   onSim={(patch: Partial<SimSettings>) => dispatch({ type: 'setSim', patch })}

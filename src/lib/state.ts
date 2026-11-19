@@ -74,7 +74,7 @@ export type Action =
   | { type: 'replace'; state: AppState }
   | { type: 'clearAll' };
 
-function reducer(s: AppState, a: Action): AppState {
+export function reducer(s: AppState, a: Action): AppState {
   switch (a.type) {
     case 'addYear': {
       const nextIdx = s.years.length;
@@ -226,17 +226,27 @@ export interface ToastNotice {
   tone?: 'info' | 'error';
 }
 
+const MAX_UNDO_HISTORY = 15;
+
 export function useAppState() {
   const [state, rawDispatch] = useReducer(reducer, undefined, loadState);
   const [toast, setToast] = useState<ToastNotice | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
-  const undoStackRef = useRef<AppState | null>(null);
+  const undoStackRef = useRef<AppState[]>([]);
   const toastTimerRef = useRef<number | undefined>(undefined);
   const storageWarnedRef = useRef(false);
   const timer = useRef<number | undefined>(undefined);
   const dirty = useRef(false);
   const cleared = useRef(false);
+
+  const pushUndo = useCallback((snapshot: AppState) => {
+    const stack = undoStackRef.current;
+    stack.push(snapshot);
+    if (stack.length > MAX_UNDO_HISTORY) {
+      stack.shift();
+    }
+  }, []);
 
   const showToast = useCallback((message: string, canUndo: boolean, tone: 'info' | 'error' = 'info') => {
     window.clearTimeout(toastTimerRef.current);
@@ -277,32 +287,32 @@ export function useAppState() {
             if (found) subName = found.name || 'Subject';
           }
         }
-        undoStackRef.current = current;
+        pushUndo(current);
         showToast(`Removed "${subName}"`, true);
       } else if (action.type === 'removeSemester') {
         const y = current.years.find((yr) => yr.id === action.yearId);
         const sem = y?.semesters.find((s) => s.id === action.semId);
-        undoStackRef.current = current;
+        pushUndo(current);
         showToast(`Deleted ${sem?.name ?? 'Semester'}`, true);
       } else if (action.type === 'removeYear') {
         const y = current.years.find((yr) => yr.id === action.yearId);
-        undoStackRef.current = current;
+        pushUndo(current);
         showToast(`Deleted ${y?.label ?? 'Year'}`, true);
       } else if (action.type === 'replace') {
-        undoStackRef.current = current;
+        pushUndo(current);
         showToast('Backup restored', true);
       }
       rawDispatch(action);
     },
-    [showToast],
+    [pushUndo, showToast],
   );
 
   const undo = useCallback(() => {
-    const prev = undoStackRef.current;
+    const prev = undoStackRef.current.pop();
     if (!prev) return;
-    undoStackRef.current = null;
     window.clearTimeout(toastTimerRef.current);
     setToast(null);
+    cleared.current = true;
     rawDispatch({ type: 'replace', state: prev });
     persist(prev);
   }, [persist]);
@@ -313,6 +323,24 @@ export function useAppState() {
     },
     [showToast],
   );
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== 'z') return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)
+      ) {
+        return;
+      }
+      if (undoStackRef.current.length === 0) return;
+      e.preventDefault();
+      undo();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [undo]);
 
   useEffect(() => {
     if (cleared.current) {
@@ -349,12 +377,12 @@ export function useAppState() {
   }, []);
 
   const clearAll = useCallback(() => {
-    undoStackRef.current = stateRef.current;
+    pushUndo(stateRef.current);
     clearStoredState();
     cleared.current = true;
     rawDispatch({ type: 'clearAll' });
     showToast('All data reset', true);
-  }, [showToast]);
+  }, [pushUndo, showToast]);
 
   return { state, dispatch, clearAll, toast, undo, dismissToast, notify };
 }

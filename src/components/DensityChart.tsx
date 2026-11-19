@@ -1,5 +1,6 @@
 import { useId, useMemo } from 'react';
-import { HONOR_TIERS, type SimResult } from '../engine';
+import { HONOR_TIERS, formatGwa, type SimResult } from '../engine';
+import { pct } from './ui';
 
 const W = 360;
 const H = 158;
@@ -56,8 +57,12 @@ export function DensityChart({ result, marker }: { result: SimResult | null; mar
 
   const { x, base, line, area, ticks, hi, honorsX } = geo;
 
+  const ariaSummary = result
+    ? `Simulated graduation GWA density. Median ${formatGwa(result.p50, 2)}, best 5% ${formatGwa(result.p05, 2)}, worst 5% ${formatGwa(result.p95, 2)}, overall honors chance ${pct(result.pAny)}.`
+    : 'Simulated graduation GWA density';
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="Simulated graduation GWA density">
+    <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label={ariaSummary}>
       <defs>
         <clipPath id={clipId}>
           <rect x={0} y={0} width={honorsX} height={H} />

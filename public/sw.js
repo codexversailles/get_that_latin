@@ -1,5 +1,5 @@
 /* GetThatLatin service worker — network-first with offline fallback. */
-const CACHE = 'gtl-v2';
+const CACHE = 'gtl-v3';
 const PRECACHE = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -28,6 +28,12 @@ self.addEventListener('fetch', (event) => {
         }
         return res;
       })
-      .catch(() => caches.match(req).then((r) => r || caches.match('/index.html'))),
+      .catch(() =>
+        caches.match(req).then((r) => {
+          if (r) return r;
+          if (req.mode === 'navigate') return caches.match('/index.html');
+          return Response.error();
+        }),
+      ),
   );
 });

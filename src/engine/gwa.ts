@@ -64,8 +64,8 @@ export function yearsToProspectusAndRecord(years: StudentYear[]): {
       });
 
       return {
-        yearLevel: Math.min(6, Math.max(1, yIdx + 1)),
-        semester: Math.min(3, Math.max(1, sIdx + 1)),
+        yearLevel: Math.max(1, yIdx + 1),
+        semester: Math.max(1, sIdx + 1),
         termLabel: `${y.label} — ${sem.name}`,
         courses,
       };

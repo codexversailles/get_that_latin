@@ -84,45 +84,6 @@ export function Button({
   );
 }
 
-export function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-  fullWidth,
-}: {
-  value: T;
-  options: Array<{ value: T; label: string; title?: string }>;
-  onChange: (v: T) => void;
-  fullWidth?: boolean;
-}) {
-  return (
-    <div
-      className={cx('neu-recessed inline-flex h-10 rounded-full p-1', fullWidth && 'flex w-full')}
-      role="radiogroup"
-    >
-      {options.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          role="radio"
-          aria-checked={value === o.value}
-          title={o.title}
-          onClick={() => onChange(o.value)}
-          className={cx(
-            'rounded-full px-3.5 text-xs font-semibold transition-colors',
-            fullWidth && 'flex-1',
-            value === o.value
-              ? 'neu-btn-accent'
-              : 'text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]',
-          )}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function pct(p: number): string {
   if (!Number.isFinite(p)) return '-';
   if (p > 0 && p < 0.001) return '<0.1%';
@@ -204,8 +165,6 @@ export function ModalDialog({
     }
   }, [open]);
 
-  if (!open) return null;
-
   return (
     <dialog
       ref={dialogRef}
@@ -224,29 +183,31 @@ export function ModalDialog({
           e.preventDefault();
         }
       }}
-      className={cx('neu-dialog animate-backdrop', className)}
+      className={cx('neu-dialog', open && 'animate-backdrop', className)}
     >
-      <div
-        ref={frameRef}
-        className={cx(
-          'flex min-h-full w-full justify-center',
-          variant === 'sheet'
-            ? 'items-end sm:items-center sm:p-4'
-            : 'items-center p-3 sm:p-6',
-        )}
-      >
+      {open && (
         <div
+          ref={frameRef}
           className={cx(
-            'neu-dialog-panel w-full text-left touch-pan-y overscroll-contain',
+            'flex min-h-full w-full justify-center',
             variant === 'sheet'
-              ? 'animate-sheet-up max-h-[88vh] overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 sm:rounded-3xl sm:p-6'
-              : 'animate-pop-in my-auto rounded-3xl p-5 sm:p-7',
-            panelClassName,
+              ? 'items-end sm:items-center sm:p-4'
+              : 'items-center p-3 sm:p-6',
           )}
         >
-          {children}
+          <div
+            className={cx(
+              'neu-dialog-panel w-full text-left touch-pan-y overscroll-contain',
+              variant === 'sheet'
+                ? 'animate-sheet-up max-h-[88vh] overflow-y-auto rounded-t-3xl px-4 pt-3 pb-7 sm:rounded-3xl sm:p-6'
+                : 'animate-pop-in my-auto rounded-3xl p-5 sm:p-7',
+              panelClassName,
+            )}
+          >
+            {children}
+          </div>
         </div>
-      </div>
+      )}
     </dialog>
   );
 }

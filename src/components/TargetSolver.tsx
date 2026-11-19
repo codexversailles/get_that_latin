@@ -1,5 +1,5 @@
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { HONOR_TIERS, formatGwa, solveTarget, type Ledger, type SolverResult } from '../engine';
+import { HONOR_TIERS, formatGwa, formatRequiredAverage, solveTarget, type Ledger, type SolverResult } from '../engine';
 import { Panel, cx } from './ui';
 
 function describeStatus(
@@ -25,7 +25,7 @@ function describeStatus(
         detail:
           r.remainingUnits > 0
             ? `Any passing grade (up to 3.00) across your remaining ${r.remainingUnits.toFixed(0)} units keeps you in ${label}.`
-            : `All 4 years are graded and your final GWA qualifies for ${label}.`,
+            : `All ${gradedYearsCount} years are graded and your final GWA qualifies for ${label}.`,
         tone: 'text-[var(--neu-accent)]',
         reachable: true,
       };
@@ -41,9 +41,10 @@ function describeStatus(
         yearsWithSubjectsCount > 0 && yearsWithSubjectsCount < 4
           ? ` (Only ${yearsWithSubjectsCount} of 4 years added so far; add remaining years for full graduation accuracy.)`
           : '';
+      const reqStr = formatRequiredAverage(r.requiredAverage);
       return {
-        badge: `Avg ≤ ${formatGwa(r.requiredAverage, 2)}`,
-        detail: `Need at least a ${formatGwa(r.requiredAverage, 2)} average (≈ straight ${r.requiredStep?.toFixed(2)}s) across ${r.remainingUnits.toFixed(0)} ungraded units.${partialNote}`,
+        badge: `Avg ≤ ${reqStr}`,
+        detail: `Need at least a ${reqStr} average (≈ straight ${r.requiredStep?.toFixed(2)}s) across ${r.remainingUnits.toFixed(0)} ungraded units.${partialNote}`,
         tone: 'text-[var(--neu-ink)]',
         reachable: true,
       };
@@ -58,7 +59,7 @@ function describeStatus(
     case 'MISSED':
       return {
         badge: 'Above cutoff',
-        detail: 'Final GWA across all 4 years is above this cutoff.',
+        detail: `Final GWA across all ${gradedYearsCount} years is above this cutoff.`,
         tone: 'text-[var(--neu-warn)]',
         reachable: false,
       };

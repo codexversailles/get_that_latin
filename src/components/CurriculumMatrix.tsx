@@ -10,7 +10,6 @@ import {
   ChevronUp,
   Lightbulb,
   Plus,
-  Search,
   Trash2,
   X,
 } from 'lucide-react';
@@ -51,6 +50,11 @@ export const GRADE_OPTIONS: Array<{ label: string; shortLabel: string; value: st
 ];
 
 const UNIT_OPTIONS = [1, 1.5, 2, 3, 4, 5, 6, 9];
+
+function unitOptionsFor(current: number): number[] {
+  if (UNIT_OPTIONS.includes(current)) return UNIT_OPTIONS;
+  return [...UNIT_OPTIONS, current].sort((a, b) => a - b);
+}
 
 function stateToValue(g: GradeState | undefined): string {
   if (g === null || g === undefined) return '';
@@ -102,6 +106,11 @@ const SubjectRow = memo(function SubjectRow({
                 NSTP
               </span>
             )}
+            {typeof sub.whatIf === 'number' && typeof sub.grade !== 'number' && (
+              <span className="neu-recessed rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold text-[var(--neu-accent)]">
+                What-If: {sub.whatIf.toFixed(2)}
+              </span>
+            )}
           </div>
         </div>
 
@@ -134,9 +143,18 @@ const SubjectRow = memo(function SubjectRow({
         </div>
 
         <div className="flex items-center gap-2">
+          {typeof sub.whatIf === 'number' && typeof sub.grade !== 'number' && (
+            <span
+              title="Active What-If test grade"
+              className="neu-recessed hidden shrink-0 rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold text-[var(--neu-accent)] xl:inline-flex"
+            >
+              What-If {sub.whatIf.toFixed(2)}
+            </span>
+          )}
+
           <button
             type="button"
-            aria-pressed={sub.isNstp}
+            aria-pressed={!!sub.isNstp}
             onClick={() =>
               dispatch({ type: 'updateSubject', subId: sub.id, patch: { isNstp: !sub.isNstp } })
             }
@@ -172,7 +190,7 @@ const SubjectRow = memo(function SubjectRow({
             }
             className="neu-recessed h-8 shrink-0 rounded-full px-3 font-mono text-xs text-[var(--neu-ink)]"
           >
-            {UNIT_OPTIONS.map((u) => (
+            {unitOptionsFor(sub.units).map((u) => (
               <option key={u} value={u} className="bg-[var(--neu-bg)] text-[var(--neu-ink)]">
                 {u} {u === 1 ? 'unit' : 'units'}
               </option>
@@ -308,8 +326,6 @@ function SemesterBlock({
   sem,
   canRemove,
   mode,
-  searchQuery,
-  statusFilter,
   dispatch,
   onMobileEdit,
 }: {
@@ -317,8 +333,6 @@ function SemesterBlock({
   sem: StudentSemester;
   canRemove: boolean;
   mode: HonorsMode;
-  searchQuery: string;
-  statusFilter: 'ALL' | 'GRADED' | 'UNGRADED';
   dispatch: Dispatch;
   onMobileEdit: (sub: StudentSubject) => void;
 }) {
@@ -326,18 +340,6 @@ function SemesterBlock({
   const [collapsed, setCollapsed] = useState(false);
   const summary = studentSemSummary(sem, mode);
   const dl = summary.deansList;
-
-  const q = searchQuery.trim().toLowerCase();
-  const filteredSubjects = sem.subjects.filter((sub) => {
-    if (q && !sub.name.toLowerCase().includes(q)) return false;
-    if (statusFilter === 'GRADED' && typeof sub.grade !== 'number') return false;
-    if (statusFilter === 'UNGRADED' && typeof sub.grade === 'number') return false;
-    return true;
-  });
-
-  if ((q || statusFilter !== 'ALL') && filteredSubjects.length === 0) {
-    return null;
-  }
 
   return (
     <div className="border-t border-[var(--neu-border)] first:border-t-0">
@@ -402,9 +404,9 @@ function SemesterBlock({
             </div>
           )}
 
-          {filteredSubjects.length > 0 ? (
+          {sem.subjects.length > 0 ? (
             <div>
-              {filteredSubjects.map((sub) => (
+              {sem.subjects.map((sub) => (
                 <SubjectRow
                   key={sub.id}
                   sub={sub}
@@ -446,9 +448,6 @@ export function CurriculumMatrix({
   const [activeYearId, setActiveYearId] = useState<string | 'ALL'>('ALL');
   const [collapsedYears, setCollapsedYears] = useState<Record<string, boolean>>({});
   const [tipDismissed, setTipDismissed] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'GRADED' | 'UNGRADED'>('ALL');
   const [fabOpen, setFabOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
 
@@ -555,7 +554,7 @@ export function CurriculumMatrix({
       )}
 
       {/* Top Year Tabs Bar + Desktop Actions */}
-      <div className="mb-5 space-y-3 border-b border-[var(--neu-border)] pb-3.5">
+      <div className="mb-5 border-b border-[var(--neu-border)] pb-3.5">
         <div className="flex items-center justify-between gap-2.5">
           <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-2.5 overflow-x-auto px-1 py-1.5">
             {years.length > 1 && (
@@ -594,30 +593,6 @@ export function CurriculumMatrix({
           </div>
 
           <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
-            <button
-              type="button"
-              onClick={() => {
-                setSearchOpen((v) => {
-                  if (v) {
-                    setSearchQuery('');
-                    setStatusFilter('ALL');
-                  }
-                  return !v;
-                });
-              }}
-              aria-expanded={searchOpen}
-              aria-label="Search and filter subjects"
-              title="Search and filter subjects"
-              className={cx(
-                'inline-flex h-9 w-9 items-center justify-center rounded-full',
-                searchOpen || searchQuery || statusFilter !== 'ALL'
-                  ? 'neu-pressed text-[var(--neu-accent)]'
-                  : 'neu-btn text-[var(--neu-ink)]',
-              )}
-            >
-              <Search size={14} aria-hidden="true" />
-            </button>
-
             <Button
               onClick={() => dispatch({ type: 'addYear' })}
               title="Add another Academic Year"
@@ -628,72 +603,12 @@ export function CurriculumMatrix({
             </Button>
           </div>
         </div>
-
-        {/* Expandable Search Input + Status Filter Chips */}
-        {searchOpen && (
-          <div className="animate-pop-in flex flex-col gap-2.5 pt-1 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search
-                size={13}
-                aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[var(--neu-ink-muted)]"
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search subject name (e.g. IT 111, Calculus)..."
-                aria-label="Search subjects"
-                autoFocus
-                className="neu-recessed h-10 w-full rounded-full pr-10 pl-9 text-base text-[var(--neu-ink)] placeholder:text-[var(--neu-ink-subtle)] sm:text-xs"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setStatusFilter('ALL');
-                  setSearchOpen(false);
-                }}
-                aria-label="Close search"
-                title="Close search"
-                className="absolute top-1/2 right-1.5 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--neu-ink-muted)] hover:text-[var(--neu-ink)]"
-              >
-                <X size={14} aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto px-1 py-1">
-              {(
-                [
-                  { id: 'ALL', label: 'All Subjects' },
-                  { id: 'GRADED', label: 'Graded' },
-                  { id: 'UNGRADED', label: 'Ungraded' },
-                ] as const
-              ).map((chip) => (
-                <button
-                  key={chip.id}
-                  type="button"
-                  aria-pressed={statusFilter === chip.id}
-                  onClick={() => setStatusFilter(chip.id)}
-                  className={cx(
-                    'h-8 shrink-0 rounded-full px-3 text-[11px] font-semibold',
-                    statusFilter === chip.id
-                      ? 'neu-pressed text-[var(--neu-accent)]'
-                      : 'neu-btn text-[var(--neu-ink-muted)]',
-                  )}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Year Cards */}
       {visibleYears.map((y) => {
         const ySum = studentYearSummary(y, mode);
-        const yearCollapsed = !!collapsedYears[y.id] && !searchQuery && statusFilter === 'ALL';
+        const yearCollapsed = !!collapsedYears[y.id];
         return (
           <section key={y.id} className="neu-card mb-6 overflow-hidden rounded-3xl">
             <header className="flex items-center justify-between gap-2 border-b border-[var(--neu-border)] px-4 py-2.5 sm:px-5 sm:py-3">
@@ -757,8 +672,6 @@ export function CurriculumMatrix({
                     sem={sem}
                     canRemove={y.semesters.length > 1}
                     mode={mode}
-                    searchQuery={searchQuery}
-                    statusFilter={statusFilter}
                     dispatch={dispatch}
                     onMobileEdit={openMobileEdit}
                   />
@@ -787,22 +700,6 @@ export function CurriculumMatrix({
             <div className="fixed right-4 bottom-20 z-50 flex flex-col items-end gap-3">
               {fabOpen && (
                 <div className="mb-1 flex flex-col items-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFabOpen(false);
-                      setSearchOpen(true);
-                    }}
-                    className="animate-speed-dial-3 group flex items-center gap-3"
-                  >
-                    <span className="neu-card rounded-full px-3.5 py-1.5 text-xs font-semibold text-[var(--neu-ink)]">
-                      Search
-                    </span>
-                    <span className="neu-btn flex h-11 w-11 items-center justify-center rounded-full text-[var(--neu-accent)]">
-                      <Search size={18} aria-hidden="true" />
-                    </span>
-                  </button>
-
                   <button
                     type="button"
                     onClick={() => {
@@ -842,7 +739,7 @@ export function CurriculumMatrix({
                 onClick={() => setFabOpen((v) => !v)}
                 aria-expanded={fabOpen}
                 aria-label={fabOpen ? 'Close quick actions' : 'Open quick actions'}
-                title="Add Subject, Add Year, or Search"
+                title="Add Subject or Add Year"
                 className={cx(
                   'neu-btn-accent inline-flex h-14 w-14 items-center justify-center rounded-full transition-transform duration-200',
                   fabOpen && 'rotate-45',
@@ -938,7 +835,7 @@ export function CurriculumMatrix({
                   Academic Units
                 </legend>
                 <div className="grid grid-cols-4 gap-2">
-                  {UNIT_OPTIONS.map((u) => {
+                  {unitOptionsFor(editingSub.units).map((u) => {
                     const selected = editingSub.units === u;
                     return (
                       <button
@@ -976,7 +873,7 @@ export function CurriculumMatrix({
                 <button
                   type="button"
                   role="switch"
-                  aria-checked={editingSub.isNstp}
+                  aria-checked={!!editingSub.isNstp}
                   aria-label="NSTP or non-academic subject"
                   onClick={() =>
                     dispatch({

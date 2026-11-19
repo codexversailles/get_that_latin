@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { HonorsMode, StudentYear } from '../engine';
+import { isValidGrade, isValidPassingGrade, type HonorsMode, type StudentYear } from '../engine';
 
 export const STORAGE_KEY = 'getthatlatin_records_v1';
 
@@ -41,32 +41,40 @@ export const DEFAULT_STATE: AppState = {
   settings: { honorsMode: 'academic', target: 1.75, sim: DEFAULT_SIM },
 };
 
-const GradeValue = z.union([z.number(), z.literal('INC'), z.literal('IP'), z.null()]);
+const ValidGradeNumber = z.number().refine(isValidGrade, {
+  message: 'Grade must be on the 1.00–3.00 (0.25 step) or 5.00 scale',
+});
+
+const ValidWhatIfNumber = z.number().refine(isValidPassingGrade, {
+  message: 'What-If grade must be on the 1.00–3.00 (0.25 step) scale',
+});
+
+const GradeValue = z.union([ValidGradeNumber, z.literal('INC'), z.literal('IP'), z.null()]);
 
 const SubjectSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   name: z.string(),
   units: z.number().positive(),
   grade: GradeValue.default(null),
-  whatIf: z.number().nullable().optional(),
+  whatIf: ValidWhatIfNumber.nullable().optional(),
   isNstp: z.boolean().optional(),
 });
 
 const SemesterSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   name: z.string(),
   subjects: z.array(SubjectSchema),
 });
 
 const YearSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   label: z.string(),
-  semesters: z.array(SemesterSchema),
+  semesters: z.array(SemesterSchema).min(1),
 });
 
 export const AppStateSchema = z.object({
   version: z.literal(2),
-  years: z.array(YearSchema),
+  years: z.array(YearSchema).min(1),
   settings: z.object({
     honorsMode: z.enum(['academic', 'institutional']),
     target: z.number().min(1).max(3),
@@ -82,14 +90,7 @@ export const AppStateSchema = z.object({
 export function parseState(raw: unknown): AppState | null {
   const r = AppStateSchema.safeParse(raw);
   if (!r.success) return null;
-  const data = r.data as AppState;
-  return {
-    ...data,
-    settings: {
-      ...data.settings,
-      honorsMode: 'academic',
-    },
-  };
+  return r.data as AppState;
 }
 
 export function hasSavedRecords(s: AppState): boolean {

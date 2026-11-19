@@ -24,7 +24,6 @@ export function ProbabilityPanel({
 }: {
   result: SimResult | null;
   busy: boolean;
-  viaWorker?: boolean;
   moments: Moments;
   sim: SimSettings;
   onSim: (p: Partial<SimSettings>) => void;
@@ -35,8 +34,9 @@ export function ProbabilityPanel({
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const missingYears = yearsEntered > 0 && yearsEntered < 4 ? 4 - yearsEntered : 0;
+  const hasSimulation = !!result && result.runs > 0;
 
-  const probs: Array<[string, string, number]> = result
+  const probs: Array<[string, string, number]> = hasSimulation
     ? [
         [HONOR_TIERS[0].label, '1.00–1.25', result.pSumma],
         [HONOR_TIERS[1].label, '1.2501–1.50', result.pMagna],
@@ -76,7 +76,7 @@ export function ProbabilityPanel({
         </div>
       )}
 
-      {result && (
+      {hasSimulation ? (
         <div className="neu-recessed mb-4 flex items-center justify-between rounded-2xl p-3.5">
           <div>
             <div className="text-xs font-semibold text-[var(--neu-ink)]">Overall Honors Chance</div>
@@ -94,6 +94,10 @@ export function ProbabilityPanel({
             {pct(result.pAny)}
           </span>
         </div>
+      ) : (
+        <p className="mb-4 text-xs leading-relaxed text-[var(--neu-ink-muted)]">
+          Add subjects and grades to simulate your graduation GWA distribution and Latin Honors odds.
+        </p>
       )}
 
       <div className="space-y-3">

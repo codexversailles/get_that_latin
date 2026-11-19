@@ -1,5 +1,5 @@
 import { AlertOctagon, Award, CheckCircle2, CircleAlert, SlidersHorizontal } from 'lucide-react';
-import { HONOR_TIERS, classifyGwa, formatGwa, solveTarget, type Ledger } from '../engine';
+import { HONOR_TIERS, classifyGwa, formatGwa, formatRequiredAverage, solveTarget, type Ledger } from '../engine';
 import { Label, cx } from './ui';
 
 export function SummaryStrip({
@@ -32,17 +32,20 @@ export function SummaryStrip({
   if (ledger.hardDisqualified) {
     headline = `A failing grade (5.00) in ${hard.map((d) => d.code).join(', ')} disqualifies Latin Honors eligibility.`;
     headlineTone = 'text-[var(--neu-danger)]';
-  } else if (ledger.totalUnits > 0 && ledger.remainingUnits === 0 && ledger.completedUnits > 0) {
+  } else if (ledger.totalUnits > 0 && ledger.remainingUnits === 0 && ledger.fixedUnits > 0) {
     if (!isGradComplete) {
-      headline = `Only ${gradedYears} of 4 years graded so far (${tier ? `on ${tier.label} pace` : 'currently > 1.75'}). Latin Honors requires all 4 years: add your remaining years and ungraded subjects below to forecast graduation.`;
+      headline =
+        ledger.completedUnits === 0 && ledger.whatIfUnits > 0
+          ? `Simulating ${ledger.whatIfUnits.toFixed(0)} what-if units (${projTier ? `on ${projTier.label} pace` : 'currently > 1.75'}). Record actual grades as they arrive to track official standing.`
+          : `Only ${gradedYears} of 4 years graded so far (${tier ? `on ${tier.label} pace` : 'currently > 1.75'}). Latin Honors requires all 4 years: add your remaining years and ungraded subjects below to forecast graduation.`;
       headlineTone = 'text-[var(--neu-warn)]';
     } else {
       headline = tier
-        ? `All 4 years are graded. Your final GWA qualifies for ${tier.label}.`
-        : 'All 4 years are graded. Final GWA is above the 1.75 Latin Honors cutoff.';
+        ? `All ${gradedYears} years are graded. Your final GWA qualifies for ${tier.label}.`
+        : `All ${gradedYears} years are graded. Final GWA is above the 1.75 Latin Honors cutoff.`;
       headlineTone = tier ? 'text-[var(--neu-accent)]' : 'text-[var(--neu-ink-muted)]';
     }
-  } else if (ledger.completedUnits > 0 && solver.remainingUnits > 0) {
+  } else if (ledger.fixedUnits > 0 && solver.remainingUnits > 0) {
     const partialNote =
       totalYearsEntered < 4
         ? ` (Based on ${totalYearsEntered} of 4 years entered; add remaining years for full graduation accuracy.)`
@@ -51,7 +54,7 @@ export function SummaryStrip({
       headline = `On track for ${goalName}: even 3.00s in your remaining ${solver.remainingUnits.toFixed(0)} units keep you within the cutoff.`;
       headlineTone = 'text-[var(--neu-accent)]';
     } else if (solver.status === 'FEASIBLE' && solver.requiredAverage !== null) {
-      headline = `To reach ${goalName}, maintain an average of ${solver.requiredAverage.toFixed(2)} or better across your ${solver.remainingUnits.toFixed(0)} ungraded units.${partialNote}`;
+      headline = `To reach ${goalName}, maintain an average of ${formatRequiredAverage(solver.requiredAverage)} or better across your ${solver.remainingUnits.toFixed(0)} ungraded units.${partialNote}`;
       headlineTone = 'text-[var(--neu-ink)]';
     } else if (solver.status === 'IMPOSSIBLE' && solver.bestPossibleGwa !== null) {
       headline = `${goalName} (${target.toFixed(2)}) is out of reach on current units: straight 1.00s in your remaining ${solver.remainingUnits.toFixed(0)} units reach ${solver.bestPossibleGwa.toFixed(4)}.${partialNote}`;
@@ -229,8 +232,8 @@ export function SummaryStrip({
               <CheckCircle2 size={12} className="shrink-0 text-[var(--neu-accent)]" aria-hidden="true" />
               <span>
                 {isGradComplete
-                  ? 'All 4 years completed, no 5.00 or INC'
-                  : `Provisional pace (${gradedYears} of 4 yrs graded); full 4-year grades required`}
+                  ? `All ${gradedYears} years completed, no 5.00 or INC`
+                  : `Provisional pace (${gradedYears} of ${Math.max(4, totalYearsEntered)} yrs graded); full curriculum required`}
               </span>
             </div>
           )}
